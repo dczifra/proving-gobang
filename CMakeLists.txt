@@ -6,4 +6,7 @@ set(CMAKE_CXX_STANDARD 14)
 add_custom_target(
     run ALL COMMAND ${CMAKE_COMMAND}
 )
-add_executable(AMOBA src/main.cpp)
+set(CMAKE_CXX_FLAGS "-O3")
+add_executable(AMOBA src/main.cpp src/common.cpp src/heuristic.cpp)
+set(CMAKE_CXX_FLAGS "-g")
+add_executable(AMOBA_DEBUG src/main.cpp src/common.cpp src/heuristic.cpp)

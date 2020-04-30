@@ -1,10 +1,5 @@
 #pragma once
 
-#define ROW 4
-#define COL 12
-#define LINEINROW 7
-#define LAYERNUM 7
-
 #include <array>
 #include <vector>
 #include <iostream>
@@ -13,35 +8,27 @@
 #include <iomanip>
 #include <iostream>
 
-struct Args{
-    int simulationNum = 10000;
-};
+#define ROW 4
+#define COL 12
+#define LINEINROW 7
+#define LAYERNUM 7
 
+#define board_int std::uint64_t
+#define BITSIZE 64
+
+const int ACTION_SIZE = ROW*COL;
+const int MAX_ROUND = ROW*COL;
 
 template<class T>
 using mtx = std::array<std::array<T,ROW>, COL> ;
 using Line = std::vector<std::pair<int,int>>;
 
-template<class T>
-void make_zero(mtx<T>& data){
-    for(int j=0;j<COL;j++){
-        for(int k=0;k<ROW;k++){
-            data[j][k]=0;
-        }
-    }
-}
+struct Board;
+void display(const mtx<int>& board, bool end);
+void display(const Board board, bool end);
+void print_mtx(const std::array<float, ACTION_SIZE>& mtx, int prec=5);
 
 template<class T>
-void print_mtx(mtx<T>& data, int prec=5){
-    std::cout.precision(prec);
-    std::cout << std::fixed;
-    
-    for(int j=0;j<ROW;j++){
-        for(int i=0;i<COL;i++){
-            std::cout<<data[i][j]<<" ";
-        }
-        std::cout<<"\n";
-    }
-}
+void make_zero(mtx<T>& data);
 
-
+unsigned int selectBit(const board_int v, unsigned int r);
