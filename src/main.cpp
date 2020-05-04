@@ -8,17 +8,6 @@ int main() {
     std::cout<<"Proving gobanggame..."<<std::endl;
 
     Heuristic heuristic;
-    auto lines = heuristic.fields_on_compressed_lines;
-
-    //GobangGame game();
-    //for(auto lines: heuristic.lines_per_action[0]){
-    //    for(auto field: lines){
-    //        std::cout<<field.first<<" "<<field.second<<std::endl;
-    //    }
-    //}
-    //for(auto line: heuristic.compressed_lines_per_action[32]){
-    //    display(line, true);
-    //}
 
     Board b;
     int player = 0;
@@ -38,10 +27,6 @@ int main() {
 
         player = 1-player;
     }
-
-    //auto mtx = b.heuristic_mtx(lines);
-    //std::cout<<"www\n";
-    //print_mtx(mtx);
 
     return 0;
 }

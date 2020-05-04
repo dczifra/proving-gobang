@@ -30,8 +30,6 @@ struct Board{
     bool white_win(const std::vector<board_int> & lines){
         for(auto line: lines){
             bool blocked = (line & black);
-            //display(line, true);
-            //std::cout<<__builtin_popcountll(line & white)<<" "<<__builtin_popcountll(line)<<std::endl;
             if(!blocked && (__builtin_popcountll(line & white)==__builtin_popcountll(line))){
                 return true;
             }
