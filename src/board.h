@@ -10,6 +10,10 @@ struct Board{
     board_int black;
 
     Board(){
+        init();
+    }
+
+    inline void init(){
         white = 0;
         black = 0;
     }
@@ -63,17 +67,18 @@ struct Board{
         return act;
     }
 
-    std::array<float, ACTION_SIZE> heuristic_mtx(const std::vector<std::pair<board_int, std::vector<int>>>& lines){
+    std::array<float, ACTION_SIZE> heuristic_mtx(const std::vector<Line_info>& lines){
         // Returns a heuristic value for every possible action
-        std::array<float, ACTION_SIZE> mtx;
+        std::array<float, ACTION_SIZE> mtx= {0};
+        //for(int i=0;i<mtx.size();i++) mtx
 
         for(auto line: lines){
-            bool is_free = !(line.first & black);
+            bool is_free = !(line.line_board & black);
             if(!is_free) continue;
             else{
-                int emptynum = __builtin_popcountll(line.first & white);
-                for(int field: line.second){
-                    mtx[field] = std::pow(2.0,-emptynum);
+                int emptynum = line.size - __builtin_popcountll(line.line_board & white);
+                for(int field: line.points){
+                    mtx[field] += std::pow(2.0,-emptynum);
                 }
             }
         }

@@ -7,7 +7,6 @@
 
 #include "common.h"
 
-
 class Heuristic{
 public:
     std::vector<Line> lines;
@@ -18,7 +17,7 @@ public:
     mtx<std::vector<board_int>> compressed_lines_per_field;
     std::array<std::vector<board_int>, ACTION_SIZE> compressed_lines_per_action;
     // === Containes all lines comprassed, and the points, which lie on the line
-    std::vector<std::pair<board_int, std::vector<int>> > fields_on_compressed_lines;
+    std::vector<Line_info> fields_on_compressed_lines;
 
 public:
     Heuristic(){

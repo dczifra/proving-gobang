@@ -99,13 +99,14 @@ void Heuristic::generate_compressed_lines(){
             board_int action= y*ROW+x;
             board |= (1ULL<<action);
         }
-        fields_on_compressed_lines[i].first = board;
+        fields_on_compressed_lines[i].line_board = board;
+        fields_on_compressed_lines[i].size = lines[i].size();
         
         // === Append board for every field ===
         for(auto field: lines[i]){
             int y = field.first, x = field.second;
             compressed_lines_per_field[y][x].push_back(board);
-            fields_on_compressed_lines[i].second.push_back(y*ROW+x);
+            fields_on_compressed_lines[i].points.push_back(y*ROW+x);
             compressed_lines_per_action[y*ROW+x].push_back(board);
         }
     }

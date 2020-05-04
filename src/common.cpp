@@ -20,7 +20,7 @@ void print_mtx(const std::array<float, ACTION_SIZE>& mtx, int prec){
     
     for(int j=0;j<ROW;j++){
         for(int i=0;i<COL;i++){
-            std::cout<<mtx[j*ROW+i]<<" ";
+            std::cout<<mtx[i*ROW+j]<<" ";
         }
         std::cout<<"\n";
     }

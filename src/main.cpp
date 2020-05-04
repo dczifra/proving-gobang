@@ -8,7 +8,8 @@ int main() {
     std::cout<<"Proving gobanggame..."<<std::endl;
 
     Heuristic heuristic;
-
+    auto lines = heuristic.fields_on_compressed_lines;
+    
     Board b;
     int player = 0;
 
@@ -28,5 +29,8 @@ int main() {
         player = 1-player;
     }
 
+    b.init();
+    auto mtx = b.heuristic_mtx(lines);
+    print_mtx(mtx);
     return 0;
 }

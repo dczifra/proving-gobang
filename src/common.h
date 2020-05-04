@@ -34,3 +34,9 @@ template<class T>
 void make_zero(mtx<T>& data);
 
 unsigned int selectBit(const board_int v, unsigned int r);
+
+struct Line_info{
+    unsigned int size;
+    board_int line_board;
+    std::vector<int> points;
+};
