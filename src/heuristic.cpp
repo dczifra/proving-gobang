@@ -93,20 +93,20 @@ void Heuristic::generate_compressed_lines(){
     fields_on_compressed_lines.resize(lines.size());
     for(int i=0;i<lines.size();i++){
         // === Do the compressed board ===
-        board_int board;
+        board_int board = 0;
         for(auto field: lines[i]){
             int y = field.first, x = field.second;
-            int action = y*ROW+x;
-            board |= (1<<action);
+            board_int action= y*ROW+x;
+            board |= (1ULL<<action);
         }
         fields_on_compressed_lines[i].first = board;
         
         // === Append board for every field ===
-        for(int j=0;j<lines[i].size();j++){
-            int y = lines[i][j].first, x = lines[i][j].second;
+        for(auto field: lines[i]){
+            int y = field.first, x = field.second;
             compressed_lines_per_field[y][x].push_back(board);
-            fields_on_compressed_lines[i].second.push_back(y*COL+x);
-            compressed_lines_per_action[x*COL+x].push_back(board);
+            fields_on_compressed_lines[i].second.push_back(y*ROW+x);
+            compressed_lines_per_action[y*ROW+x].push_back(board);
         }
     }
 }

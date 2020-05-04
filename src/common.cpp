@@ -66,12 +66,23 @@ void display(mtx<int>& board, bool end){
     printf("\033[1A");
 }
 
+void display(const board_int board, bool end){
+    mtx<int> big_board;
+    for(int x=0;x<ROW;x++){
+        for(int y=0;y<COL;y++){
+            int white = (board & ((1ULL)<<(y*ROW+x)))>0;
+            big_board[y][x] = white;
+        }
+    }
+    display(big_board, end);
+}
+
 void display(const Board board, bool end){
     mtx<int> big_board;
     for(int x=0;x<ROW;x++){
         for(int y=0;y<COL;y++){
-            int white = (board.white & ((1UL)<<(y*ROW+x)));
-            int black = (board.black & ((1UL)<<(y*ROW+x)));
+            int white = (board.white & ((1ULL)<<(y*ROW+x)))>0;
+            int black = (board.black & ((1ULL)<<(y*ROW+x)))>0;
             big_board[y][x] = white-black;
         }
     }

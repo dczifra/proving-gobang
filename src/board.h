@@ -15,23 +15,24 @@ struct Board{
     }
 
     inline void move(const int action, const bool player){
-        if(player == 0) white |= ((1)<<action);
-        else black |= ((1)<<action);
+        if(player == 0) white |= ((1ULL)<<action);
+        else black |= ((1ULL)<<action);
     }
     
     inline bool is_valid(const int action){
-        return ~(white | black) & ((1)<<action);
+        return ~(white | black) & ((1ULL)<<action);
     }
 
     inline board_int get_valids(){
-        return ~(white | black);
+        return ~(white | black) & FULL_BOARD;
     }
 
     bool white_win(const std::vector<board_int> & lines){
         for(auto line: lines){
             bool blocked = (line & black);
-            std::cout<<__builtin_popcount(line & white)<<" "<<__builtin_popcount(line)<<std::endl;
-            if(!blocked && (__builtin_popcount(line & white)==__builtin_popcount(line))){
+            //display(line, true);
+            //std::cout<<__builtin_popcountll(line & white)<<" "<<__builtin_popcountll(line)<<std::endl;
+            if(!blocked && (__builtin_popcountll(line & white)==__builtin_popcountll(line))){
                 return true;
             }
         }
@@ -40,7 +41,7 @@ struct Board{
 
     inline bool black_win(){
         // === No free lines ===
-        return __builtin_popcount(white & black) == BITSIZE;
+        return __builtin_popcountll(white & black) == BITSIZE;
     }
 
     // === TODO with saved constatnt array ===
@@ -54,13 +55,12 @@ struct Board{
 
     inline int random_action(){
         board_int valids = get_valids();
-        int one_num =__builtin_popcount(valids);
-        return selectBit(valids, 1 + (rand() % one_num))-1;
+        int number_of_ones =__builtin_popcountll(valids);
+        return selectBit(valids, 1 + (rand() % number_of_ones))-1;
     }
 
     inline int take_random_action(int player){
         int act = random_action();
-        std::cout<<act<<std::endl;
         move(act, player);
         return act;
     }
@@ -73,7 +73,7 @@ struct Board{
             bool is_free = !(line.first & black);
             if(!is_free) continue;
             else{
-                int emptynum = __builtin_popcount(line.first & white);
+                int emptynum = __builtin_popcountll(line.first & white);
                 for(int field: line.second){
                     mtx[field] = std::pow(2.0,-emptynum);
                 }
