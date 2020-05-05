@@ -1,4 +1,4 @@
-#define DEBUG true
+#define DEBUG false
 
 
 #include "common.h"
@@ -36,11 +36,11 @@ int main() {
     
     Board b;
 
-    for(int i=0;i<5;i++){
+    for(int i=0;i<500000;i++){
         b.init();
         int player = 0;
         int win = play(b,player,heuristic);
-        display(b, true);
+        //display(b, true);
     }
 
     b.init();
