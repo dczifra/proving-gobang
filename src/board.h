@@ -12,6 +12,21 @@ struct Board{
     Board(){
         init();
     }
+    Board(const Board& b){
+        white = b.white;
+        black = b.black;
+    }
+    Board(const Board& b, int action, int player){
+        white = b.white;
+        black = b.black;
+        move(action, player);
+    }
+
+    Board& operator=(const Board&& b){
+        white = b.white;
+        black = b.black;
+        return *this;
+    }
 
     inline void init(){
         white = 0;
@@ -44,6 +59,16 @@ struct Board{
     inline bool black_win(){
         // === No free lines ===
         return __builtin_popcountll(white | black) == MAX_ROUND;
+    }
+
+    int get_winner(const std::vector<board_int> & lines){
+        if(white_win(lines)) return 1;
+        else if (black_win())
+        {
+            return -1;
+        }
+        else return 0;
+        
     }
 
     // === TODO with saved constatnt array ===
@@ -84,5 +109,7 @@ struct Board{
         return mtx;
     }
 };
+
+
 
 #endif

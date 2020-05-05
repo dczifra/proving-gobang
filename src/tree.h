@@ -6,11 +6,11 @@
 struct Board;
 
 struct TreeNode{
-    const TreeNode* parent;
+    //const TreeNode* parent;
     TreeNode* children[ACTION_SIZE]={nullptr};
-    float probs[ACTION_SIZE]={0.0};
-    float Q[ACTION_SIZE]={0.0};
-    const Board board;
+    float probs[ACTION_SIZE]={1.0/ACTION_SIZE};
+    float Q[ACTION_SIZE]={0.0}; // No init is neccessary
+    Board board;
 
     int Ns = 0;
     float v=0.0;
