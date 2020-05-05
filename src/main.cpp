@@ -1,8 +1,32 @@
+#define DEBUG true
+
+
 #include "common.h"
 #include "heuristic.h"
 #include "board.h"
 //#include "gobanggame.h"
 #include "MCTS.h"
+
+int play(Board& b, int player, const Heuristic& heuristic){
+    int act;
+    while(1){
+        act = b.take_random_action(player);
+        if(b.white_win(heuristic.compressed_lines_per_action[act])){
+#if DEBUG
+            std::cout<<"\nWhite win";
+#endif
+            return 0;
+        }
+        else if(b.black_win()){
+#if DEBUG
+            std::cout<<"\nBlack win";
+#endif
+            return 1;
+        }
+        player = 1-player;
+        //display(b, false);
+    }
+}
 
 int main() {
     std::cout<<"Proving gobanggame..."<<std::endl;
@@ -11,22 +35,12 @@ int main() {
     auto lines = heuristic.fields_on_compressed_lines;
     
     Board b;
-    int player = 0;
 
-    while(1){
-        int act = b.take_random_action(player);
-        std::cout<<"Action: "<<act<<std::endl;
+    for(int i=0;i<5;i++){
+        b.init();
+        int player = 0;
+        int win = play(b,player,heuristic);
         display(b, true);
-        if(b.white_win(heuristic.compressed_lines_per_action[act])){
-            std::cout<<"White win\n";
-            break;
-        }
-        else if(b.black_win()){
-            std::cout<<"Black win\n";
-            break;
-        }
-
-        player = 1-player;
     }
 
     b.init();

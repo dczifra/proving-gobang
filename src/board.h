@@ -43,7 +43,7 @@ struct Board{
 
     inline bool black_win(){
         // === No free lines ===
-        return __builtin_popcountll(white & black) == BITSIZE;
+        return __builtin_popcountll(white | black) == MAX_ROUND;
     }
 
     // === TODO with saved constatnt array ===
@@ -70,7 +70,6 @@ struct Board{
     std::array<float, ACTION_SIZE> heuristic_mtx(const std::vector<Line_info>& lines){
         // Returns a heuristic value for every possible action
         std::array<float, ACTION_SIZE> mtx= {0};
-        //for(int i=0;i<mtx.size();i++) mtx
 
         for(auto line: lines){
             bool is_free = !(line.line_board & black);
