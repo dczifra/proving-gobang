@@ -28,7 +28,6 @@ struct Board;
 void display(const Board board, bool end);
 void display(const mtx<int>& board, bool end);
 void display(const board_int board, bool end);
-void print_mtx(const std::array<float, ACTION_SIZE>& mtx, int prec=5);
 
 template<class T>
 void make_zero(mtx<T>& data);
@@ -40,3 +39,17 @@ struct Line_info{
     board_int line_board;
     std::vector<int> points;
 };
+
+// === Why cannot put it into the .cpp ??? ===
+template <typename T>
+void print_mtx(T& mtx, int prec=5){
+    std::cout.precision(prec);
+    std::cout << std::fixed;
+    
+    for(int j=0;j<ROW;j++){
+        for(int i=0;i<COL;i++){
+            std::cout<<mtx[i*ROW+j]<<" ";
+        }
+        std::cout<<"\n";
+    }
+}

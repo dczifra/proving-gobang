@@ -14,17 +14,7 @@ void print_mtx(mtx<T>& data, int prec=5){
     }
 }
 
-void print_mtx(const std::array<float, ACTION_SIZE>& mtx, int prec){
-    std::cout.precision(prec);
-    std::cout << std::fixed;
-    
-    for(int j=0;j<ROW;j++){
-        for(int i=0;i<COL;i++){
-            std::cout<<mtx[i*ROW+j]<<" ";
-        }
-        std::cout<<"\n";
-    }
-}
+
 
 void display(mtx<int>& board, bool end){
     const std::string WARNING = "\033[93m";

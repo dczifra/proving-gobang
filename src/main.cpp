@@ -4,7 +4,6 @@
 #include "common.h"
 #include "heuristic.h"
 #include "board.h"
-//#include "gobanggame.h"
 #include "MCTS.h"
 
 int play(Board& b, int player, const Heuristic& heuristic){
@@ -15,22 +14,20 @@ int play(Board& b, int player, const Heuristic& heuristic){
 #if DEBUG
             std::cout<<"\nWhite win";
 #endif
-            return 0;
+            return 1;
         }
         else if(b.black_win()){
 #if DEBUG
             std::cout<<"\nBlack win";
 #endif
-            return 1;
+            return -1;
         }
-        player = 1-player;
+        player = -player;
         //display(b, false);
     }
 }
 
-int main() {
-    std::cout<<"Proving gobanggame..."<<std::endl;
-
+void random_playes(){
     Heuristic heuristic;
     auto lines = heuristic.fields_on_compressed_lines;
     
@@ -38,13 +35,30 @@ int main() {
 
     for(int i=0;i<500000;i++){
         b.init();
-        int player = 0;
+        int player = 1;
         int win = play(b,player,heuristic);
         //display(b, true);
     }
 
     b.init();
-    auto mtx = b.heuristic_mtx(lines);
+    std::array<float, ACTION_SIZE> mtx = b.heuristic_mtx(lines);
     print_mtx(mtx);
+}
+
+int main() {
+    std::cout<<"Proving gobanggame..."<<std::endl;
+
+    Board board;
+    //board.move(0, 1);
+    //board.move(1, -1);
+    //std::cout<<board.is_valid(0)<<std::endl;
+    //std::cout<<board.is_valid(1)<<std::endl;
+    //std::cout<<board.is_valid(3)<<std::endl;
+    //exit(1);
+
+    MCTS mcts;
+    std::vector<int> probs = mcts.get_action_prob(board, 1);
+    print_mtx(probs);
+
     return 0;
 }

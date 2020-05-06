@@ -4,11 +4,12 @@
 #include "tree.h"
 #include "board.h"
 #include "math.h"
+#include "heuristic.h"
 
 #include <map>
 
 struct Args{
-    int simulationNum = 10000;
+    int simulationNum = 100000;
     float cpuct = 1.0;
 };
 
@@ -17,9 +18,9 @@ public:
     MCTS(){}
 
     int play_random(Board& b, int player);
-    float search(TreeNode* node, int curPlayer, int last_action);
     std::vector<int> get_action_prob(Board& b, int curPlayer);
-
+    float search(TreeNode* node, int curPlayer, int last_action);
+    void extend_node(TreeNode*& node, const Board& board, int last_action);
 
 private:
     Args args;

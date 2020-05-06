@@ -33,20 +33,20 @@ struct Board{
         black = 0;
     }
 
-    inline void move(const int action, const bool player){
-        if(player == 0) white |= ((1ULL)<<action);
+    inline void move(const int action, const int player){
+        if(player == 1) white |= ((1ULL)<<action);
         else black |= ((1ULL)<<action);
     }
     
     inline bool is_valid(const int action){
-        return ~(white | black) & ((1ULL)<<action);
+        return !((white | black) & ((1ULL)<<action));
     }
 
     inline board_int get_valids(){
         return ~(white | black) & FULL_BOARD;
     }
 
-    bool white_win(const std::vector<board_int> & lines){
+    bool white_win(const std::vector<board_int> & lines)const {
         for(auto line: lines){
             bool blocked = (line & black);
             if(!blocked && (__builtin_popcountll(line & white)==__builtin_popcountll(line))){
@@ -56,12 +56,12 @@ struct Board{
         return false;
     }
 
-    inline bool black_win(){
+    inline bool black_win() const {
         // === No free lines ===
         return __builtin_popcountll(white | black) == MAX_ROUND;
     }
 
-    int get_winner(const std::vector<board_int> & lines){
+    int get_winner(const std::vector<board_int> & lines) const {
         if(white_win(lines)) return 1;
         else if (black_win())
         {
@@ -92,7 +92,7 @@ struct Board{
         return act;
     }
 
-    std::array<float, ACTION_SIZE> heuristic_mtx(const std::vector<Line_info>& lines){
+    std::array<float, ACTION_SIZE> heuristic_mtx(const std::vector<Line_info>& lines) const{
         // Returns a heuristic value for every possible action
         std::array<float, ACTION_SIZE> mtx= {0};
 
