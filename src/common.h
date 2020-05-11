@@ -9,14 +9,15 @@
 #include <iostream>
 
 #define ROW 4
-#define COL 12
+#define COL 8
 #define LINEINROW 7
 #define LAYERNUM 7
 
-#define board_int std::uint64_t
 #define BITSIZE 64
-#define FULL_BOARD 0x0000ffffffffffffULL
+#define board_int std::uint64_t
+unsigned long long set_full_board();
 
+const unsigned long long FULL_BOARD = set_full_board();
 const int ACTION_SIZE = ROW*COL;
 const int MAX_ROUND = ROW*COL;
 

@@ -3,10 +3,24 @@ project(AMOBA)
 
 set(CMAKE_CXX_STANDARD 17)
 
+file(GLOB FILES src/*.cpp src/*.hpp)
+add_library(mylib ${FILES})
+
 add_custom_target(
     run ALL COMMAND ${CMAKE_COMMAND}
 )
+
+include_directories(src)
+
 set(CMAKE_CXX_FLAGS "-O3")
-add_executable(AMOBA src/main.cpp src/common.cpp src/heuristic.cpp src/MCTS.cpp src/tree.cpp)
+add_executable(AMOBA src/main.cpp)
+
 set(CMAKE_CXX_FLAGS "-g")
-add_executable(AMOBA_DEBUG src/main.cpp src/common.cpp src/heuristic.cpp src/MCTS.cpp src/tree.cpp)
+add_executable(AMOBA_DEBUG src/main.cpp)
+
+set(CMAKE_CXX_FLAGS "-g")
+add_executable(TEST test/test.cpp)
+
+target_link_libraries(AMOBA mylib)
+target_link_libraries(AMOBA_DEBUG mylib)
+target_link_libraries(TEST mylib)

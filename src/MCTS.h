@@ -9,7 +9,7 @@
 #include <map>
 
 struct Args{
-    int simulationNum = 500000;
+    int simulationNum = 50000;
     float cpuct = 1.0;
 };
 

@@ -35,7 +35,10 @@ struct Board{
 
     inline void move(const int action, const int player){
         if(player == 1) white |= ((1ULL)<<action);
-        else black |= ((1ULL)<<action);
+        else if (player == -1) black |= ((1ULL)<<action);
+        else{
+            std::cout<<"Bad player\n";
+        }
     }
     
     inline bool is_valid(const int action){

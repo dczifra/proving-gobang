@@ -5,7 +5,6 @@
 #include "heuristic.h"
 #include "board.h"
 #include "MCTS.h"
-#include "PNS.h"
 
 int play(Board& b, int player, const Heuristic& heuristic){
     int act;
@@ -28,42 +27,27 @@ int play(Board& b, int player, const Heuristic& heuristic){
     }
 }
 
-void random_playes(){
+void random_playes(const Board& basic){
     Heuristic heuristic;
     auto lines = heuristic.fields_on_compressed_lines;
     
-    Board b;
-
-    for(int i=0;i<100000;i++){
-        b.init();
+    int sum =0;
+    for(int i=0;i<1000;i++){
+        Board b(basic);
         int player = 1;
-        int win = play(b,player,heuristic);
+        sum += (1+play(b,player,heuristic))/2;
         //display(b, true);
     }
+    std::cout<<sum<<std::endl;
 
-    b.init();
-    std::array<float, ACTION_SIZE> mtx = b.heuristic_mtx(lines);
-    print_mtx(mtx);
-}
-
-void MCTS_test(){
-    Board board;
-    MCTS mcts;
-    std::vector<int> probs = mcts.get_action_prob(board, 1);
-    print_mtx(probs);
-}
-
-void PNS_test(){
-    Board b;
-
-    PNS tree;
-    PNSNode* node = new PNSNode(b);
-    tree.search(node);
 }
 
 int main() {
-    std::cout<<"Proving gobanggame..."<<std::endl;
+    std::cout<<"=== TEST ==="<<std::endl;
+    Board b;
+    b.move(1,-1);
+    b.move(45,-1);
+    random_playes(b);
 
-    
     return 0;
 }

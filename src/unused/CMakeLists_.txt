@@ -1,0 +1,7 @@
+SET(SOURCE
+./*.cpp
+)
+SET(HEADERS
+    ./*.h
+)
+add_library( src ${SOURCE} ${HEADERS} )

@@ -14,7 +14,11 @@ void print_mtx(mtx<T>& data, int prec=5){
     }
 }
 
-
+unsigned long long set_full_board(){
+    unsigned long long board;
+    for(int i=0;i<ROW*COL;i++) board|=(1ULL<<i);
+    return board;
+}
 
 void display(mtx<int>& board, bool end){
     const std::string WARNING = "\033[93m";

@@ -36,7 +36,7 @@ std::vector<int> MCTS::get_action_prob(Board& b, int curPlayer){
 float MCTS::search(TreeNode* node, int curPlayer, int last_action){
     // === If terminal node, return end-value ===
     //display(node->board, true);
-    std::cout<<std::flush;
+    //std::cout<<std::flush;
     int end_val = node->end;
     if(end_val!=0) return -end_val;
 
@@ -71,8 +71,7 @@ float MCTS::search(TreeNode* node, int curPlayer, int last_action){
             // === Extend Node, and return random play result ===
             extend_node(node->children[action], child_board, action);
 
-            Board temp_board(child_board);
-            v = curPlayer*play_random(temp_board, curPlayer);
+            v = -curPlayer*play_random(child_board, -curPlayer);
             node->children[action]->Ns+=1;
         }
     }
@@ -97,7 +96,7 @@ void MCTS::extend_node(TreeNode*& node, const Board& board, int last_action){
     if(last_action>=0)
         node->end = board.get_winner(heuristic.compressed_lines_per_action[last_action]);
     
-    //node->probs = board.heuristic_mtx(heuristic.fields_on_compressed_lines);
+    node->probs = board.heuristic_mtx(heuristic.fields_on_compressed_lines);
     states[board]=node;
 }
 
@@ -111,7 +110,7 @@ int MCTS::play_random(Board& b, int player){
         else if(b.black_win()){
             return -1;
         }
-        player = 1-player;
+        player = -player;
     }
     std::cerr<<"Game not ended...\n";
     exit(1);
