@@ -1,5 +1,5 @@
 #define DEBUG false
-
+#define TRANSPOSITION_TABLE false
 
 #include "common.h"
 #include "heuristic.h"
@@ -64,6 +64,7 @@ void PNS_test(){
 int main() {
     std::cout<<"Proving gobanggame..."<<std::endl;
 
+    MCTS_test();
     
     return 0;
 }

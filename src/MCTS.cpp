@@ -62,7 +62,7 @@ float MCTS::search(TreeNode* node, int curPlayer, int last_action){
         Board child_board(node->board, action, curPlayer);
 
         // === check wheather child_board already discoverd ===
-        if(states.find(child_board)!=states.end()){
+        if(states.find(child_board)!=states.end() && 0){
             node->children[action] = states[child_board];
             // === Go on with search ===
             v = search(node->children[action], -curPlayer, action);
