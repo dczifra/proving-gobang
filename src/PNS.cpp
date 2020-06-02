@@ -14,9 +14,11 @@ void PNS::search(PNSNode* node){
 
         unsigned int sum = 0;
         for(int i=0;i<ACTION_SIZE;i++){
+            if(!node->board.is_valid(i)) continue;
+            
             unsigned int child_pn = node->children[i]->pn;
-            sum += node->children[i]->dn;
-            if(child_pn < min && valid()){
+            sum += node->children[i]->dn; // dn == infty ???
+            if(child_pn < min ){
                 min = child_pn;
                 min_ind2 = min_ind;
                 min_ind = i;

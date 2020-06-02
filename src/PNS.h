@@ -6,9 +6,14 @@ enum NodeType : uint8_t {OR, AND};
 
 struct PNSNode{
 
-    PNSNode(const Board& b):children(), board(b){}
+    PNSNode(const Board& b):children(), board(b){
+        for(int i=0;i<ACTION_SIZE;i++){
+            Nsa[i]=0;
+        }
+    }
 
     PNSNode* children[ACTION_SIZE];
+    int Nsa[ACTION_SIZE];
     Board board;
 
     unsigned int pn = 1;

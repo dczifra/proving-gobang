@@ -4,6 +4,7 @@
 #include "common.h"
 #include "heuristic.h"
 #include "board.h"
+#include "testboard.h"
 #include "MCTS.h"
 #include "PNS.h"
 
@@ -54,17 +55,48 @@ void MCTS_test(){
 }
 
 void PNS_test(){
-    Board b;
+    Test_Board b;
 
     PNS tree;
     PNSNode* node = new PNSNode(b);
     tree.search(node);
 }
 
+void human_play(){
+    Heuristic heuristic;
+    auto lines = heuristic.fields_on_compressed_lines;
+    
+    Board b;
+    int act;
+    int player = 1;
+    while(1){
+        if(player == 1){
+            std::cin>>act;
+            b.move(act, player);
+        }
+        else{
+            act = b.take_random_action(player);
+        }
+        if(b.white_win(heuristic.compressed_lines_per_action[act])){
+            printf("White win\n");
+            break;
+        }
+        else if(b.black_win()){
+            printf("Black win\n");
+            break;
+        }
+        player = -player;
+        display(b, false);
+    }
+    display(b, true);
+}
+
 int main() {
     std::cout<<"Proving gobanggame..."<<std::endl;
 
-    MCTS_test();
+    //MCTS_test();
+    //human_play();
+    PNS_test();
     
     return 0;
 }
