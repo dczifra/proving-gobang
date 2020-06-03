@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <cstdint>
 #include <math.h>
+#include <cmath>
 
 struct Board{
     board_int white;
@@ -41,7 +42,7 @@ struct Board{
         }
     }
     
-    inline bool is_valid(const int action){
+    inline bool is_valid(const int action) const{
         return !((white | black) & ((1ULL)<<action));
     }
 

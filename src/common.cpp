@@ -37,7 +37,7 @@ void display(mtx<int>& board, bool end){
     }
     printf("\n");
     
-    printf(" +========================+\n");
+    printf(" +%s+\n",std::string(2*COL,'=').c_str());
     for(int x =0;x<ROW;x++){
         printf("%d|",x);
         for(int y =0;y<COL;y++){
@@ -54,7 +54,7 @@ void display(mtx<int>& board, bool end){
         }
         printf("|\n");
     }
-    printf(" +========================+\n");
+    printf(" +%s+\n",std::string(2*COL,'=').c_str());
     if (!end) printf("\033[%dA",back_step);
     printf("                           \n");
     printf("\033[1A");

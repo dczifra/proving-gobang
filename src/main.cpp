@@ -55,11 +55,22 @@ void MCTS_test(){
 }
 
 void PNS_test(){
-    Test_Board b;
-
+    Board b;
+    b.move(1,1);
+    b.move(4,-1);
+    b.move(9,1);
     PNS tree;
-    PNSNode* node = new PNSNode(b);
-    tree.search(node);
+    PNSNode* node = new PNSNode(b, OR);
+//tree.search(node);
+    //std::cout<<node->pn<<" "<<node->dn<<std::endl;
+    
+    for(int i=0;i<10000000;i++){
+        tree.search(node);
+        //std::cout<<"=================="<<i<<"===========\n";
+        if(i%10000 == 0) std::cout<<node->pn<<" "<<node->dn<<std::endl;
+        if(node->pn*node->dn==0) break;
+    }
+    std::cout<<node->pn<<" "<<node->dn<<std::endl;
 }
 
 void human_play(){

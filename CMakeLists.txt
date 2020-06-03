@@ -6,10 +6,6 @@ set(CMAKE_CXX_STANDARD 17)
 file(GLOB FILES src/*.cpp src/*.hpp)
 add_library(mylib ${FILES})
 
-add_custom_target(
-    run ALL COMMAND ${CMAKE_COMMAND}
-)
-
 include_directories(src)
 
 set(CMAKE_CXX_FLAGS "-O3")
