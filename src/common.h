@@ -9,7 +9,7 @@
 #include <iostream>
 
 #define ROW 4
-#define COL 4
+#define COL 6
 #define LINEINROW 7
 #define LAYERNUM 7
 

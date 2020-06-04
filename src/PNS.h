@@ -8,6 +8,7 @@
 enum NodeType : uint8_t {OR, AND};
 enum ProofType: uint8_t {PN, DN};
 
+int get_player(const NodeType& type);
 
 struct PNSNode{
 

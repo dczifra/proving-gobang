@@ -54,23 +54,51 @@ void MCTS_test(){
     print_mtx(probs);
 }
 
+void play_with_tree(PNSNode* node, PNS tree){
+
+    int player = get_player(node->type);
+    PNSNode* act_node = node;
+    int act = -1;
+    while(1){
+        if(player == -1){
+            std::cin>>act;
+            act_node = act_node->children[act];
+            //b.move(act, player);
+        }
+        else{
+            ProofType p;
+            act = tree.get_min_children(act_node, PN, true);
+            act_node = act_node->children[act];
+        }
+        if(act_node->board.white_win(tree.lines(act))){
+            printf("White win\n");
+            break;
+        }
+        else if(act_node->board.black_win()){
+            printf("Black win\n");
+            break;
+        }
+        player = -player;
+        display(act_node->board, false);
+    }
+    display(act_node->board, true);
+}
+
 void PNS_test(){
     Board b;
-    b.move(1,1);
-    b.move(4,-1);
-    b.move(9,1);
+    //b.move(1,1);
+    //b.move(4,-1);
+    //b.move(7,1);
     PNS tree;
     PNSNode* node = new PNSNode(b, OR);
-//tree.search(node);
-    //std::cout<<node->pn<<" "<<node->dn<<std::endl;
     
     for(int i=0;i<10000000;i++){
         tree.search(node);
-        //std::cout<<"=================="<<i<<"===========\n";
         if(i%10000 == 0) std::cout<<node->pn<<" "<<node->dn<<std::endl;
         if(node->pn*node->dn==0) break;
     }
     std::cout<<node->pn<<" "<<node->dn<<std::endl;
+    play_with_tree(node, tree);
 }
 
 void human_play(){
