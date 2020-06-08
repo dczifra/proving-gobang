@@ -11,7 +11,6 @@ enum ProofType: uint8_t {PN, DN};
 int get_player(const NodeType& type);
 
 struct PNSNode{
-
     PNSNode(const Board& b, NodeType t):children(), board(b), type(t){
         unsigned int sum = 0;
         for(int i=0;i<ACTION_SIZE;i++){
@@ -43,7 +42,7 @@ public:
     void extend(PNSNode* node, unsigned int action);
     unsigned int get_min_children(PNSNode* node, const ProofType type, bool index);
     unsigned int get_sum_children(PNSNode* node, const ProofType type);
-    inline std::vector<board_int> lines(unsigned int action){
+    inline std::vector<board_int> get_lines(unsigned int action){
         return heuristic.compressed_lines_per_action[action];
     }
     bool valid(){return true;}

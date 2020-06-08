@@ -61,7 +61,7 @@ void PNS::extend(PNSNode* node, unsigned int action){
     NodeType t = !(node->type);
     node->children[action] = new PNSNode(next_state, t);
 
-    if((node->type == OR) && next_state.white_win(lines(action))){
+    if((node->type == OR) && next_state.white_win(get_lines(action))){
         node->children[action]->pn = 0;
         node->children[action]->dn = UINT_MAX;
         //display(node->children[action]->board, true);
