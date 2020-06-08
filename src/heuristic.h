@@ -7,6 +7,10 @@
 
 #include "common.h"
 
+
+using Line = std::vector<std::pair<int,int>>;
+
+
 class Heuristic{
 public:
     std::vector<Line> lines;

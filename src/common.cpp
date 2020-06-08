@@ -1,5 +1,6 @@
 #include "common.h"
 #include "board.h"
+#include "heuristic.h"
 
 template<class T>
 void print_mtx(mtx<T>& data, int prec=5){
@@ -83,14 +84,6 @@ void display(const Board board, bool end){
     display(big_board, end);
 }
 
-template<class T>
-void make_zero(mtx<T>& data){
-    for(int j=0;j<COL;j++){
-        for(int k=0;k<ROW;k++){
-            data[j][k]=0;
-        }
-    }
-}
 
 unsigned int selectBit(const board_int v, unsigned int r) {
     // Source: https://graphics.stanford.edu/~seander/bithacks.html

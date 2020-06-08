@@ -45,19 +45,22 @@ void play_with_tree(PNSNode* node, PNS tree){
 
 void PNS_test(){
     Board b;
-    b.move(0,1);
-    b.move(4,-1);
-    b.move(19,1);
+    //b.move(0,1);
+    //b.move(4,-1);
+    //b.move(19,1);
 
     PNS tree;
-    PNSNode* node = new PNSNode(b, AND);
+    PNSNode* node = new PNSNode(b, OR);
     
     for(int i=0;i<10000000;i++){
         tree.search(node);
-        if(i%10000 == 0) std::cout<<node->pn<<" "<<node->dn<<std::endl;
+        if(i%10000 == 0){
+            std::cout<<"\r"<<node->pn<<" "<<node->dn<<std::flush;
+        }
+
         if(node->pn*node->dn==0) break;
     }
-    std::cout<<node->pn<<" "<<node->dn<<std::endl;
+    std::cout<<"                    \r"<<node->pn<<" "<<node->dn<<std::endl;
     play_with_tree(node, tree);
 }
 

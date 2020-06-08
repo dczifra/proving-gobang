@@ -1,6 +1,14 @@
 #include "heuristic.h"
 #include "common.h"
 
+template<class T>
+void make_zero(mtx<T>& data){
+    for(int j=0;j<COL;j++){
+        for(int k=0;k<ROW;k++){
+            data[j][k]=0;
+        }
+    }
+}
 
 template<class T>
 std::array<mtx<T>, LAYERNUM+1> Heuristic::get_layers(mtx<int>& board){

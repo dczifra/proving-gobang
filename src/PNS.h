@@ -1,3 +1,4 @@
+#pragma once
 #include "common.h"
 #include "board.h"
 #include "limits.h"
@@ -11,22 +12,7 @@ enum ProofType: uint8_t {PN, DN};
 int get_player(const NodeType& type);
 
 struct PNSNode{
-    PNSNode(const Board& b, NodeType t):children(), board(b), type(t){
-        unsigned int sum = 0;
-        for(int i=0;i<ACTION_SIZE;i++){
-            if(b.is_valid(i)) ++sum;
-        }
-
-        // === Init proof and disploof number ===
-        if(sum == 0){ // Game if over, black wins
-            pn = UINT_MAX;
-            dn = 0;
-        }
-        else{
-            pn = (t==OR ? 1:sum);
-            dn = (t==AND ? 1:sum);
-        }
-    }
+    PNSNode(const Board& b, NodeType t);
 
     PNSNode* children[ACTION_SIZE];
     Board board;
@@ -45,7 +31,6 @@ public:
     inline std::vector<board_int> get_lines(unsigned int action){
         return heuristic.compressed_lines_per_action[action];
     }
-    bool valid(){return true;}
 
 private :
     std::map<Board, PNSNode*> states;

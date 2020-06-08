@@ -6,6 +6,9 @@
 #include <math.h>
 #include <cmath>
 
+
+bool operator<(const Board& b1, const Board& b2);
+
 struct Board{
     board_int white;
     board_int black;
