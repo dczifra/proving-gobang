@@ -52,7 +52,7 @@ void PNS_test(){
     PNS tree;
     PNSNode* node = new PNSNode(b, OR);
     
-    for(int i=0;i<10000000;i++){
+    for(int i=0;i<100000000;i++){
         tree.search(node);
         if(i%10000 == 0){
             std::cout<<"\r"<<node->pn<<" "<<node->dn<<std::flush;

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(AMOBA)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 
 file(GLOB FILES src/*.cpp src/*.hpp)
 add_library(mylib ${FILES})

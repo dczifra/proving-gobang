@@ -6,6 +6,7 @@
 #include <math.h>
 #include <cmath>
 
+#include "common.h"
 
 bool operator<(const Board& b1, const Board& b2);
 
