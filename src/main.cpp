@@ -1,6 +1,10 @@
 #define DEBUG false
 #define TRANSPOSITION_TABLE false
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <fstream>
+
 #include "common.h"
 #include "heuristic.h"
 #include "board.h"
@@ -51,17 +55,25 @@ void PNS_test(){
 
     PNS tree;
     PNSNode* node = new PNSNode(b, OR);
+    tree.add_state(b,node);
     
-    for(int i=0;i<100000000;i++){
+    unsigned int i = 0;
+    while(1){
         tree.search(node);
         if(i%10000 == 0){
             std::cout<<"\r"<<node->pn<<" "<<node->dn<<std::flush;
         }
-
         if(node->pn*node->dn==0) break;
+        i++;
     }
     std::cout<<"                    \r"<<node->pn<<" "<<node->dn<<std::endl;
-    play_with_tree(node, tree);
+    
+    std::string filename("../data/"+std::to_string(ROW)+"x"+std::to_string(COL)+".csv");
+    //tree.log_solution(filename);
+    std::ofstream logfile(filename);
+    tree.log_solution_min(node, logfile);
+    
+    //play_with_tree(node, tree);
 }
 
 int main() {
