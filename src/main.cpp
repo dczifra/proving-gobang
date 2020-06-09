@@ -80,6 +80,10 @@ int main() {
 
     //MCTS_test();
     PNS_test();
+    Board b;
+    b.move(1,1);
+    //b.flip();
+    display(b, true);
     
     return 0;
 }

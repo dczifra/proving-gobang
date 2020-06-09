@@ -12,7 +12,7 @@
 //                BOARD INFOS
 // ============================================
 #define ROW 4
-#define COL 7
+#define COL 6
 #define LINEINROW 7
 #define LAYERNUM 7
 
@@ -21,8 +21,10 @@
 unsigned long long set_full_board();
 
 const unsigned long long FULL_BOARD = set_full_board();
-const int ACTION_SIZE = ROW*COL;
-const int MAX_ROUND = ROW*COL;
+const unsigned int ACTION_SIZE = ROW*COL;
+const unsigned int MAX_ROUND = ROW*COL;
+// The number of bits need to be moved back after flip board:
+const unsigned int FLIP_SIZE = BITSIZE-ACTION_SIZE;
 
 // ============================================
 //                DISPLAY
@@ -43,6 +45,7 @@ struct Line_info{
     std::vector<int> points;
 };
 unsigned int selectBit(const board_int v, unsigned int r);
+unsigned int flip_bit(board_int val);
 
 
 // === Why cannot we put it into the .cpp ??? ===

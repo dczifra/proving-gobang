@@ -38,6 +38,7 @@ struct Board{
         black = 0;
     }
 
+    // === ACTION FUNCTIONS ===
     inline void move(const int action, const int player){
         if(player == 1) white |= ((1ULL)<<action);
         else if (player == -1) black |= ((1ULL)<<action);
@@ -45,7 +46,19 @@ struct Board{
             std::cout<<"Bad player\n";
         }
     }
-    
+
+    inline int random_action(){
+        board_int valids = get_valids();
+        int number_of_ones =__builtin_popcountll(valids);
+        return selectBit(valids, 1 + (rand() % number_of_ones))-1;
+    }
+
+    inline int take_random_action(int player){
+        int act = random_action();
+        move(act, player);
+        return act;
+    }
+
     inline bool is_valid(const int action) const{
         return !((white | black) & ((1ULL)<<action));
     }
@@ -54,6 +67,7 @@ struct Board{
         return ~(white | black) & FULL_BOARD;
     }
 
+    // === GAME OVER FUNCTIONS===
     bool white_win(const std::vector<board_int> & lines)const {
         for(auto line: lines){
             bool blocked = (line & black);
@@ -69,10 +83,10 @@ struct Board{
         return __builtin_popcountll(white | black) == MAX_ROUND;
     }
 
-    inline bool black_win_nolines(const std::vector<board_int> & all_lines) const {
-        // === No free lines ===
-        return no_free_lines(all_lines);
-    }
+    //inline bool black_win_nolines(const std::vector<board_int> & all_lines) const {
+    //    // === No free lines ===
+    //    return no_free_lines(all_lines);
+    //}
 
     int get_winner(const std::vector<board_int> & lines) const {
         if(white_win(lines)) return 1;
@@ -84,7 +98,7 @@ struct Board{
         
     }
 
-    // === TODO with saved constatnt array ===
+    // === TODO with saved constant array ===
     bool no_free_lines(const std::vector<board_int>& all_lines) const{
         for(auto line: all_lines){
             bool is_free = !(line & black);
@@ -93,18 +107,15 @@ struct Board{
         return true;
     }
 
-    inline int random_action(){
-        board_int valids = get_valids();
-        int number_of_ones =__builtin_popcountll(valids);
-        return selectBit(valids, 1 + (rand() % number_of_ones))-1;
+    void flip(){
+        //board_int w = (~white)>>FLIP_SIZE;
+        //board_int b = (~black)>>FLIP_SIZE;
+        white = static_cast<board_int>(flip_bit(white))>>FLIP_SIZE;
+        black = static_cast<board_int>(flip_bit(black))>>FLIP_SIZE;
     }
 
-    inline int take_random_action(int player){
-        int act = random_action();
-        move(act, player);
-        return act;
-    }
 
+    // === Policy ===
     std::array<float, ACTION_SIZE> heuristic_mtx(const std::vector<Line_info>& lines) const{
         // Returns a heuristic value for every possible action
         std::array<float, ACTION_SIZE> mtx= {0};
