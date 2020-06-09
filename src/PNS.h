@@ -40,6 +40,10 @@ public:
     inline std::vector<board_int> get_lines(unsigned int action){
         return heuristic.compressed_lines_per_action[action];
     }
+    
+    inline std::vector<board_int> get_all_lines(){
+        return heuristic.all_compressed_lines;
+    }
 
 private :
     std::map<Board, PNSNode*> states;

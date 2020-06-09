@@ -72,7 +72,6 @@ void PNS_test(){
     //tree.log_solution(filename);
     std::ofstream logfile(filename);
     tree.log_solution_min(node, logfile);
-    
     //play_with_tree(node, tree);
 }
 

@@ -65,8 +65,13 @@ struct Board{
     }
 
     inline bool black_win() const {
-        // === No free lines ===
+        // === No free field ===
         return __builtin_popcountll(white | black) == MAX_ROUND;
+    }
+
+    inline bool black_win_nolines(const std::vector<board_int> & all_lines) const {
+        // === No free lines ===
+        return no_free_lines(all_lines);
     }
 
     int get_winner(const std::vector<board_int> & lines) const {
@@ -80,7 +85,7 @@ struct Board{
     }
 
     // === TODO with saved constatnt array ===
-    bool no_free_lines(const std::vector<board_int>& all_lines){
+    bool no_free_lines(const std::vector<board_int>& all_lines) const{
         for(auto line: all_lines){
             bool is_free = !(line & black);
             if(is_free) return false;

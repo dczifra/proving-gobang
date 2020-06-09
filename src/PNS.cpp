@@ -24,7 +24,7 @@ PNSNode::PNSNode(const Board& b, NodeType t):children(), board(b), type(t){
     }
 
     // === Init proof and disploof number ===
-    if(sum == 0){ // Game if over, black wins
+    if(sum == 0){ // Game is over, black wins
         pn = UINT_MAX;
         dn = 0;
     }
@@ -91,6 +91,10 @@ void PNS::extend(PNSNode* node, unsigned int action){
             node->children[action]->pn = 0;
             node->children[action]->dn = UINT_MAX;
             //display(node->children[action]->board, true);
+        }
+        else if((node->type == AND) && next_state.no_free_lines(get_all_lines())){
+            node->children[action]->pn = UINT_MAX;
+            node->children[action]->dn = 0;
         }
         states[next_state] = node->children[action];
     }
