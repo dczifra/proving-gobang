@@ -81,9 +81,17 @@ unsigned int PNS::get_sum_children(PNSNode* node, const ProofType type){
 
 void PNS::extend(PNSNode* node, unsigned int action){
     Board next_state(node->board, action, get_player(node->type));
+    //Board reversed(next_state);
+    //reversed.flip();
 
     // === Find next_state in discovered states ===
-    if(states.find(next_state) == states.end()){
+    if(states.find(next_state) != states.end()){
+        node->children[action] = states[next_state];
+    }
+    //else if ( states.find(reversed) != states.end()){
+    //    node->children[action] = states[reversed];
+    //}
+    else{
         NodeType t = !(node->type);
         node->children[action] = new PNSNode(next_state, t);
 
@@ -98,9 +106,7 @@ void PNS::extend(PNSNode* node, unsigned int action){
         }
         states[next_state] = node->children[action];
     }
-    else{
-        node->children[action] = states[next_state];
-    }
+
 }
 
 void PNS::search(PNSNode* node){

@@ -108,10 +108,27 @@ struct Board{
     }
 
     void flip(){
-        //board_int w = (~white)>>FLIP_SIZE;
-        //board_int b = (~black)>>FLIP_SIZE;
-        white = static_cast<board_int>(flip_bit(white))>>FLIP_SIZE;
-        black = static_cast<board_int>(flip_bit(black))>>FLIP_SIZE;
+        board_int w=0,b=0;
+        board_int col = 0x0f;
+
+        for(int i=0;i<COL;i++){
+            board_int old_w = (white & (col<<(4*i)));
+            board_int old_b = (black & (col<<(4*i)));
+            int move = (COL-2*(i+1)+1)*4;
+            if(move>=0){
+                w |= (old_w<<move);
+                b |= (old_b<<move);
+            }
+            else{
+                move = -move;
+                w |= (old_w>>move);
+                b |= (old_b>>move);
+            }
+        }
+        white = w;
+        black = b;
+        //white = static_cast<board_int>(flip_bit(white))>>FLIP_SIZE;
+        //black = static_cast<board_int>(flip_bit(black))>>FLIP_SIZE;
     }
 
 
