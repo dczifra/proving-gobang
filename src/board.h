@@ -122,7 +122,7 @@ struct Board{
             else{
                 int emptynum = line.second - __builtin_popcountll(line.first & white);
                 sum += std::pow(2.0,-emptynum);
-                if(sum>1.0) return false;
+                if(sum>=1.0) return false;
             }
         }
         return true;
