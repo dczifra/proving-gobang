@@ -41,7 +41,7 @@ public:
         return heuristic.compressed_lines_per_action[action];
     }
     
-    inline std::vector<board_int> get_all_lines(){
+    inline std::vector<std::pair<board_int, unsigned int>> get_all_lines(){
         return heuristic.all_compressed_lines;
     }
 

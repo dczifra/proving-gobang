@@ -99,10 +99,24 @@ struct Board{
     }
 
     // === TODO with saved constant array ===
-    bool no_free_lines(const std::vector<board_int>& all_lines) const{
+    bool no_free_lines(const std::vector<std::pair<board_int, unsigned int>>& all_lines) const{
         for(auto line: all_lines){
-            bool is_free = !(line & black);
+            bool is_free = !(line.first & black);
             if(is_free) return false;
+        }
+        return true;
+    }
+
+    bool heuristic_stop(const std::vector<std::pair<board_int, unsigned int>>& all_lines) const{
+        double sum = 0;
+        for(auto line: all_lines){
+            bool is_free = !(line.first & black);
+            if(!is_free) continue;
+            else{
+                int emptynum = line.second - __builtin_popcountll(line.first & white);
+                sum += std::pow(2.0,-emptynum);
+                if(sum>1.0) return false;
+            }
         }
         return true;
     }

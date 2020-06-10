@@ -100,7 +100,6 @@ void Heuristic::generate_compressed_lines(){
     lines_per_action.resize(ROW*COL);
     fields_on_compressed_lines.resize(lines.size());
     all_compressed_lines.resize(lines.size());
-
     for(int i=0;i<lines.size();i++){
         // === Do the compressed board ===
         board_int board = 0;
@@ -111,7 +110,8 @@ void Heuristic::generate_compressed_lines(){
         }
         fields_on_compressed_lines[i].line_board = board;
         fields_on_compressed_lines[i].size = lines[i].size();
-        all_compressed_lines[i]=board;
+        
+        all_compressed_lines[i]={board,lines[i].size()};
         
         // === Append board for every field ===
         for(auto field: lines[i]){

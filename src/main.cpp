@@ -49,12 +49,12 @@ void play_with_tree(PNSNode* node, PNS tree){
 
 void PNS_test(){
     Board b;
-    //b.move(0,1);
-    //b.move(4,-1);
-    //b.move(19,1);
+    b.move(0,1);
+    b.move(1,-1);
+    b.move(27,1);
 
     PNS tree;
-    PNSNode* node = new PNSNode(b, OR);
+    PNSNode* node = new PNSNode(b, AND);
     tree.add_state(b,node);
     
     unsigned int i = 0;

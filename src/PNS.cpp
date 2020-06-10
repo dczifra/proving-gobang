@@ -98,9 +98,10 @@ void PNS::extend(PNSNode* node, unsigned int action){
         if((node->type == OR) && next_state.white_win(get_lines(action))){
             node->children[action]->pn = 0;
             node->children[action]->dn = UINT_MAX;
-            //display(node->children[action]->board, true);
         }
-        else if((node->type == AND) && next_state.no_free_lines(get_all_lines())){
+        //else if((node->type == AND) && next_state.black_win(get_all_lines())){
+        //else if((node->type == AND) && next_state.no_free_lines(get_all_lines())){
+        else if((node->type == AND) && next_state.heuristic_stop(get_all_lines())){
             node->children[action]->pn = UINT_MAX;
             node->children[action]->dn = 0;
         }

@@ -18,7 +18,7 @@ public:
     std::vector<std::vector<Line>> lines_per_action;
 
     // === Containes all lines comprassed in line ===
-    std::vector<board_int> all_compressed_lines;
+    std::vector<std::pair<board_int, unsigned int> > all_compressed_lines;
     mtx<std::vector<board_int>> compressed_lines_per_field;
     std::array<std::vector<board_int>, ACTION_SIZE> compressed_lines_per_action;
     // === Containes all lines comprassed, and the points, which lie on the line
