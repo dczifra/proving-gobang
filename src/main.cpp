@@ -47,14 +47,21 @@ void play_with_tree(PNSNode* node, PNS tree){
     display(act_node->board, true);
 }
 
+NodeType choose_problem(Board& b, int& player){
+    //b.move({0,1,27}, player);
+    //b.move({0,1,23}, player);
+
+    return (player==1?OR:AND);
+}
+
 void PNS_test(){
     Board b;
-    b.move(0,1);
-    b.move(1,-1);
-    b.move(27,1);
+    int player = 1;
+    
+    NodeType starter = choose_problem(b,player);
 
     PNS tree;
-    PNSNode* node = new PNSNode(b, AND);
+    PNSNode* node = new PNSNode(b, starter);
     tree.add_state(b,node);
     
     unsigned int i = 0;
@@ -69,7 +76,6 @@ void PNS_test(){
     std::cout<<"                    \r"<<node->pn<<" "<<node->dn<<std::endl;
     
     std::string filename("../data/"+std::to_string(ROW)+"x"+std::to_string(COL)+".csv");
-    //tree.log_solution(filename);
     std::ofstream logfile(filename);
     tree.log_solution_min(node, logfile);
     //play_with_tree(node, tree);

@@ -47,6 +47,13 @@ struct Board{
         }
     }
 
+    inline void move(std::vector<int> actions, int& player){
+        for(auto& act: actions){
+            move(act, player);
+            player = -player;
+        }
+    }
+
     inline int random_action(){
         board_int valids = get_valids();
         int number_of_ones =__builtin_popcountll(valids);
