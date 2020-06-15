@@ -149,16 +149,16 @@ void PNS::search(PNSNode* node){
 }
 
 void PNS::delete_node(PNSNode* node){
-    for(int i=0;i<ACTION_SIZE;i++){
-        if((!node->board.is_valid(i)) || (node->children[i] == nullptr)) continue;
-
-        node->children[i]->parent_num -= 1;
-        if(!(node->children[i]->pn == 0 || node->children[i]->dn == 0) && node->children[i]->parent_num == 0){
-            delete_node(node->children[i]);
-        }
-    }
-
     if(!(node->pn == 0 || node->dn == 0) && node->parent_num == 0){
+        for(int i=0;i<ACTION_SIZE;i++){
+            if((!node->board.is_valid(i)) || (node->children[i] == nullptr)) continue;
+
+            node->children[i]->parent_num -= 1;
+            if(!(node->children[i]->pn == 0 || node->children[i]->dn == 0) && node->children[i]->parent_num == 0){
+                delete_node(node->children[i]);
+            }
+        }
+        
         //display(node->board, true);
         delete node;
         node = nullptr;
