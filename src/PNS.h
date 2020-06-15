@@ -19,17 +19,17 @@ struct PNSNode{
 
     unsigned int pn = 1;
     unsigned int dn = 1;
+    unsigned int parent_num = 1;
     NodeType type;
 };
 
 class PNS{
 public:
     void search(PNSNode* node);
+    void delete_node(PNSNode* node);
     void extend(PNSNode* node, unsigned int action);
     unsigned int get_min_children(PNSNode* node, const ProofType type, bool index);
     unsigned int get_sum_children(PNSNode* node, const ProofType type);
-
-
 
     // === Helper Functions ===
     void log_solution(std::string filename);

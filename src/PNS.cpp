@@ -87,9 +87,12 @@ void PNS::extend(PNSNode* node, unsigned int action){
     // === Find next_state in discovered states ===
     if(states.find(next_state) != states.end()){
         node->children[action] = states[next_state];
+        node->children[action] -> parent_num += 1;
     }
+    // === Find next_state in reversed discovered states ===
     else if ( states.find(reversed) != states.end()){
         node->children[action] = states[reversed];
+        node->children[action] -> parent_num += 1;
     }
     else{
         NodeType t = !(node->type);
@@ -136,6 +139,29 @@ void PNS::search(PNSNode* node){
         // === Update PN and DN in node ===
         node->pn = get_sum_children(node, PN);
         node->dn = get_min_children(node, DN);
+    }
+
+    // If PN or DN is 0, delete all unused descendants
+    if(node->pn == 0 || node->dn ==0){
+        node->parent_num -= 1;
+        delete_node(node);
+    }
+}
+
+void PNS::delete_node(PNSNode* node){
+    for(int i=0;i<ACTION_SIZE;i++){
+        if((!node->board.is_valid(i)) || (node->children[i] == nullptr)) continue;
+
+        node->children[i]->parent_num -= 1;
+        if(!(node->children[i]->pn == 0 || node->children[i]->dn == 0) && node->children[i]->parent_num == 0){
+            delete_node(node->children[i]);
+        }
+    }
+
+    if(!(node->pn == 0 || node->dn == 0) && node->parent_num == 0){
+        //display(node->board, true);
+        delete node;
+        node = nullptr;
     }
 }
 
