@@ -125,6 +125,8 @@ struct Board{
                 if(sum>=1.0) return false;
             }
         }
+
+        // The sum is under 1, the game is over
         return true;
     }
 

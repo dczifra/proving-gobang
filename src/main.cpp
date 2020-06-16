@@ -21,7 +21,7 @@ void MCTS_test(){
 
 void play_with_tree(PNSNode* node, PNS tree){
     int player = get_player(node->type);
-    const int human_player = -player;
+    const int human_player = (node->pn == 0?-1:1);
     PNSNode* act_node = node;
     int act = -1;
     while(1){
@@ -37,6 +37,8 @@ void play_with_tree(PNSNode* node, PNS tree){
 
         // === Check game over ===
         if(act_node->board.get_winner(tree.get_lines(act))){
+        //if((act_node->type == AND) && act_node->board.heuristic_stop(tree.get_all_lines()) || 
+        //        act_node->board.get_winner(tree.get_lines(act))){
             printf("Game over (Winner: %s)\n", (player==1)?"white":"black");
             break;
         }
@@ -78,18 +80,19 @@ void PNS_test(){
     std::string filename("../data/"+std::to_string(ROW)+"x"+std::to_string(COL)+".csv");
     std::ofstream logfile(filename);
     tree.log_solution_min(node, logfile);
+    tree.stats();
     //play_with_tree(node, tree);
 }
 
 int main() {
     std::cout<<"Proving gobanggame..."<<std::endl;
 
-    //MCTS_test();
     PNS_test();
-    Board b;
-    b.move(1,1);
+    
+    //Board b;
+    //b.move(1,1);
     //b.flip();
-    display(b, true);
+    //display(b, true);
     
     return 0;
 }

@@ -32,6 +32,8 @@ PNSNode::PNSNode(const Board& b, NodeType t):children(), board(b), type(t){
         pn = (t==OR ? 1:sum);
         dn = (t==AND ? 1:sum);
     }
+
+    parent_num = 1;
 }
 
 inline unsigned int get_child_value(PNSNode* child_node, const ProofType type){
@@ -90,7 +92,7 @@ void PNS::extend(PNSNode* node, unsigned int action){
         node->children[action] -> parent_num += 1;
     }
     // === Find next_state in reversed discovered states ===
-    else if ( states.find(reversed) != states.end()){
+    else if (states.find(reversed) != states.end()){
         node->children[action] = states[reversed];
         node->children[action] -> parent_num += 1;
     }
@@ -123,6 +125,7 @@ void PNS::search(PNSNode* node){
 
         if(min_ind == (-1)) 0; // 
         else if(node->children[min_ind] == nullptr) extend(node, min_ind);
+        else if (node->children[min_ind]->pn == 0 || node->children[min_ind]->dn == 0) 0;
         else search(node->children[min_ind]);
         // === Update PN and DN in node ===
         node->pn = get_min_children(node, PN);
@@ -135,6 +138,7 @@ void PNS::search(PNSNode* node){
 
         if(min_ind == (-1)) 0;
         else if(node->children[min_ind] == nullptr) extend(node, min_ind);
+        else if (node->children[min_ind]->pn == 0 || node->children[min_ind]->dn == 0) 0;
         else search(node->children[min_ind]);
         // === Update PN and DN in node ===
         node->pn = get_sum_children(node, PN);
@@ -142,28 +146,59 @@ void PNS::search(PNSNode* node){
     }
 
     // If PN or DN is 0, delete all unused descendants
-    if(node->pn == 0 || node->dn ==0){
-        node->parent_num -= 1;
-        delete_node(node);
+    if((node->pn == 0 || node->dn == 0) &&  node->parent_num > 0){
+        assert(node != nullptr);
+        delete_node(node, false);
     }
 }
 
-void PNS::delete_node(PNSNode* node){
-    if(!(node->pn == 0 || node->dn == 0) && node->parent_num == 0){
-        for(int i=0;i<ACTION_SIZE;i++){
-            if((!node->board.is_valid(i)) || (node->children[i] == nullptr)) continue;
-
-            node->children[i]->parent_num -= 1;
-            if(!(node->children[i]->pn == 0 || node->children[i]->dn == 0) && node->children[i]->parent_num == 0){
-                delete_node(node->children[i]);
-            }
+void PNS::delete_node(PNSNode* node, bool recursive = false){
+    if(node == nullptr || node->parent_num>1){
+        return;
+    }
+    else{
+        unsigned int min_ind = -1;
+        if( ((node->type == OR) && (node->pn == 0)) ||
+            ((node->type == AND) && (node->dn==0))){
+            ProofType proof_type = (node->pn == 0 ? PN:DN);
+            unsigned int min_ind = get_min_children(node, proof_type, true);
         }
-        
-        //display(node->board, true);
-        delete node;
-        node = nullptr;
+
+        for(int i=0;i<ACTION_SIZE;i++){
+            if(!node->board.is_valid(i) || node->children[i]==nullptr) continue;
+
+            if((i != min_ind && node->type == OR) || recursive){
+                node->children[i]->parent_num -= 1;
+                delete_node(node->children[i], false);
+                node->children[i]=nullptr;
+            }
+            
+
+        }
+
+        if(node->parent_num == 0){
+            states.erase(node->board);
+            delete node;
+        }
     }
 }
+/*
+void PNS::delete_node(PNSNode* node){
+    assert(node != nullptr);
+
+    for(int i=0;i<ACTION_SIZE;i++){
+        if((!node->board.is_valid(i)) || (node->children[i] == nullptr)) continue;
+
+        delete_node(node->children[i]);
+    }
+
+    node->parent_num -= 1;
+    if((node->pn != 0 && node->dn != 0) && node->parent_num <= 0){
+        states.erase(node->board);
+        delete node;
+        //node = nullptr;
+    }
+}*/
 
 // === Helper Functions ===
 void PNS::log_solution(std::string filename){

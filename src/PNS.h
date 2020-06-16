@@ -26,7 +26,7 @@ struct PNSNode{
 class PNS{
 public:
     void search(PNSNode* node);
-    void delete_node(PNSNode* node);
+    void delete_node(PNSNode* node, bool recursive);
     void extend(PNSNode* node, unsigned int action);
     unsigned int get_min_children(PNSNode* node, const ProofType type, bool index);
     unsigned int get_sum_children(PNSNode* node, const ProofType type);
@@ -44,6 +44,8 @@ public:
     inline std::vector<std::pair<board_int, unsigned int>> get_all_lines(){
         return heuristic.all_compressed_lines;
     }
+
+    void stats(){std::cout<<"States: "<<states.size()<<"\n";}
 
 private :
     std::map<Board, PNSNode*> states;
