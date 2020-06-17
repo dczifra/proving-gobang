@@ -118,14 +118,14 @@ void PNS::extend(PNSNode* node, unsigned int action){
 void PNS::search(PNSNode* node){
     assert(node != nullptr);
     //display(node->board, true);
+    if(node->pn == 0 || node->dn == 0) return;
 
     if(node->type == OR){ // === OR  node ===
         unsigned int min_ind = get_min_children(node, PN, true);
         assert(min_ind>=0);
 
-        if(min_ind == (-1)) 0; // 
+        if(min_ind == (-1)) 0;
         else if(node->children[min_ind] == nullptr) extend(node, min_ind);
-        else if (node->children[min_ind]->pn == 0 || node->children[min_ind]->dn == 0) 0;
         else search(node->children[min_ind]);
         // === Update PN and DN in node ===
         node->pn = get_min_children(node, PN);
@@ -138,7 +138,7 @@ void PNS::search(PNSNode* node){
 
         if(min_ind == (-1)) 0;
         else if(node->children[min_ind] == nullptr) extend(node, min_ind);
-        else if (node->children[min_ind]->pn == 0 || node->children[min_ind]->dn == 0) 0;
+        //else if (node->children[min_ind]->pn == 0 || node->children[min_ind]->dn == 0) 0;
         else search(node->children[min_ind]);
         // === Update PN and DN in node ===
         node->pn = get_sum_children(node, PN);
@@ -158,36 +158,22 @@ void PNS::delete_node(PNSNode* node, bool recursive = false){
         return;
     }
     else if (node->parent_num == 1){
-        unsigned int min_ind = -1;
         if( ((node->type == OR) && (node->pn == 0)) ||
-            ((node->type == AND) && (node->dn==0))){
+            ((node->type == AND) && (node->dn==0)) || recursive){
+
             ProofType proof_type = (node->pn == 0 ? PN:DN);
-            min_ind = get_min_children(node, proof_type, true);
-        }
+            unsigned int min_ind = get_min_children(node, proof_type, true);
 
-        if(recursive || (min_ind <= ACTION_SIZE)){
             for(int i=0;i<ACTION_SIZE;i++){
-                if(!node->board.is_valid(i) || node->children[i]==nullptr) continue;
-
-                if(min_ind == i){
-                    // Keep all descendents, this is an important node
-                    continue;
-                }
+                if( (!node->board.is_valid(i)) || (node->children[i]==nullptr) || (min_ind == i && !recursive)) continue;
                 else{
-                    node->children[i]->parent_num -= 1;
                     delete_node(node->children[i], true);
                     node->children[i]=nullptr;
                 }
             }
-            //Rekursive: 
-            //    for()...
-            //       delete_node(recursive=true)
-            //Min ind:
-            //    for()...
-            //        if(min_ind) continue;
-            //        delete_node(recursive = true)
         }
         else{
+            //printf("skip\n");
             // Keep all descendents, and skip
         }
 
