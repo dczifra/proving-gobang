@@ -8,16 +8,7 @@
 #include "common.h"
 #include "heuristic.h"
 #include "board.h"
-#include "MCTS.h"
 #include "PNS.h"
-
-
-void MCTS_test(){
-    Board board;
-    MCTS mcts;
-    std::vector<int> probs = mcts.get_action_prob(board, 1);
-    print_mtx(probs);
-}
 
 void play_with_tree(PNSNode* node, PNS tree){
     int player = get_player(node->type);

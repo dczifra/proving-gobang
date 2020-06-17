@@ -26,8 +26,8 @@ struct PNSNode{
 class PNS{
 public:
     void search(PNSNode* node);
-    void delete_node(PNSNode* node, bool recursive);
     void extend(PNSNode* node, unsigned int action);
+    void delete_node(PNSNode* node, bool unused_branch);
     unsigned int get_min_children(PNSNode* node, const ProofType type, bool index);
     unsigned int get_sum_children(PNSNode* node, const ProofType type);
 

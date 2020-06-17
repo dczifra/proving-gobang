@@ -1,9 +1,5 @@
 #include "MCTS.h"
 
-bool operator<(const Board& b1, const Board& b2) {
-    return b1.white<b2.white || (b1.white == b2.white && b1.black<b2.black);
-}
-
 std::vector<int> MCTS::get_action_prob(Board& b, int curPlayer){
     // Dont call for endGame positions ===
     // TODO handle situation

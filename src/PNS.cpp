@@ -122,7 +122,6 @@ void PNS::search(PNSNode* node){
 
     if(node->type == OR){ // === OR  node ===
         unsigned int min_ind = get_min_children(node, PN, true);
-        assert(min_ind>=0);
 
         if(min_ind == (-1)) 0;
         else if(node->children[min_ind] == nullptr) extend(node, min_ind);
@@ -134,11 +133,9 @@ void PNS::search(PNSNode* node){
     }
     else{                 // === AND node ===
         unsigned int min_ind = get_min_children(node, DN, true);
-        assert(min_ind>=0);
 
         if(min_ind == (-1)) 0;
         else if(node->children[min_ind] == nullptr) extend(node, min_ind);
-        //else if (node->children[min_ind]->pn == 0 || node->children[min_ind]->dn == 0) 0;
         else search(node->children[min_ind]);
         // === Update PN and DN in node ===
         node->pn = get_sum_children(node, PN);
@@ -152,32 +149,31 @@ void PNS::search(PNSNode* node){
     }
 }
 
-void PNS::delete_node(PNSNode* node, bool recursive = false){
+void PNS::delete_node(PNSNode* node, bool unused_brach = false){
     if(node->parent_num>1){
         node->parent_num -= 1;
         return;
     }
     else if (node->parent_num == 1){
+        // === In this case, we need max 1 branch ===
         if( ((node->type == OR) && (node->pn == 0)) ||
-            ((node->type == AND) && (node->dn==0)) || recursive){
-
+            ((node->type == AND) && (node->dn==0)) || unused_brach){
+            
             ProofType proof_type = (node->pn == 0 ? PN:DN);
             unsigned int min_ind = get_min_children(node, proof_type, true);
 
             for(int i=0;i<ACTION_SIZE;i++){
-                if( (!node->board.is_valid(i)) || (node->children[i]==nullptr) || (min_ind == i && !recursive)) continue;
+                if((!node->board.is_valid(i)) || (node->children[i]==nullptr) || (min_ind == i && !unused_brach)) continue;
                 else{
                     delete_node(node->children[i], true);
                     node->children[i]=nullptr;
                 }
             }
         }
-        else{
-            //printf("skip\n");
-            // Keep all descendents, and skip
-        }
+        // ELSE: we keep all children
 
-        if(recursive){
+        // === Delete only on unused brach
+        if(unused_brach){
             node->parent_num -= 1;
             states.erase(node->board);
             delete node;

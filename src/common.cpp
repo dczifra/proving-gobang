@@ -2,6 +2,10 @@
 #include "board.h"
 #include "heuristic.h"
 
+bool operator<(const Board& b1, const Board& b2) {
+    return b1.white<b2.white || (b1.white == b2.white && b1.black<b2.black);
+}
+
 template<class T>
 void print_mtx(mtx<T>& data, int prec=5){
     std::cout.precision(prec);

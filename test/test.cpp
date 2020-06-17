@@ -4,7 +4,6 @@
 #include "common.h"
 #include "heuristic.h"
 #include "board.h"
-#include "MCTS.h"
 
 // =================================================================
 //                     TEST THE BOARD's GOODNESS
