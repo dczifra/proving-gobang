@@ -10,7 +10,7 @@
 #include "board.h"
 #include "PNS.h"
 
-void play_with_tree(PNSNode* node, PNS tree){
+void play_with_tree(PNSNode* node, const PNS& tree){
     int player = get_player(node->type);
     const int human_player = (node->pn == 0?-1:1);
     PNSNode* act_node = node;
@@ -72,7 +72,7 @@ void PNS_test(){
     std::ofstream logfile(filename);
     tree.log_solution_min(node, logfile);
     tree.stats();
-    play_with_tree(node, tree);
+    //play_with_tree(node, tree);
 }
 
 int main() {

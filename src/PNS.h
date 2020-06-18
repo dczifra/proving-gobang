@@ -15,7 +15,7 @@ struct PNSNode{
     PNSNode(const Board& b, NodeType t);
 
     PNSNode* children[ACTION_SIZE];
-    Board board;
+    const Board board;
 
     unsigned int pn = 1;
     unsigned int dn = 1;
@@ -25,19 +25,22 @@ struct PNSNode{
 
 class PNS{
 public:
+    ~PNS(){free_states();}
     void search(PNSNode* node);
-    void extend(PNSNode* node, unsigned int action);
-    void delete_node(PNSNode* node, bool unused_branch);
-    unsigned int get_min_children(PNSNode* node, const ProofType type, bool index);
-    unsigned int get_sum_children(PNSNode* node, const ProofType type);
+    void extend(PNSNode* node, const unsigned int action);
+    void delete_all(PNSNode* node);
+    void delete_node(PNSNode* node);
+    unsigned int get_min_children(PNSNode* node, const ProofType type, bool index) const;
+    unsigned int get_sum_children(PNSNode* node, const ProofType type) const;
 
     // === Helper Functions ===
     void log_solution(std::string filename);
     void log_solution_min(PNSNode* node, std::ofstream& file);
     void read_solution(std::string filename);
     void add_state(Board& b, PNSNode* node);
+    void free_states();
 
-    inline std::vector<board_int> get_lines(unsigned int action){
+    inline std::vector<board_int> get_lines(unsigned int action) const{
         return heuristic.compressed_lines_per_action[action];
     }
     
@@ -45,7 +48,9 @@ public:
         return heuristic.all_compressed_lines;
     }
 
-    void stats(){std::cout<<"States: "<<states.size()<<"\n";}
+    void stats(){
+        std::cout<<"States: "<<states.size()<<"\n";
+    }
 
 private :
     std::map<Board, PNSNode*> states;

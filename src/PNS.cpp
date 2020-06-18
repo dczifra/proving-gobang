@@ -5,10 +5,6 @@
 #include "assert.h"
 #include "common.h"
 
-//bool operator<(const Board& b1, const Board& b2){
-//    return (b1.white<b2.white) || (b1.white == b2.white && b1.black<b2.black);
-//}
-
 NodeType operator!(const NodeType& type){
     return (type==OR?AND:OR);
 }
@@ -48,7 +44,7 @@ inline unsigned int get_child_value(PNSNode* child_node, const ProofType type){
     }
 }
 
-unsigned int PNS::get_min_children(PNSNode* node, const ProofType type, bool index = false){
+unsigned int PNS::get_min_children(PNSNode* node, const ProofType type, bool index = false) const{
     unsigned int min = UINT_MAX;
     unsigned int min_ind = -1;
 
@@ -67,7 +63,7 @@ unsigned int PNS::get_min_children(PNSNode* node, const ProofType type, bool ind
     else return min;
 }
 
-unsigned int PNS::get_sum_children(PNSNode* node, const ProofType type){
+unsigned int PNS::get_sum_children(PNSNode* node, const ProofType type) const{
     unsigned int sum = 0;
 
     for(int i=0;i<ACTION_SIZE;i++){
@@ -81,8 +77,8 @@ unsigned int PNS::get_sum_children(PNSNode* node, const ProofType type){
     return sum;
 }
 
-void PNS::extend(PNSNode* node, unsigned int action){
-    Board next_state(node->board, action, get_player(node->type));
+void PNS::extend(PNSNode* node, const unsigned int action){
+    const Board next_state(node->board, action, get_player(node->type));
     Board reversed(next_state);
     reversed.flip();
 
@@ -117,13 +113,12 @@ void PNS::extend(PNSNode* node, unsigned int action){
 
 void PNS::search(PNSNode* node){
     assert(node != nullptr);
-    //display(node->board, true);
     if(node->pn == 0 || node->dn == 0) return;
 
     if(node->type == OR){ // === OR  node ===
         unsigned int min_ind = get_min_children(node, PN, true);
 
-        if(min_ind == (-1)) 0;
+        if(min_ind == (-1)) 0; // Disproof found
         else if(node->children[min_ind] == nullptr) extend(node, min_ind);
         else search(node->children[min_ind]);
         // === Update PN and DN in node ===
@@ -134,7 +129,7 @@ void PNS::search(PNSNode* node){
     else{                 // === AND node ===
         unsigned int min_ind = get_min_children(node, DN, true);
 
-        if(min_ind == (-1)) 0;
+        if(min_ind == (-1)) 0; // Proof found
         else if(node->children[min_ind] == nullptr) extend(node, min_ind);
         else search(node->children[min_ind]);
         // === Update PN and DN in node ===
@@ -144,41 +139,46 @@ void PNS::search(PNSNode* node){
 
     // If PN or DN is 0, delete all unused descendants
     if(node->pn == 0 || node->dn == 0){
-        assert(node != nullptr);
-        delete_node(node, false);
+        delete_node(node);
     }
 }
 
-void PNS::delete_node(PNSNode* node, bool unused_brach = false){
-    if(node->parent_num>1){
+void PNS::delete_all(PNSNode* node){
+    if( node->parent_num>1 ){
         node->parent_num -= 1;
-        return;
     }
-    else if (node->parent_num == 1){
-        // === In this case, we need max 1 branch ===
-        if( ((node->type == OR) && (node->pn == 0)) ||
-            ((node->type == AND) && (node->dn==0)) || unused_brach){
-            
-            ProofType proof_type = (node->pn == 0 ? PN:DN);
-            unsigned int min_ind = get_min_children(node, proof_type, true);
-
-            for(int i=0;i<ACTION_SIZE;i++){
-                if((!node->board.is_valid(i)) || (node->children[i]==nullptr) || (min_ind == i && !unused_brach)) continue;
-                else{
-                    delete_node(node->children[i], true);
-                    node->children[i]=nullptr;
-                }
+    else{
+        for(int i=0;i<ACTION_SIZE;i++){
+            if((!node->board.is_valid(i)) || (node->children[i]==nullptr)) continue;
+            else{
+                delete_all(node->children[i]);
+                node->children[i]=nullptr;
             }
         }
-        // ELSE: we keep all children
+        states.erase(node->board);
+        delete node;
+    }
+}
+void PNS::delete_node(PNSNode* node){
+    // === In this case, we need max 1 branch ===
+    if( ((node->type == OR) && (node->pn == 0)) ||
+        ((node->type == AND) && (node->dn==0)) ){
+        
+        ProofType proof_type = (node->pn == 0 ? PN:DN);
+        unsigned int min_ind = get_min_children(node, proof_type, true);
 
-        // === Delete only on unused brach
-        if(unused_brach){
-            node->parent_num -= 1;
-            states.erase(node->board);
-            delete node;
+        assert(min_ind !=-1);
+        // === Delete all children, except min_ind
+        for(int i=0;i<ACTION_SIZE;i++){
+            if((!node->board.is_valid(i)) || (node->children[i]==nullptr) ||
+                (min_ind == i)) continue;
+            else{
+                delete_all(node->children[i]);
+                node->children[i]=nullptr;
+            }
         }
     }
+    // ELSE: keep all children, because we need all of them
 }
 
 // === Helper Functions ===
@@ -209,11 +209,13 @@ void PNS::log_solution_min(PNSNode* node, std::ofstream& file){
             ((node->type == AND) && (node->dn==0))){
             ProofType proof_type = (node->pn == 0 ? PN:DN);
             unsigned int min_ind = get_min_children(node, proof_type, true);
+            //assert(node->children[min_ind] != nullptr);
             log_solution_min(node->children[min_ind], file);
         }
         else{
             for(int i=0;i<ACTION_SIZE;i++){
                 if(!node->board.is_valid(i)) continue;
+                //assert(node->children[i] != nullptr);
 
                 log_solution_min(node->children[i], file);
             }
@@ -222,5 +224,13 @@ void PNS::log_solution_min(PNSNode* node, std::ofstream& file){
 }
 
 void PNS::add_state(Board& b, PNSNode* node){
-    states[b]=node;
+    if(states.find(b)==states.end()){
+        states[b]=node;
+    }
+}
+
+void PNS::free_states(){
+    for(auto node_it: states){
+        delete node_it.second;
+    }
 }
