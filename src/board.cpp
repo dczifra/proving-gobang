@@ -1,2 +1,163 @@
 #include "board.h"
 
+bool Board::heuristic_stop(const std::vector<std::pair<board_int, unsigned int>>& all_lines) const{
+    double sum = 0;
+    for(auto line: all_lines){
+        bool is_free = !(line.first & black);
+        if(!is_free) continue;
+        else{
+            int emptynum = line.second - __builtin_popcountll(line.first & white);
+            sum += std::pow(2.0,-emptynum);
+            if(sum>=1.0) return false;
+        }
+    }
+
+    // The sum is under 1, the game is over
+    return true;
+}
+
+void Board::flip(){
+    board_int w=0,b=0;
+    board_int col = 0x0f;
+
+    for(int i=0;i<COL;i++){
+        board_int old_w = (white & (col<<(4*i)));
+        board_int old_b = (black & (col<<(4*i)));
+        int move = (COL-2*(i+1)+1)*4;
+        if(move>=0){
+            w |= (old_w<<move);
+            b |= (old_b<<move);
+        }
+        else{
+            move = -move;
+            w |= (old_w>>move);
+            b |= (old_b>>move);
+        }
+    }
+    white = w;
+    black = b;
+    //white = static_cast<board_int>(flip_bit(white))>>FLIP_SIZE;
+    //black = static_cast<board_int>(flip_bit(black))>>FLIP_SIZE;
+}
+
+
+// === Policy ===
+std::array<float, ACTION_SIZE> Board::heuristic_mtx(const std::vector<Line_info>& lines) const{
+    // Returns a heuristic value for every possible action
+    std::array<float, ACTION_SIZE> mtx= {0};
+
+    for(auto line: lines){
+        bool is_free = !(line.line_board & black);
+        if(!is_free) continue;
+        else{
+            int emptynum = line.size - __builtin_popcountll(line.line_board & white);
+            for(int field: line.points){
+                mtx[field] += std::pow(2.0,-emptynum);
+            }
+        }
+    }
+    return mtx;
+}
+
+// ==============================================
+//               SPLIT TO COMPONENTS
+// ==============================================
+bool valid_action(int action){
+    return action >=0 && action < ACTION_SIZE;
+}
+
+void Board::get_component(const std::vector<std::array<bool,11>>& adjacent_nodes,
+                    std::vector<int>& node_component,
+                    int start, int act_component){
+    for(int dir=0;dir<11;dir++){
+        int neigh = start+dir-5; // dir = node - neigh + 5
+        if(adjacent_nodes[start][dir] && node_component[neigh] ==-1 ){
+            node_component[neigh] = act_component;
+            get_component(adjacent_nodes, node_component, neigh, act_component);
+        }
+    }
+}
+
+std::vector<int> Board::get_free_fields_graph(const std::vector<Line_info>& all_lines){
+    std::vector<int> emptynum_in_line(all_lines.size());         // -1 if not empty
+    std::vector<int> first_field_in_line(all_lines.size());         // -1 if not empty
+    std::vector<bool> free_node(ACTION_SIZE, 0);
+    std::vector<int> node_component(ACTION_SIZE, -1);
+    std::vector<std::array<bool,11>> adjacent_nodes(ACTION_SIZE);// 3 and 7 unused
+    // node1-node2 : if node1 > node2 [+5]
+    // -5 -1  3
+    // -4  #  4
+    // -3  1  5
+    int iter = 0;
+
+    // === Iterate on lines ===
+    for(auto line: all_lines){
+        bool is_free = !(line.line_board & black);
+
+        if(!is_free){
+            emptynum_in_line[iter] = -1;
+        }
+        else{
+            // === This line is free, update it's fileds
+            int emptynum = line.size - __builtin_popcountll(line.line_board & white);
+            emptynum_in_line[iter] = emptynum;
+            first_field_in_line[iter] = line.points[0];
+            //display(line.line_board, true);
+
+            free_node[line.points[0]] = true;
+            for(int i=1;i<line.points.size();i++){ // We doesn't matter with lines with length 1
+                int act = line.points[i];
+                int prev = line.points[i-1];
+                free_node[act] = true;
+                
+                int direction = prev-act + 5; // Only for 4xn table
+                adjacent_nodes[act][direction] = true;
+                direction = act-prev + 5;     // Only for 4xn table
+                adjacent_nodes[prev][direction] = true;
+            }
+        }
+        iter += 1;
+    }
+
+    // === Get components ===
+    int num_component = 0;
+    for(int ind = 0; ind<ACTION_SIZE; ind++){
+        if(!free_node[ind] || node_component[ind] != -1 || !is_valid(ind)) continue;
+        else{
+            node_component[ind] = num_component;
+            get_component(adjacent_nodes, node_component, ind, num_component);
+            num_component++;
+        }
+    }
+
+    // === Print Comp ===
+    for(int i=0;i<ROW;i++){
+        for(int j=0;j<COL;j++){
+            std::cout<<node_component[j*ROW+i]<<" ";
+        }
+        std::cout<<std::endl;
+    }
+
+    // === SUM lines on components ===
+    // choose free node previously...
+    std::vector<double> component_sum(num_component);
+    for(int i=0;i<all_lines.size();i++){
+        int act_comp = node_component[first_field_in_line[i]];
+        int empty_num = emptynum_in_line[i];
+        if(empty_num > -1){
+            component_sum[act_comp] += std::pow(2.0, -empty_num);
+        }
+    }
+
+    for(auto comp_size: component_sum){
+        std::cout<<comp_size<<" ";
+    }
+    std::cout<<std::endl;
+
+    return emptynum_in_line;
+}
+
+void Board::remove_small_components(const std::vector<Line_info>& all_lines){
+    std::vector<int> emptynum_in_line = get_free_fields_graph(all_lines);
+
+}

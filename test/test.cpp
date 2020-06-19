@@ -83,12 +83,28 @@ void human_play(){
     display(b, true);
 }
 
+// =================================================================
+//                     TEST THE BOARD's GOODNESS
+// =================================================================
+void test_components(){
+    Heuristic h;
+
+    Board b;
+    b.move(12, -1);
+    b.move(13, -1);
+    b.move(14, -1);
+    b.move(15, -1);
+    b.move(3, -1);
+    b.move(6, 1);
+    b.move(9, -1);
+
+    auto val = b.get_free_fields_graph(h.fields_on_compressed_lines);
+}
+
 int main() {
     std::cout<<"=== TEST ==="<<std::endl;
-    Board b;
-    b.move(1,-1);
-    b.move(45,-1);
-    random_playes(b);
+
+    test_components();
 
     return 0;
 }
