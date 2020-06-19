@@ -172,6 +172,79 @@ struct Board{
         }
         return mtx;
     }
+
+    // ==============================================
+    //               SPLIT TO COMPONENTS
+    // ==============================================
+    void get_component(const std::vector<std::array<bool,10>>& adjacent_nodes,
+                        std::vector<int>& node_component,
+                        int start, int act_component){
+        for(int dir=0;dir<10;dir++){
+            if(adjacent_nodes[ind][dir] && node_component[ind] ==-1 ){
+                node_component[ind] = act_component;
+                get_components(adjacent_nodes, node_component, ind, act_component);
+            }
+        }
+    }
+
+    std::vector<int> get_free_fields_graph(const std::vector<Line_info>& all_lines){
+        std::vector<int> emptynum_in_line(all_lines.size());         // -1 if not empty
+        std::vector<bool> free_node(ACTION_SIZE, 0);
+        std::vector<int> node_component(ACTION_SIZE, -1);
+        std::vector<std::array<bool,10>> adjacent_nodes(ACTION_SIZE);// 3 and 7 unused
+        // node1-node2 : if node1 > node2 [+5]
+        // -5 -1  3
+        // -4  #  4
+        // -3  1  5
+        int iter = 0;
+
+        // === Iterate on lines ===
+        for(auto line: all_lines){
+            bool is_free = !(line.line_board & black);
+
+            if(!is_free){
+                emptynum_in_line[iter] = -1;
+            }
+            else{
+                // === This line is free, update it's fileds
+                int emptynum = line.size - __builtin_popcountll(line.line_board & white);
+                emptynum_in_line[iter] = emptynum;
+
+                free_node[line.points[0]] = true;
+                for(int i=1;i<line.points.size();i++){ // We doesn't matter with lines with length 1
+                    int act = line.points[i];
+                    int prev = line.points[i-1];
+                    free_node[act] = true;
+                    
+                    int direction = act-prev + 5; // Only for 4xn table
+                    adjacent_nodes[act][direction] = true;
+                    direction = prev-act + 5;     // Only for 4xn table
+                    adjacent_nodes[prev][direction] = true;
+                }
+            }
+            iter += 1;
+        }
+
+        // === Get components ===
+        int act_component = 0;
+        for(int ind = 0; ind<ACTION_SIZE; ind++){
+            if(!free_node[i] || node_component[ind] != -1) continue;
+            else{
+                get_component(adjacent_nodes, node_component, start, act_component);
+                act_component++;
+            }
+        }
+
+        // === SUM lines on components ===
+        // choose free node previously...
+
+        return emptynum_in_line;
+    }
+
+    void remove_small_components(const std::vector<Line_info>& all_lines){
+        std::vector<int> emptynum_in_line = get_free_fields_graph(all_lines);
+
+    }
 };
 
 
