@@ -95,10 +95,14 @@ void test_components(){
     b.move(14, -1);
     b.move(15, -1);
     b.move(3, -1);
-    b.move(6, 1);
+    b.move(6, -1);
     b.move(9, -1);
 
-    auto val = b.get_free_fields_graph(h.fields_on_compressed_lines);
+    b.move(1, 1);
+    b.move(21, 1);
+
+    b.remove_small_components(h.fields_on_compressed_lines);
+    display(b,true);
 }
 
 int main() {

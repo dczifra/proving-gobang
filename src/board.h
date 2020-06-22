@@ -118,11 +118,15 @@ struct Board{
     // ==============================================
     //               SPLIT TO COMPONENTS
     // ==============================================
-    void get_component(const std::vector<std::array<bool,11>>& adjacent_nodes,
-                        std::vector<int>& node_component,
-                        int start, int act_component);
+    void get_fields_and_lines(const std::vector<Line_info>& all_lines,
+                           std::vector<int>& emptynum_in_line,
+                           std::vector<int>& first_field_in_line,
+                           std::vector<bool>& free_node,
+                           std::vector<std::array<bool,11>>& adjacent_nodes);
 
-    std::vector<int> get_free_fields_graph(const std::vector<Line_info>& all_lines);
+    std::vector<int> get_all_components(const std::vector<std::array<bool,11>>& adjacent_nodes,
+                                        const std::vector<bool>& free_node,
+                                        int& num_component);
     void remove_small_components(const std::vector<Line_info>& all_lines);
 };
 

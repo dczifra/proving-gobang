@@ -66,7 +66,7 @@ bool valid_action(int action){
     return action >=0 && action < ACTION_SIZE;
 }
 
-void Board::get_component(const std::vector<std::array<bool,11>>& adjacent_nodes,
+void get_component(const std::vector<std::array<bool,11>>& adjacent_nodes,
                     std::vector<int>& node_component,
                     int start, int act_component){
     for(int dir=0;dir<11;dir++){
@@ -78,18 +78,48 @@ void Board::get_component(const std::vector<std::array<bool,11>>& adjacent_nodes
     }
 }
 
-std::vector<int> Board::get_free_fields_graph(const std::vector<Line_info>& all_lines){
-    std::vector<int> emptynum_in_line(all_lines.size());         // -1 if not empty
-    std::vector<int> first_field_in_line(all_lines.size());         // -1 if not empty
-    std::vector<bool> free_node(ACTION_SIZE, 0);
-    std::vector<int> node_component(ACTION_SIZE, -1);
-    std::vector<std::array<bool,11>> adjacent_nodes(ACTION_SIZE);// 3 and 7 unused
-    // node1-node2 : if node1 > node2 [+5]
-    // -5 -1  3
-    // -4  #  4
-    // -3  1  5
-    int iter = 0;
+std::vector<double> get_component_sum(const std::vector<Line_info>& all_lines,
+                                      const std::vector<int>& emptynum_in_line,
+                                      const std::vector<int>& first_field_in_line,
+                                      const std::vector<int>& node_component,
+                                      const int num_component){
+    std::vector<double> component_sum(num_component);
+    for(int i=0;i<all_lines.size();i++){
+        int act_comp = node_component[first_field_in_line[i]];
+        int empty_num = emptynum_in_line[i];
+        if(empty_num > -1){
+            component_sum[act_comp] += std::pow(2.0, -empty_num);
+        }
+    }
+    return component_sum;
+}
 
+std::vector<int> Board::get_all_components(const std::vector<std::array<bool,11>>& adjacent_nodes, const std::vector<bool>& free_node, int& num_component){
+    std::vector<int> node_component(ACTION_SIZE, -1);
+    // === Get components ===
+    for(int ind = 0; ind<ACTION_SIZE; ind++){
+        if(!free_node[ind] || node_component[ind] != -1 || !is_valid(ind)) continue;
+        else{
+            node_component[ind] = num_component;
+            get_component(adjacent_nodes, node_component, ind, num_component);
+            num_component++;
+        }
+    }
+    return node_component;
+}
+
+void Board::get_fields_and_lines(const std::vector<Line_info>& all_lines,
+                           std::vector<int>& emptynum_in_line,
+                           std::vector<int>& first_field_in_line,
+                           std::vector<bool>& free_node,
+                           std::vector<std::array<bool,11>>& adjacent_nodes){
+    // ======== ADJACENCY TABLE ==========
+    // node1-node2 : if node1 > node2 [+5]
+    // -5 -1  3       0  4  8
+    // -4  #  4  ==>  1  #  9
+    // -3  1  5       2  6  10
+
+    int iter = 0;    
     // === Iterate on lines ===
     for(auto line: all_lines){
         bool is_free = !(line.line_board & black);
@@ -102,7 +132,6 @@ std::vector<int> Board::get_free_fields_graph(const std::vector<Line_info>& all_
             int emptynum = line.size - __builtin_popcountll(line.line_board & white);
             emptynum_in_line[iter] = emptynum;
             first_field_in_line[iter] = line.points[0];
-            //display(line.line_board, true);
 
             free_node[line.points[0]] = true;
             for(int i=1;i<line.points.size();i++){ // We doesn't matter with lines with length 1
@@ -118,18 +147,41 @@ std::vector<int> Board::get_free_fields_graph(const std::vector<Line_info>& all_
         }
         iter += 1;
     }
+}
 
-    // === Get components ===
+void Board::remove_small_components(const std::vector<Line_info>& all_lines){
+    std::vector<int> emptynum_in_line(all_lines.size());         // -1 if not empty
+    std::vector<int> first_field_in_line(all_lines.size(), -1);  // -1 if ther is none
+    std::vector<bool> free_node(ACTION_SIZE, 0);
+    std::vector<std::array<bool,11>> adjacent_nodes(ACTION_SIZE);// 3 and 7 unused
+
+    // === INIT line and field features ===
+    get_fields_and_lines(all_lines, emptynum_in_line, first_field_in_line, free_node, adjacent_nodes);
+
+    // === Split to components ===
     int num_component = 0;
-    for(int ind = 0; ind<ACTION_SIZE; ind++){
-        if(!free_node[ind] || node_component[ind] != -1 || !is_valid(ind)) continue;
+    std::vector<int> node_component = get_all_components(adjacent_nodes, free_node, num_component);
+
+    // === SUM lines on components ===
+    std::vector<double> component_sum = get_component_sum(all_lines, emptynum_in_line, first_field_in_line, node_component, num_component);
+
+    // === Delete small components ===
+    for(unsigned int i=0;i<ACTION_SIZE;i++){
+        int act_component = node_component[i];
+        // === If small component, make all values black ===
+        if(act_component >= 0 && component_sum[act_component] >= 1.0){
+            // filed is in a big component
+        }
         else{
-            node_component[ind] = num_component;
-            get_component(adjacent_nodes, node_component, ind, num_component);
-            num_component++;
+            if((white & ((1ULL) << i))>0){
+                white = white ^ ((1ULL) << i);
+            }
+            //move(i,-1);
+            black |= ((1ULL) << i);
         }
     }
 
+    if(0){
     // === Print Comp ===
     for(int i=0;i<ROW;i++){
         for(int j=0;j<COL;j++){
@@ -138,26 +190,10 @@ std::vector<int> Board::get_free_fields_graph(const std::vector<Line_info>& all_
         std::cout<<std::endl;
     }
 
-    // === SUM lines on components ===
-    // choose free node previously...
-    std::vector<double> component_sum(num_component);
-    for(int i=0;i<all_lines.size();i++){
-        int act_comp = node_component[first_field_in_line[i]];
-        int empty_num = emptynum_in_line[i];
-        if(empty_num > -1){
-            component_sum[act_comp] += std::pow(2.0, -empty_num);
-        }
-    }
-
     for(auto comp_size: component_sum){
         std::cout<<comp_size<<" ";
     }
     std::cout<<std::endl;
-
-    return emptynum_in_line;
-}
-
-void Board::remove_small_components(const std::vector<Line_info>& all_lines){
-    std::vector<int> emptynum_in_line = get_free_fields_graph(all_lines);
+    }
 
 }
