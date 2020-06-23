@@ -105,10 +105,27 @@ void test_components(){
     display(b,true);
 }
 
+void test_components2(){
+    Heuristic h;
+
+    //std::vector<int> moves = {8, 20, 13, 21, 18, 22, 25, 23};
+    std::vector<int> moves = {1,4,25,20, 11, 6, 13, 5, 22, 19, 16, 21, 10, 7};
+
+    Board b;
+    int player = 1;
+
+    for(auto act: moves){
+        b.move(act, player);
+        b.remove_small_components(h.fields_on_compressed_lines);
+        display(b,true);
+        player = -player;
+    }
+}
+
 int main() {
     std::cout<<"=== TEST ==="<<std::endl;
 
-    test_components();
+    test_components2();
 
     return 0;
 }

@@ -44,12 +44,13 @@ public:
         return heuristic.compressed_lines_per_action[action];
     }
     
-    inline std::vector<std::pair<board_int, unsigned int>> get_all_lines(){
+    inline std::vector<std::pair<board_int, unsigned int>> get_all_lines() const{
         return heuristic.all_compressed_lines;
     }
 
-    void stats(){
-        std::cout<<"States: "<<states.size()<<"\n";
+    void stats(PNSNode* node, bool end = false){
+        std::cout<<"\rPN: "<<node->pn<<" DN:"<<node->dn<<" States size: "<<states.size()<<std::flush;
+        if(end) std::cout<<std::endl;
     }
 
 private :
