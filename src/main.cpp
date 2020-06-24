@@ -65,7 +65,7 @@ void PNS_test(){
     NodeType starter = choose_problem(b,player);
 
     PNS tree;
-    PNSNode* node = new PNSNode(b, starter);
+    PNSNode* node = new PNSNode(b, starter, 0);
     tree.add_state(b,node);
     
     unsigned int i = 0;

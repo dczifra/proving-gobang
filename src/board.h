@@ -52,7 +52,7 @@ struct Board{
 
     // === ACTION FUNCTIONS ===
     inline void move(const int action, const int player){
-        assert(player == get_player(node_type));
+        //assert(player == get_player(node_type));
         
         if(player == 1) white |= ((1ULL)<<action);
         else if (player == -1) black |= ((1ULL)<<action);

@@ -7,7 +7,7 @@
 
 
 
-PNSNode::PNSNode(const Board& b, NodeType t):children(), board(b), type(t){
+PNSNode::PNSNode(const Board& b, NodeType t, unsigned int d):children(), board(b), type(t), depth(d){
     unsigned int sum = 0;
     for(int i=0;i<ACTION_SIZE;i++){
         if(b.is_valid(i)) ++sum;
@@ -73,9 +73,9 @@ unsigned int PNS::get_sum_children(PNSNode* node, const ProofType type) const{
 
 void PNS::extend(PNSNode* node, const unsigned int action){
     Board next_state(node->board, action, get_player(node->type));
-    if((node->type == AND)){
-        next_state.remove_small_components(heuristic.fields_on_compressed_lines);
-    }
+    //if((node->type == AND)){
+    //    next_state.remove_small_components(heuristic.fields_on_compressed_lines);
+    //}
     Board reversed(next_state);
     reversed.flip();
 
@@ -91,7 +91,7 @@ void PNS::extend(PNSNode* node, const unsigned int action){
     }
     else{
         NodeType t = !(node->type);
-        node->children[action] = new PNSNode(next_state, t);
+        node->children[action] = new PNSNode(next_state, t, node->depth+1);
 
         if((node->type == OR) && next_state.white_win(get_lines(action))){
             node->children[action]->pn = 0;
