@@ -5,46 +5,61 @@
 #include <cstdint>
 #include <math.h>
 #include <cmath>
+#include <assert.h>
 
 #include "common.h"
+
+enum NodeType : uint8_t {OR, AND};
+int get_player(const NodeType& type);
+NodeType operator!(const NodeType& type);
 
 bool operator<(const Board& b1, const Board& b2);
 
 struct Board{
     board_int white;
     board_int black;
+    NodeType node_type;
 
     Board(){
         init();
     }
+
     Board(const Board& b){
         white = b.white;
         black = b.black;
+        node_type = b.node_type;
     }
+
     Board(const Board& b, int action, int player){
         white = b.white;
         black = b.black;
+        node_type = b.node_type;
         move(action, player);
     }
 
     Board& operator=(const Board&& b){
         white = b.white;
         black = b.black;
+        node_type = b.node_type;
         return *this;
     }
 
     inline void init(){
         white = 0;
         black = 0;
+        node_type = OR;
     }
 
     // === ACTION FUNCTIONS ===
     inline void move(const int action, const int player){
+        assert(player == get_player(node_type));
+        
         if(player == 1) white |= ((1ULL)<<action);
         else if (player == -1) black |= ((1ULL)<<action);
         else{
             std::cout<<"Bad player\n";
         }
+        node_type = (!node_type);
     }
 
     inline void move(std::vector<int> actions, int& player){

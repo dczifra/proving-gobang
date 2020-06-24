@@ -26,10 +26,10 @@ void play_with_tree(PNSNode* node, const PNS& tree){
             if(player == 1) act = tree.get_min_children(act_node, PN, true);
             else act = tree.get_min_children(act_node, DN, true);
         }
-        std::cout<<"Remove:\n";
-        Board temp(act_node->board, act, player);
-        temp.remove_small_components(heuristic.fields_on_compressed_lines);
-        display(temp, true);
+        //std::cout<<"Remove:\n";
+        //Board temp(act_node->board, act, player);
+        //temp.remove_small_components(heuristic.fields_on_compressed_lines);
+        //display(temp, true);
 
         act_node = act_node->children[act];
 
@@ -82,7 +82,7 @@ void PNS_test(){
     std::string filename("../data/"+std::to_string(ROW)+"x"+std::to_string(COL)+".csv");
     std::ofstream logfile(filename);
     tree.log_solution_min(node, logfile);
-    play_with_tree(node, tree);
+    //play_with_tree(node, tree);
 }
 
 int main() {

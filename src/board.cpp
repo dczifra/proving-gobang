@@ -1,4 +1,21 @@
 #include "board.h"
+#include "assert.h"
+
+NodeType operator!(const NodeType& type){
+    return (type==OR?AND:OR);
+}
+
+int get_player(const NodeType& type){
+    return (type==OR?1:-1);
+}
+
+bool operator<(const Board& b1, const Board& b2) {
+    return (b1.node_type < b2.node_type) || ((b1.node_type == b2.node_type) && b1.white<b2.white) || ( (b1.node_type == b2.node_type) && b1.white == b2.white && b1.black<b2.black);
+}
+
+//bool operator<(const Board& b1, const Board& b2) {
+//    return (b1.white<b2.white) || (b1.white == b2.white && b1.black<b2.black);
+//}
 
 bool Board::heuristic_stop(const std::vector<std::pair<board_int, unsigned int>>& all_lines) const{
     double sum = 0;
@@ -182,18 +199,18 @@ void Board::remove_small_components(const std::vector<Line_info>& all_lines){
     }
 
     if(0){
-    // === Print Comp ===
-    for(int i=0;i<ROW;i++){
-        for(int j=0;j<COL;j++){
-            std::cout<<node_component[j*ROW+i]<<" ";
+        // === Print Comp ===
+        for(int i=0;i<ROW;i++){
+            for(int j=0;j<COL;j++){
+                std::cout<<node_component[j*ROW+i]<<" ";
+            }
+            std::cout<<std::endl;
+        }
+
+        for(auto comp_size: component_sum){
+            std::cout<<comp_size<<" ";
         }
         std::cout<<std::endl;
-    }
-
-    for(auto comp_size: component_sum){
-        std::cout<<comp_size<<" ";
-    }
-    std::cout<<std::endl;
     }
 
 }

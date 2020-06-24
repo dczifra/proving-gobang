@@ -6,10 +6,9 @@
 
 #include "heuristic.h"
 
-enum NodeType : uint8_t {OR, AND};
 enum ProofType: uint8_t {PN, DN};
 
-int get_player(const NodeType& type);
+
 
 struct PNSNode{
     PNSNode(const Board& b, NodeType t);
@@ -49,7 +48,7 @@ public:
     }
 
     void stats(PNSNode* node, bool end = false){
-        std::cout<<"\rPN: "<<node->pn<<" DN:"<<node->dn<<" States size: "<<states.size()<<std::flush;
+        std::cout<<"\rPN: "<<node->pn<<" DN: "<<node->dn<<" States size: "<<states.size()<<std::flush;
         if(end) std::cout<<std::endl;
     }
 

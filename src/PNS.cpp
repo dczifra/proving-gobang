@@ -5,13 +5,7 @@
 #include "assert.h"
 #include "common.h"
 
-NodeType operator!(const NodeType& type){
-    return (type==OR?AND:OR);
-}
 
-int get_player(const NodeType& type){
-    return (type==OR?1:-1);
-}
 
 PNSNode::PNSNode(const Board& b, NodeType t):children(), board(b), type(t){
     unsigned int sum = 0;
@@ -142,7 +136,7 @@ void PNS::search(PNSNode* node){
 
     // If PN or DN is 0, delete all unused descendants
     if(node->pn == 0 || node->dn == 0){
-        //delete_node(node);
+        delete_node(node);
     }
 }
 
