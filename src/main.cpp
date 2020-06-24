@@ -26,8 +26,13 @@ void play_with_tree(PNSNode* node, const PNS& tree){
             if(player == 1) act = tree.get_min_children(act_node, PN, true);
             else act = tree.get_min_children(act_node, DN, true);
         }
-        
+        std::cout<<"Remove:\n";
+        Board temp(act_node->board, act, player);
+        temp.remove_small_components(heuristic.fields_on_compressed_lines);
+        display(temp, true);
+
         act_node = act_node->children[act];
+
         // === Check game over ===
         if((act_node->type == AND) && act_node->board.white_win(tree.get_lines(act))){
             printf("(1) Game over (Winner: %s)\n", (player==1)?"white":"black");
@@ -38,11 +43,10 @@ void play_with_tree(PNSNode* node, const PNS& tree){
             break;
         }
         player = -player;
-
-
-
         //display(act_node->board, false);
+        std::cout<<"Action:\n";
         display(act_node->board, true);
+
     }
     display(act_node->board, true);
 }
