@@ -69,6 +69,24 @@ struct Board{
         }
     }
 
+    inline void set_black(const int action){
+        if((white & ((1ULL) << action))>0){
+            white = white ^ ((1ULL) << action);
+        }
+        black |= ((1ULL) << action);
+    }
+
+    unsigned int find_empty(Line_info& line){
+        for(auto field: line.points){
+            if(white & ((1ULL)<<field)){
+                return field;
+            }
+        }
+
+        std::cout<<"Shouldnt be here, line should contain 1 empty field!!!\n";
+        assert(0);
+    }
+
     inline int random_action(){
         board_int valids = get_valids();
         int number_of_ones =__builtin_popcountll(valids);
@@ -144,6 +162,8 @@ struct Board{
     void remove_small_components(const std::vector<Line_info>& all_lines);
     void remove_dead_fields(const std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field,
                         const int action);
+    void remove_2lines(const std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field,
+                   const int action);
 };
 
 

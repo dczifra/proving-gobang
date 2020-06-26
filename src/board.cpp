@@ -77,32 +77,64 @@ std::array<float, ACTION_SIZE> Board::heuristic_mtx(const std::vector<Line_info>
 }
 
 // ==============================================
-//                 REMOVE 2 LINE
+//                 REMOVE DEAD 2 LINE
 // ==============================================
 void Board::remove_dead_fields(const std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field,
                         const int action){
     // === For all lines, which cross the action ===
     for(auto line: linesinfo_per_field[action]){
+        //  === Skip for not empty line (empty: except action) ===
+        board_int new_black = (black ^ (1ULL) << action);
+        if(line.line_board & new_black){ // Line not empty
+            continue;
+        }
+
         // === For every field on the line ===
         for(auto field: line.points){
+            // === If field not empty, continue
+            //if((black & ((1ULL) << field)) || (white & ((1ULL) << field))) continue;
+            if(black & ((1ULL) << field)) continue;
+            
             unsigned int free_lines = 0;
             for(auto side_line: linesinfo_per_field[field]){
                 bool is_free = !(side_line.line_board & black);
                 if(is_free) free_lines++;
             }
             if(free_lines == 0){
-                // Delete field
-                black |= ((1ULL) << field);
+                set_black(field);
             }
-
         }
     }
 }
 
-void remove_2lines(const std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field,
+void Board::remove_2lines(const std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field,
                    const int action){
-    for(int i=0;i<linesinfo_per_field[action].size();i++){
-        //if(lines_per_action[action][i] is 2)
+    // === For all lines, which cross the action ===
+    for(auto line: linesinfo_per_field[action]){
+        // === For every field on the line ===
+        bool is_free_line = !(line.line_board & black);
+        int emptynum = line.size - __builtin_popcountll(line.line_board & white);
+
+        if(is_free_line && emptynum == 2){
+            for(auto field: line.points){
+                unsigned int free_lines = 0;
+                for(auto side_line: linesinfo_per_field[field]){
+                    bool is_free = !(side_line.line_board & black);
+                    if(is_free) free_lines++;
+                }
+
+                if(free_lines == 1){
+                    // Delete field
+                    set_black(field);
+
+                    // Find other and move there one step, and call remove_2_lines
+                    int other_empty = find_empty(line);
+                    move(other_empty, 1);
+                    remove_2lines(linesinfo_per_field, other_empty);
+                    return;
+                }
+            }
+        }
     }
 }
 
