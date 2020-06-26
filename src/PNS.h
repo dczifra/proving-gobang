@@ -40,12 +40,12 @@ public:
     void add_state(Board& b, PNSNode* node);
     void free_states();
 
-    inline std::vector<board_int> get_lines(unsigned int action) const{
-        return heuristic.compressed_lines_per_action[action];
+    inline std::vector<Line_info> get_lines(unsigned int action) const{
+        return heuristic.linesinfo_per_field[action];
     }
     
-    inline std::vector<std::pair<board_int, unsigned int>> get_all_lines() const{
-        return heuristic.all_compressed_lines;
+    inline std::vector<Line_info> get_all_lines() const{
+        return heuristic.all_linesinfo;
     }
 
     void stats(PNSNode* node, bool end = false){

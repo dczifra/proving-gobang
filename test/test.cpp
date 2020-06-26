@@ -12,7 +12,7 @@ int play(Board& b, int player, const Heuristic& heuristic){
     int act;
     while(1){
         act = b.take_random_action(player);
-        if(b.white_win(heuristic.compressed_lines_per_action[act])){
+        if(b.white_win(heuristic.linesinfo_per_field[act])){
             #if DEBUG
                 std::cout<<"\nWhite win";
             #endif
@@ -37,7 +37,7 @@ int play(Board& b, int player, const Heuristic& heuristic){
  * */
 void random_playes(const Board& basic, int times = 1000){
     Heuristic heuristic;
-    auto lines = heuristic.fields_on_compressed_lines;
+    auto lines = heuristic.all_linesinfo;
     
     int sum =0;
     for(int i=0;i<times;i++){
@@ -56,7 +56,7 @@ void random_playes(const Board& basic, int times = 1000){
  * */
 void human_play(){
     Heuristic heuristic;
-    auto lines = heuristic.fields_on_compressed_lines;
+    auto lines = heuristic.all_linesinfo;
     
     Board b;
     int act;
@@ -69,7 +69,7 @@ void human_play(){
         else{
             act = b.take_random_action(player);
         }
-        if(b.white_win(heuristic.compressed_lines_per_action[act])){
+        if(b.white_win(heuristic.linesinfo_per_field[act])){
             printf("White win\n");
             break;
         }
@@ -101,7 +101,7 @@ void test_components(){
     b.move(1, 1);
     b.move(21, 1);
 
-    b.remove_small_components(h.fields_on_compressed_lines);
+    b.remove_small_components(h.all_linesinfo);
     display(b,true);
 }
 
@@ -109,14 +109,16 @@ void test_components2(){
     Heuristic h;
 
     //std::vector<int> moves = {8, 20, 13, 21, 18, 22, 25, 23};
-    std::vector<int> moves = {1,4,25,20, 11, 6, 13, 5, 22, 19, 16, 21, 10, 7};
+    //std::vector<int> moves = {1,4,25,20, 11, 6, 13, 5, 22, 19, 16, 21, 10, 7};
+    std::vector<int> moves = {1, 4, 2, 5, 6, 3};
 
     Board b;
     int player = 1;
 
     for(auto act: moves){
         b.move(act, player);
-        b.remove_small_components(h.fields_on_compressed_lines);
+        //b.remove_small_components(h.all_linesinfo);
+        if(player == -1) b.remove_dead_fields(h.linesinfo_per_field, act);
         display(b,true);
         player = -player;
     }

@@ -17,12 +17,9 @@ public:
     mtx<std::vector<Line>> lines_per_field;
     std::vector<std::vector<Line>> lines_per_action;
 
-    // === Containes all lines comprassed in line ===
-    std::vector<std::pair<board_int, unsigned int> > all_compressed_lines;
-    mtx<std::vector<board_int>> compressed_lines_per_field;
-    std::array<std::vector<board_int>, ACTION_SIZE> compressed_lines_per_action;
     // === Containes all lines comprassed, and the points, which lie on the line
-    std::vector<Line_info> fields_on_compressed_lines;
+    std::vector<Line_info> all_linesinfo;
+    std::array<std::vector<Line_info>, ACTION_SIZE> linesinfo_per_field;
 
 public:
     Heuristic(){

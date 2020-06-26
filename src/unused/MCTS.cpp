@@ -96,7 +96,7 @@ void MCTS::extend_node(TreeNode*& node, const Board& board, int last_action){
     if(last_action>=0)
         node->end = board.get_winner(heuristic.compressed_lines_per_action[last_action]);
     
-    node->probs = board.heuristic_mtx(heuristic.fields_on_compressed_lines);
+    node->probs = board.heuristic_mtx(heuristic.all_linesinfo);
     states[board]=node;
 }
 

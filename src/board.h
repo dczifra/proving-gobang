@@ -90,10 +90,10 @@ struct Board{
     }
 
     // === GAME OVER FUNCTIONS===
-    bool white_win(const std::vector<board_int> & lines)const {
+    bool white_win(const std::vector<Line_info> & lines) const {
         for(auto line: lines){
-            bool blocked = (line & black);
-            if(!blocked && (__builtin_popcountll(line & white)==__builtin_popcountll(line))){
+            bool blocked = (line.line_board & black);
+            if(!blocked && (__builtin_popcountll(line.line_board & white)==line.size)){
                 return true;
             }
         }
@@ -105,26 +105,25 @@ struct Board{
         return __builtin_popcountll(white | black) == MAX_ROUND;
     }
 
-    int get_winner(const std::vector<board_int> & lines) const {
+    int get_winner(const std::vector<Line_info>& lines) const {
         if(white_win(lines)) return 1;
         else if (black_win())
         {
             return -1;
         }
         else return 0;
-        
     }
 
     // === TODO with saved constant array ===
-    bool no_free_lines(const std::vector<std::pair<board_int, unsigned int>>& all_lines) const{
+    bool no_free_lines(const std::vector<Line_info>& all_lines) const{
         for(auto line: all_lines){
-            bool is_free = !(line.first & black);
+            bool is_free = !(line.line_board & black);
             if(is_free) return false;
         }
         return true;
     }
 
-    bool heuristic_stop(const std::vector<std::pair<board_int, unsigned int>>& all_lines) const;
+    bool heuristic_stop(const std::vector<Line_info>& all_lines) const;
     void flip();
 
     // === Policy ===
@@ -143,6 +142,8 @@ struct Board{
                                         const std::vector<bool>& free_node,
                                         int& num_component);
     void remove_small_components(const std::vector<Line_info>& all_lines);
+    void remove_dead_fields(const std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field,
+                        const int action);
 };
 
 

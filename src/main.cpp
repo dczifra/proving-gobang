@@ -28,7 +28,7 @@ void play_with_tree(PNSNode* node, const PNS& tree){
         }
         //std::cout<<"Remove:\n";
         //Board temp(act_node->board, act, player);
-        //temp.remove_small_components(heuristic.fields_on_compressed_lines);
+        //temp.remove_small_components(heuristic.all_linesinfo);
         //display(temp, true);
 
         act_node = act_node->children[act];

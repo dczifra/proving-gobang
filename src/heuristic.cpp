@@ -97,9 +97,7 @@ int half(const int& a){ return (a%2 == 0) ? a/2 : (a+1)/2;}
 
 
 void Heuristic::generate_compressed_lines(){
-    lines_per_action.resize(ROW*COL);
-    fields_on_compressed_lines.resize(lines.size());
-    all_compressed_lines.resize(lines.size());
+    all_linesinfo.resize(lines.size());
     for(int i=0;i<lines.size();i++){
         // === Do the compressed board ===
         board_int board = 0;
@@ -108,17 +106,19 @@ void Heuristic::generate_compressed_lines(){
             board_int action= y*ROW+x;
             board |= (1ULL<<action);
         }
-        fields_on_compressed_lines[i].line_board = board;
-        fields_on_compressed_lines[i].size = lines[i].size();
-        
-        all_compressed_lines[i]={board,lines[i].size()};
-        
+        all_linesinfo[i].line_board = board;
+        all_linesinfo[i].size = lines[i].size();
+                
         // === Append board for every field ===
         for(auto field: lines[i]){
             int y = field.first, x = field.second;
-            compressed_lines_per_field[y][x].push_back(board);
-            fields_on_compressed_lines[i].points.push_back(y*ROW+x);
-            compressed_lines_per_action[y*ROW+x].push_back(board);
+            all_linesinfo[i].points.push_back(y*ROW+x);
+        }
+
+        // === add for every field ===
+        for(auto field: lines[i]){
+            int y = field.first, x = field.second;
+            linesinfo_per_field[y*ROW+x].push_back(all_linesinfo[i]);
         }
     }
 }

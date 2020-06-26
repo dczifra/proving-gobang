@@ -74,8 +74,11 @@ unsigned int PNS::get_sum_children(PNSNode* node, const ProofType type) const{
 void PNS::extend(PNSNode* node, const unsigned int action){
     Board next_state(node->board, action, get_player(node->type));
     //if((node->type == AND)){
-    //    next_state.remove_small_components(heuristic.fields_on_compressed_lines);
+    //    next_state.remove_small_components(heuristic.all_linesinfo);
     //}
+    if(node->type == AND){
+        next_state.remove_dead_fields(heuristic.linesinfo_per_field, action);
+    }
     Board reversed(next_state);
     reversed.flip();
 

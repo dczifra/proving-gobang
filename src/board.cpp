@@ -17,13 +17,13 @@ bool operator<(const Board& b1, const Board& b2) {
 //    return (b1.white<b2.white) || (b1.white == b2.white && b1.black<b2.black);
 //}
 
-bool Board::heuristic_stop(const std::vector<std::pair<board_int, unsigned int>>& all_lines) const{
+bool Board::heuristic_stop(const std::vector<Line_info>& all_lines) const{
     double sum = 0;
     for(auto line: all_lines){
-        bool is_free = !(line.first & black);
+        bool is_free = !(line.line_board & black);
         if(!is_free) continue;
         else{
-            int emptynum = line.second - __builtin_popcountll(line.first & white);
+            int emptynum = line.size - __builtin_popcountll(line.line_board & white);
             sum += std::pow(2.0,-emptynum);
             if(sum>=1.0) return false;
         }
@@ -74,6 +74,36 @@ std::array<float, ACTION_SIZE> Board::heuristic_mtx(const std::vector<Line_info>
         }
     }
     return mtx;
+}
+
+// ==============================================
+//                 REMOVE 2 LINE
+// ==============================================
+void Board::remove_dead_fields(const std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field,
+                        const int action){
+    // === For all lines, which cross the action ===
+    for(auto line: linesinfo_per_field[action]){
+        // === For every field on the line ===
+        for(auto field: line.points){
+            unsigned int free_lines = 0;
+            for(auto side_line: linesinfo_per_field[field]){
+                bool is_free = !(side_line.line_board & black);
+                if(is_free) free_lines++;
+            }
+            if(free_lines == 0){
+                // Delete field
+                black |= ((1ULL) << field);
+            }
+
+        }
+    }
+}
+
+void remove_2lines(const std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field,
+                   const int action){
+    for(int i=0;i<linesinfo_per_field[action].size();i++){
+        //if(lines_per_action[action][i] is 2)
+    }
 }
 
 // ==============================================
@@ -134,7 +164,7 @@ void Board::get_fields_and_lines(const std::vector<Line_info>& all_lines,
     // node1-node2 : if node1 > node2 [+5]
     // -5 -1  3       0  4  8
     // -4  #  4  ==>  1  #  9
-    // -3  1  5       2  6  10
+    // -3  1  5       2  6  10black |= ((1ULL) << i);
 
     int iter = 0;    
     // === Iterate on lines ===
