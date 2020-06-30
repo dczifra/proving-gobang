@@ -110,7 +110,8 @@ void test_components2(){
 
     //std::vector<int> moves = {8, 20, 13, 21, 18, 22, 25, 23};
     //std::vector<int> moves = {1,4,25,20, 11, 6, 13, 5, 22, 19, 16, 21, 10, 7};
-    std::vector<int> moves = {1, 4, 2, 5, 6, 3};
+    //std::vector<int> moves = {1, 4, 2, 5, 6, 3};
+    std::vector<int> moves = {1, 4, 2, 5};
 
     Board b;
     int player = 1;
@@ -119,6 +120,7 @@ void test_components2(){
         b.move(act, player);
         //b.remove_small_components(h.all_linesinfo);
         if(player == -1) b.remove_dead_fields(h.linesinfo_per_field, act);
+        if(player == -1) b.remove_2lines_all(h.all_linesinfo);
         display(b,true);
         player = -player;
     }

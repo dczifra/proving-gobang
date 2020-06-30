@@ -52,7 +52,7 @@ struct Board{
 
     // === ACTION FUNCTIONS ===
     inline void move(const int action, const int player){
-        //assert(player == get_player(node_type));
+        assert(player == get_player(node_type));
         
         if(player == 1) white |= ((1ULL)<<action);
         else if (player == -1) black |= ((1ULL)<<action);
@@ -76,9 +76,11 @@ struct Board{
         black |= ((1ULL) << action);
     }
 
-    unsigned int find_empty(Line_info& line){
+    unsigned int find_empty(Line_info& line, int skip_field){
         for(auto field: line.points){
-            if(white & ((1ULL)<<field)){
+            if(field == skip_field) continue;
+
+            if(!(white & ((1ULL)<<field))){
                 return field;
             }
         }
@@ -164,6 +166,8 @@ struct Board{
                         const int action);
     void remove_2lines(const std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field,
                    const int action);
+    void remove_2lines_all(const std::vector<Line_info>& all_line);
+    void remove_dead_fields_line(const Line_info& line, const std::vector<unsigned int>& field_linesum);
 };
 
 
