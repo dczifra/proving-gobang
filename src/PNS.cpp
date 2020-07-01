@@ -79,7 +79,8 @@ void PNS::extend(PNSNode* node, const unsigned int action){
     }
     
     if(node->type == AND){
-        next_state.remove_2lines_all(heuristic.all_linesinfo);
+        //next_state.remove_2lines_all(heuristic.all_linesinfo);
+        next_state.remove_2lines(heuristic.linesinfo_per_field, action);
     }
     
     Board reversed(next_state);

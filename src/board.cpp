@@ -155,31 +155,35 @@ void Board::remove_2lines(const std::array<std::vector<Line_info>, ACTION_SIZE>&
                    const int action){
     // === For all lines, which cross the action ===
     for(auto line: linesinfo_per_field[action]){
+        // === If the line was dead before "action", continue ===
         board_int new_black = (black ^ (1ULL) << action);
         if(line.line_board & new_black){ // Line not empty
             continue;
         }
 
         for(auto field: line.points){
+            if((white & (1ULL << field))) continue;
+
             unsigned int free_lines = 0;
             int emptynum = 0;
+            Line_info act_line;
             for(auto side_line: linesinfo_per_field[field]){
                 bool is_free = !(side_line.line_board & black);
                 if(is_free){
-                    emptynum = line.size - __builtin_popcountll(line.line_board & white);
+                    emptynum = side_line.size - __builtin_popcountll(side_line.line_board & white);
                     free_lines++;
+                    act_line = side_line;
                 }
             }
 
             if(free_lines == 1 && (emptynum == 2)){
                 // Delete field
                 // Find other and move there one step, and call remove_2_lines
-                int other_empty = find_empty(line, field);
+                int other_empty = find_empty(act_line, field);
                 move(other_empty, 1);
                 move(field, -1);
-                //remove_dead_fields_line(line, free_num);
-                //remove_2lines(linesinfo_per_field, other_empty);
-                return;
+                remove_dead_fields(linesinfo_per_field, field);
+                remove_2lines(linesinfo_per_field, other_empty);
             }
         }
     }

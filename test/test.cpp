@@ -120,7 +120,8 @@ void test_components2(){
         b.move(act, player);
         //b.remove_small_components(h.all_linesinfo);
         if(player == -1) b.remove_dead_fields(h.linesinfo_per_field, act);
-        if(player == -1) b.remove_2lines_all(h.all_linesinfo);
+        //if(player == -1) b.remove_2lines_all(h.all_linesinfo);
+        if(player == -1) b.remove_2lines(h.linesinfo_per_field, act);
         display(b,true);
         player = -player;
     }
