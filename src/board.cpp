@@ -129,6 +129,7 @@ void Board::remove_2lines_all(const std::vector<Line_info>& all_line){
         }
     }
 
+    bool rerun = false;
     for(auto line: all_line){
         bool is_free = !(line.line_board & black);
         int emptynum = line.size - __builtin_popcountll(line.line_board & white);
@@ -139,12 +140,14 @@ void Board::remove_2lines_all(const std::vector<Line_info>& all_line){
                     move(other_empty, 1);
                     move(field, -1);
                     remove_dead_fields_line(line, free_num);
+                    rerun = true;
                     //remove_2lines_all(all_line);
                     //return;
                 }
             }
         }
     }
+    if(rerun) remove_2lines_all(all_line);
 }
 
 
