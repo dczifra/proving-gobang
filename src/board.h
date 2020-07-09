@@ -168,6 +168,8 @@ struct Board{
                    const int action);
     void remove_2lines_all(const std::vector<Line_info>& all_line);
     void remove_dead_fields_line(const Line_info& line, const std::vector<unsigned int>& field_linesum);
+
+    void remove_lines_with_two_ondegree(const std::vector<Line_info>& all_line);
 };
 
 

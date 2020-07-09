@@ -147,6 +147,7 @@ void Board::remove_2lines_all(const std::vector<Line_info>& all_line){
             }
         }
     }
+    
     if(rerun) remove_2lines_all(all_line);
 }
 
@@ -188,6 +189,49 @@ void Board::remove_2lines(const std::array<std::vector<Line_info>, ACTION_SIZE>&
         }
     }
 }
+
+// ==============================================
+//       REMOVE LINES WITH 2 1-DEGREE NODES
+// ==============================================
+void Board::remove_lines_with_two_ondegree(const std::vector<Line_info>& all_line){
+    std::vector<unsigned int> free_num(ACTION_SIZE, 0);
+
+    for(auto line: all_line){
+        bool is_free = !(line.line_board & black);
+        if(is_free){
+            for(auto field: line.points){
+                free_num[field] +=1;
+            }
+        }
+    }
+
+    bool rerun = false;
+    for(auto line: all_line){
+        bool is_free = !(line.line_board & black);
+        int emptynum = line.size - __builtin_popcountll(line.line_board & white);
+        if(is_free){
+            int deg_1 = -1;
+            for(auto field: line.points){
+                if((free_num[field]==1) && !(white & (1ULL << field))){
+                    if(deg_1 > -1){
+                        move(field, 1);
+                        move(deg_1, -1);
+                        remove_dead_fields_line(line, free_num);
+                        rerun = true;
+                    }
+                    else{
+                        deg_1 = field;
+                    }
+                }
+
+            }
+        }
+    }
+    
+    if(rerun) remove_lines_with_two_ondegree(all_line);
+}
+
+
 
 // ==============================================
 //               SPLIT TO COMPONENTS
