@@ -148,7 +148,7 @@ void Board::remove_2lines_all(const std::vector<Line_info>& all_line){
         }
     }
     
-    if(rerun) remove_2lines_all(all_line);
+    //if(rerun) remove_2lines_all(all_line);
 }
 
 
@@ -228,7 +228,7 @@ void Board::remove_lines_with_two_ondegree(const std::vector<Line_info>& all_lin
         }
     }
     
-    if(rerun) remove_lines_with_two_ondegree(all_line);
+    //if(rerun) remove_lines_with_two_ondegree(all_line);
 }
 
 

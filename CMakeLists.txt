@@ -19,6 +19,11 @@ add_executable(AMOBA_DEBUG src/main.cpp)
 set(CMAKE_CXX_FLAGS "-g")
 add_executable(TEST test/test.cpp)
 
+file(COPY ${CMAKE_BINARY_DIR}/../test/measure.sh
+  DESTINATION ${CMAKE_BINARY_DIR}
+  FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
+  GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+
 target_link_libraries(AMOBA mylib)
 target_link_libraries(AMOBA_DEBUG mylib)
 target_link_libraries(TEST mylib)
