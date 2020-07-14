@@ -11,7 +11,7 @@ enum ProofType: uint8_t {PN, DN};
 
 
 struct PNSNode{
-    PNSNode(const Board& b, NodeType t, unsigned int d);
+    PNSNode(const Board& b, NodeType t, unsigned int d, int heur_val);
 
     PNSNode* children[ACTION_SIZE];
     const Board board;

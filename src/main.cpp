@@ -52,7 +52,7 @@ void play_with_tree(PNSNode* node, const PNS& tree){
 }
 
 NodeType choose_problem(Board& b, int& player){
-    //b.move({0,1,27}, player);
+    //b.move({0,1,ROW*COL -1}, player);
     //b.move({0,1,23}, player);
 
     return (player==1?OR:AND);
@@ -65,7 +65,7 @@ void PNS_test(){
     NodeType starter = choose_problem(b,player);
 
     PNS tree;
-    PNSNode* node = new PNSNode(b, starter, 0);
+    PNSNode* node = new PNSNode(b, starter, 0, 1);
     tree.add_state(b,node);
     
     unsigned int i = 0;

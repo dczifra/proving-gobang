@@ -18,6 +18,7 @@ bool operator<(const Board& b1, const Board& b2);
 struct Board{
     board_int white;
     board_int black;
+    //board_int blocked_lines;
     NodeType node_type;
 
     Board(){
@@ -27,12 +28,14 @@ struct Board{
     Board(const Board& b){
         white = b.white;
         black = b.black;
+        //blocled_line = b.blocked_lines;
         node_type = b.node_type;
     }
 
     Board(const Board& b, int action, int player){
         white = b.white;
         black = b.black;
+        //blocked_lines = b.blocked_lines;
         node_type = b.node_type;
         move(action, player);
     }
@@ -40,6 +43,7 @@ struct Board{
     Board& operator=(const Board&& b){
         white = b.white;
         black = b.black;
+        //blocked_lines = b.blocked_lines;
         node_type = b.node_type;
         return *this;
     }
@@ -47,6 +51,7 @@ struct Board{
     inline void init(){
         white = 0;
         black = 0;
+        //blocked_lines = 0;
         node_type = OR;
     }
 
@@ -148,7 +153,7 @@ struct Board{
 
     // === Policy ===
     std::array<float, ACTION_SIZE> heuristic_mtx(const std::vector<Line_info>& lines) const;
-    
+    double heuristic_val(const std::vector<Line_info>& lines) const;
     // ==============================================
     //               SPLIT TO COMPONENTS
     // ==============================================

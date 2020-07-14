@@ -7,7 +7,7 @@
 
 
 
-PNSNode::PNSNode(const Board& b, NodeType t, unsigned int d):children(), board(b), type(t), depth(d){
+PNSNode::PNSNode(const Board& b, NodeType t, unsigned int d, int heur_val):children(), board(b), type(t), depth(d){
     unsigned int sum = 0;
     for(int i=0;i<ACTION_SIZE;i++){
         if(b.is_valid(i)) ++sum;
@@ -19,8 +19,10 @@ PNSNode::PNSNode(const Board& b, NodeType t, unsigned int d):children(), board(b
         dn = 0;
     }
     else{
-        pn = (t==OR ? 1:sum);
-        dn = (t==AND ? 1:sum);
+        int init_val = heur_val;
+        //int init_val = 1;
+        pn = (t==OR ? init_val:sum*init_val);
+        dn = (t==AND ? init_val:sum*init_val);
     }
 
     parent_num = 1;
@@ -101,8 +103,9 @@ void PNS::extend(PNSNode* node, const unsigned int action){
         node->children[action] -> parent_num += 1;
     }
     else{
+        int heur_val = (int) floor(pow(2.0, 8*(next_state.heuristic_val(heuristic.all_linesinfo)-1)));
         NodeType t = !(node->type);
-        node->children[action] = new PNSNode(next_state, t, node->depth+1);
+        node->children[action] = new PNSNode(next_state, t, node->depth+1, heur_val);
 
         if((node->type == OR) && next_state.white_win(get_lines(action))){
             node->children[action]->pn = 0;
