@@ -19,8 +19,8 @@ PNSNode::PNSNode(const Board& b, NodeType t, unsigned int d, int heur_val):child
         dn = 0;
     }
     else{
-        int init_val = heur_val;
-        //int init_val = 1;
+        //int init_val = heur_val;
+        int init_val = 1;
         pn = (t==OR ? init_val:sum*init_val);
         dn = (t==AND ? init_val:sum*init_val);
     }
@@ -78,15 +78,21 @@ void PNS::extend(PNSNode* node, const unsigned int action){
 
     if(node->type == AND){
         next_state.remove_lines_with_two_ondegree(heuristic.all_linesinfo);
+        //Board b1(next_state);
+        //b1.remove_lines_with_two_ondegree(heuristic.all_linesinfo);
     }
 
     if(node->type == AND){
         next_state.remove_2lines_all(heuristic.all_linesinfo);
         //next_state.remove_2lines(heuristic.linesinfo_per_field, action);
+        //Board b1(next_state);
+        //b1.remove_2lines_all(heuristic.all_linesinfo);
     }
 
     if(node->type == AND){
         next_state.remove_dead_fields(heuristic.linesinfo_per_field, action);
+        //Board b1(next_state);
+        //b1.remove_dead_fields(heuristic.linesinfo_per_field, action);
     }
     
     Board reversed(next_state);
@@ -118,8 +124,21 @@ void PNS::extend(PNSNode* node, const unsigned int action){
             node->children[action]->dn = 0;
         }
         states[next_state] = node->children[action];
-    }
 
+        // === life-and-death ===
+        int act = next_state.one_way(get_all_lines());
+        PNSNode* act_node = node->children[action];
+        if(act > -1){
+            extend(act_node, act);
+            for(int i=0;i<ACTION_SIZE;i++){
+                if(i == act) continue;
+                // === This will leak memory ===
+                act_node->children[i] = new PNSNode(act_node->board, node->type, node->depth+2, 1);
+                act_node->children[i]->pn = (act_node->type == AND ? 0 : UINT_MAX);
+                act_node->children[i]->dn = (act_node->type == AND ? UINT_MAX : 0);
+            }
+        }
+    }
 }
 
 void PNS::search(PNSNode* node){
@@ -148,7 +167,7 @@ void PNS::search(PNSNode* node){
         node->dn = get_min_children(node, DN);
     }
 
-    // If PN or DN is 0, delete all unused descendants
+    // If PN or DN is 0, delete all unused descendents
     if(node->pn == 0 || node->dn == 0){
         delete_node(node);
     }

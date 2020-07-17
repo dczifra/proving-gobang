@@ -33,6 +33,32 @@ bool Board::heuristic_stop(const std::vector<Line_info>& all_lines) const{
     return true;
 }
 
+int Board::one_way(const std::vector<Line_info>& all_lines) const{
+    std::vector<bool> two_line(ACTION_SIZE, 0);
+    
+    for(auto line: all_lines){
+        bool is_free = !(line.line_board & black);
+        if(!is_free) continue;
+        else{
+            int emptynum = line.size - __builtin_popcountll(line.line_board & white);
+            for(int field: line.points){
+                if(white & (1ULL << field)) continue;
+
+                if(emptynum == 1){
+                    return field;
+                }
+                else if(emptynum == 2){
+                    if(two_line[field]) return field;
+                    else two_line[field] = 1;
+                }
+            }
+        }
+    }
+
+    // No obvious action
+    return -1;
+}
+
 void Board::flip(){
     board_int w=0,b=0;
     board_int col = 0x0f;
