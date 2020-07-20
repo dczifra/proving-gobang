@@ -20,6 +20,9 @@ void play_with_tree(PNSNode* node, const PNS& tree){
 
     while(1){
         if(player == human_player ){
+            int act0 = act_node->board.one_way(tree.get_all_lines());
+            if(act0 >= 0) std::cout<<act0<<" is a must\n";
+            
             std::cin>>act;
         }
         else{
@@ -42,8 +45,8 @@ void play_with_tree(PNSNode* node, const PNS& tree){
             printf("(2) Game over (Winner: %s)\n", (player==1)?"white":"black");
             break;
         }
-        player = -player;
-        //display(act_node->board, false);
+        //player = -player;
+        player = get_player(act_node->type);
         std::cout<<"Action:\n";
         display(act_node->board, true);
 
@@ -58,14 +61,13 @@ NodeType choose_problem(Board& b, int& player){
     return (player==1?OR:AND);
 }
 
-void PNS_test(){
+void PNS_test(bool play = false){
     Board b;
     int player = 1;
-    
-    NodeType starter = choose_problem(b,player);
+    choose_problem(b,player);
 
     PNS tree;
-    PNSNode* node = new PNSNode(b, starter, 0, 1);
+    PNSNode* node = new PNSNode(b, 0, 1);
     tree.add_state(b,node);
     
     unsigned int i = 0;
@@ -82,13 +84,13 @@ void PNS_test(){
     std::string filename("../data/"+std::to_string(ROW)+"x"+std::to_string(COL)+".csv");
     std::ofstream logfile(filename);
     tree.log_solution_min(node, logfile);
-    //play_with_tree(node, tree);
+    if(play) play_with_tree(node, tree);
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     std::cout<<"Proving gobanggame..."<<std::endl;
 
-    PNS_test();
+    PNS_test(argc>1);
 
     return 0;
 }

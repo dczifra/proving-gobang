@@ -7,7 +7,8 @@
 
 
 
-PNSNode::PNSNode(const Board& b, NodeType t, unsigned int d, int heur_val):children(), board(b), type(t), depth(d){
+PNSNode::PNSNode(const Board& b, unsigned int d, int heur_val):children(), board(b), depth(d){
+    type = b.node_type;
     unsigned int sum = 0;
     for(int i=0;i<ACTION_SIZE;i++){
         if(b.is_valid(i)) ++sum;
@@ -20,9 +21,10 @@ PNSNode::PNSNode(const Board& b, NodeType t, unsigned int d, int heur_val):child
     }
     else{
         //int init_val = heur_val;
-        int init_val = 1;
-        pn = (t==OR ? init_val:sum*init_val);
-        dn = (t==AND ? init_val:sum*init_val);
+        //int init_val = 1;
+        pn = (type==OR ? 1:sum);
+        //dn = (type==AND ? heur_val:sum);
+        dn = (type==AND ? 1:sum);
     }
 
     parent_num = 1;
@@ -73,27 +75,22 @@ unsigned int PNS::get_sum_children(PNSNode* node, const ProofType type) const{
     return sum;
 }
 
-void PNS::extend(PNSNode* node, const unsigned int action){
-    Board next_state(node->board, action, get_player(node->type));
+inline void PNS::simplify_board(Board& next_state, const unsigned int action){
+    if(next_state.node_type == OR){ // Last move: black
 
-    if(node->type == AND){
         next_state.remove_lines_with_two_ondegree(heuristic.all_linesinfo);
-        //Board b1(next_state);
-        //b1.remove_lines_with_two_ondegree(heuristic.all_linesinfo);
-    }
-
-    if(node->type == AND){
         next_state.remove_2lines_all(heuristic.all_linesinfo);
-        //next_state.remove_2lines(heuristic.linesinfo_per_field, action);
-        //Board b1(next_state);
-        //b1.remove_2lines_all(heuristic.all_linesinfo);
-    }
-
-    if(node->type == AND){
         next_state.remove_dead_fields(heuristic.linesinfo_per_field, action);
+
         //Board b1(next_state);
         //b1.remove_dead_fields(heuristic.linesinfo_per_field, action);
     }
+}
+
+void PNS::extend(PNSNode* node, const unsigned int action){
+    Board next_state(node->board, action, get_player(node->type));
+
+    simplify_board(next_state, action);
     
     Board reversed(next_state);
     reversed.flip();
@@ -110,22 +107,24 @@ void PNS::extend(PNSNode* node, const unsigned int action){
     }
     else{
         int heur_val = (int) floor(pow(2.0, 8*(next_state.heuristic_val(heuristic.all_linesinfo)-1)));
-        NodeType t = !(node->type);
-        node->children[action] = new PNSNode(next_state, t, node->depth+1, heur_val);
+        node->children[action] = new PNSNode(next_state, node->depth+1, heur_val);
 
-        if((node->type == OR) && next_state.white_win(get_lines(action))){
+        if((next_state.node_type == AND) && next_state.white_win(get_lines(action))){
             node->children[action]->pn = 0;
             node->children[action]->dn = UINT_MAX;
+            return;
         }
         //else if((node->type == AND) && next_state.black_win(get_all_lines())){
         //else if((node->type == AND) && next_state.no_free_lines(get_all_lines())){
-        else if((node->type == AND) && next_state.heuristic_stop(get_all_lines())){
+        else if((next_state.node_type == OR) && next_state.heuristic_stop(get_all_lines())){
             node->children[action]->pn = UINT_MAX;
             node->children[action]->dn = 0;
+            return;
         }
         states[next_state] = node->children[action];
 
         // === life-and-death ===
+        //std::cout<<node->depth<<std::endl;
         int act = next_state.one_way(get_all_lines());
         PNSNode* act_node = node->children[action];
         if(act > -1){
@@ -133,7 +132,12 @@ void PNS::extend(PNSNode* node, const unsigned int action){
             for(int i=0;i<ACTION_SIZE;i++){
                 if(i == act) continue;
                 // === This will leak memory ===
-                act_node->children[i] = new PNSNode(act_node->board, node->type, node->depth+2, 1);
+                Board b(act_node->board, i, get_player(act_node->type));
+                act_node->children[i] = new PNSNode(b, act_node->depth+1, 1);
+                if(states.find(b) != states.end()){
+                    states[b] = act_node->children[i];
+                }
+                //extend(act_node, i);
                 act_node->children[i]->pn = (act_node->type == AND ? 0 : UINT_MAX);
                 act_node->children[i]->dn = (act_node->type == AND ? UINT_MAX : 0);
             }

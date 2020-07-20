@@ -11,7 +11,7 @@ enum ProofType: uint8_t {PN, DN};
 
 
 struct PNSNode{
-    PNSNode(const Board& b, NodeType t, unsigned int d, int heur_val);
+    PNSNode(const Board& b, unsigned int d, int heur_val);
 
     PNSNode* children[ACTION_SIZE];
     const Board board;
@@ -39,7 +39,8 @@ public:
     void read_solution(std::string filename);
     void add_state(Board& b, PNSNode* node);
     void free_states();
-
+    void simplify_board(Board& next_state, const unsigned int action);
+    
     inline std::vector<Line_info> get_lines(unsigned int action) const{
         return heuristic.linesinfo_per_field[action];
     }
