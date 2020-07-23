@@ -20,8 +20,6 @@ PNSNode::PNSNode(const Board& b, unsigned int d, int heur_val):children(), board
         dn = 0;
     }
     else{
-        //int init_val = heur_val;
-        //int init_val = 1;
         pn = (type==OR ? 1:sum);
         //dn = (type==AND ? heur_val:sum);
         dn = (type==AND ? 1:sum);
@@ -60,6 +58,34 @@ unsigned int PNS::get_min_children(PNSNode* node, const ProofType type, bool ind
     if(index) return min_ind;
     else return min;
 }
+
+unsigned int PNS::get_min_delta_index(PNSNode* node, const ProofType type, int& second_ind) const{
+    unsigned int first_min = UINT_MAX;
+    unsigned int second_min = UINT_MAX;
+
+    unsigned int first_ind = -1;
+    second_ind = -1;
+
+    for(int i=0;i<ACTION_SIZE;i++){
+        if(!node->board.is_valid(i)) continue;
+        
+        unsigned int child = get_child_value(node->children[i], type);
+
+        if(child < second_min ){
+            second_min = child;
+            second_ind = i;
+            if(child < first_min){
+                second_min = first_min;
+                second_ind = first_ind;
+                
+                first_min = child;
+                first_ind = i;
+            }
+        }
+    }
+    return first_min;
+}
+
 
 unsigned int PNS::get_sum_children(PNSNode* node, const ProofType type) const{
     unsigned int sum = 0;
@@ -114,8 +140,6 @@ void PNS::extend(PNSNode* node, const unsigned int action){
             node->children[action]->dn = UINT_MAX;
             return;
         }
-        //else if((node->type == AND) && next_state.black_win(get_all_lines())){
-        //else if((node->type == AND) && next_state.no_free_lines(get_all_lines())){
         else if((next_state.node_type == OR) && next_state.heuristic_stop(get_all_lines())){
             node->children[action]->pn = UINT_MAX;
             node->children[action]->dn = 0;
@@ -145,7 +169,11 @@ void PNS::extend(PNSNode* node, const unsigned int action){
     }
 }
 
-void PNS::search(PNSNode* node){
+void PNS::init_PN_search(PNSNode* node){
+    add_state(node->board, node);
+}
+
+void PNS::PN_search(PNSNode* node){
     assert(node != nullptr);
     if(node->pn == 0 || node->dn == 0) return;
 
@@ -154,7 +182,7 @@ void PNS::search(PNSNode* node){
 
         if(min_ind == (-1)) 0; // Disproof found
         else if(node->children[min_ind] == nullptr) extend(node, min_ind);
-        else search(node->children[min_ind]);
+        else PN_search(node->children[min_ind]);
         // === Update PN and DN in node ===
         node->pn = get_min_children(node, PN);
         node->dn = get_sum_children(node, DN);
@@ -165,7 +193,7 @@ void PNS::search(PNSNode* node){
 
         if(min_ind == (-1)) 0; // Proof found
         else if(node->children[min_ind] == nullptr) extend(node, min_ind);
-        else search(node->children[min_ind]);
+        else PN_search(node->children[min_ind]);
         // === Update PN and DN in node ===
         node->pn = get_sum_children(node, PN);
         node->dn = get_min_children(node, DN);
@@ -257,7 +285,7 @@ void PNS::log_solution_min(PNSNode* node, std::ofstream& file){
     }
 }
 
-void PNS::add_state(Board& b, PNSNode* node){
+void PNS::add_state(const Board& b, PNSNode* node){
     if(states.find(b)==states.end()){
         states[b]=node;
     }

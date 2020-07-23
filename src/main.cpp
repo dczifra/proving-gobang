@@ -29,10 +29,6 @@ void play_with_tree(PNSNode* node, const PNS& tree){
             if(player == 1) act = tree.get_min_children(act_node, PN, true);
             else act = tree.get_min_children(act_node, DN, true);
         }
-        //std::cout<<"Remove:\n";
-        //Board temp(act_node->board, act, player);
-        //temp.remove_small_components(heuristic.all_linesinfo);
-        //display(temp, true);
 
         act_node = act_node->children[act];
 
@@ -68,11 +64,10 @@ void PNS_test(bool play = false){
 
     PNS tree;
     PNSNode* node = new PNSNode(b, 0, 1);
-    tree.add_state(b,node);
     
     unsigned int i = 0;
     while(1){
-        tree.search(node);
+        tree.PN_search(node);
         if(i%10000 == 0){
             tree.stats(node);
         }

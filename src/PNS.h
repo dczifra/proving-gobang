@@ -8,36 +8,51 @@
 
 enum ProofType: uint8_t {PN, DN};
 
-
-
 struct PNSNode{
     PNSNode(const Board& b, unsigned int d, int heur_val);
 
+    // === DATA ===
     PNSNode* children[ACTION_SIZE];
     const Board board;
 
     unsigned int pn = 1;
     unsigned int dn = 1;
+    unsigned int pn_th;
+    unsigned int dn_th;
+
     unsigned int parent_num = 1;
     unsigned int depth = 0;
     NodeType type;
+
+    // === FUNCTIONS ===
+    inline unsigned int& theta(){ type == OR ? pn : dn;}
+    inline unsigned int& delta(){ type == OR ? dn : pn;}
+
+    inline unsigned int& theta_th(){ type == OR ? pn_th : dn_th;}
+    inline unsigned int& delta_th(){ type == OR ? dn_th : pn_th;}
 };
 
 class PNS{
 public:
     ~PNS(){free_states();}
-    void search(PNSNode* node);
+    void PN_search(PNSNode* node);
+    void DFPN_search(PNSNode* node);
+    void init_PN_search(PNSNode* node);
+    void init_DFPN_search(PNSNode* node);
+
     void extend(PNSNode* node, const unsigned int action);
     void delete_all(PNSNode* node);
     void delete_node(PNSNode* node);
     unsigned int get_min_children(PNSNode* node, const ProofType type, bool index) const;
     unsigned int get_sum_children(PNSNode* node, const ProofType type) const;
 
+    unsigned int get_min_delta_index(PNSNode* node, const ProofType type, int& second) const;
+
     // === Helper Functions ===
     void log_solution(std::string filename);
     void log_solution_min(PNSNode* node, std::ofstream& file);
     void read_solution(std::string filename);
-    void add_state(Board& b, PNSNode* node);
+    void add_state(const Board& b, PNSNode* node);
     void free_states();
     void simplify_board(Board& next_state, const unsigned int action);
     
