@@ -4,7 +4,7 @@
 #include "common.h"
 #include "heuristic.h"
 #include "board.h"
-
+#include "PNS.h"
 // =================================================================
 //                     TEST THE BOARD's GOODNESS
 // =================================================================
@@ -127,10 +127,45 @@ void test_components2(){
     }
 }
 
+void steps(){
+    std::vector<int> moves = {1, 4, 2, 5};
+
+    Heuristic h;
+    Board b;
+    int player = 1;
+    for(auto act: moves){
+        b.move(act, player);
+        display(b,true);
+        player = -player;
+    }
+}
+
+void test_DFPN(){
+    Board b;
+    int player = 1;
+    //choose_problem(b,player);
+
+    PNS tree;
+    PNSNode* node = new PNSNode(b, 0, 1);
+    tree.init_DFPN_search(node);
+    
+    unsigned int i = 0;
+    while(1){
+        tree.DFPN_search(node);
+        if(i%10000 == 0){
+            tree.stats(node);
+        }
+        if(node->pn*node->dn==0) break;
+        i++;
+    }
+    tree.stats(node);
+
+}
 int main() {
     std::cout<<"=== TEST ==="<<std::endl;
 
     test_components2();
+    //test_DFPN();
 
     return 0;
 }

@@ -31,7 +31,7 @@ void display(mtx<int>& board, bool end){
 
     int back_step = ROW+5; 
     printf("                           \n");
-    printf("  === Gobang Game ===\n");
+    printf("=== Gobang Game ===\n");
     printf("  ");
     for(int i=0;i<COL;i++){
         std::string num = std::to_string(i);

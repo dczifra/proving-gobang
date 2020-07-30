@@ -46,7 +46,7 @@ unsigned int PNS::get_min_children(PNSNode* node, const ProofType type, bool ind
 
     for(int i=0;i<ACTION_SIZE;i++){
         if(!node->board.is_valid(i)) continue;
-        
+
         unsigned int child = get_child_value(node->children[i], type);
 
         if(child < min ){
@@ -59,7 +59,7 @@ unsigned int PNS::get_min_children(PNSNode* node, const ProofType type, bool ind
     else return min;
 }
 
-unsigned int PNS::get_min_delta_index(PNSNode* node, const ProofType type, int& second_ind) const{
+unsigned int PNS::get_min_delta_index(PNSNode* node, int& second_ind) const{
     unsigned int first_min = UINT_MAX;
     unsigned int second_min = UINT_MAX;
 
@@ -68,8 +68,8 @@ unsigned int PNS::get_min_delta_index(PNSNode* node, const ProofType type, int& 
 
     for(int i=0;i<ACTION_SIZE;i++){
         if(!node->board.is_valid(i)) continue;
-        
-        unsigned int child = get_child_value(node->children[i], type);
+        // === take care of initialization ===
+        unsigned int child = node->children[i] == nullptr ? 1: node->children[i]->delta();
 
         if(child < second_min ){
             second_min = child;

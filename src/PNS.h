@@ -17,8 +17,8 @@ struct PNSNode{
 
     unsigned int pn = 1;
     unsigned int dn = 1;
-    unsigned int pn_th;
-    unsigned int dn_th;
+    unsigned int pn_th = 1;
+    unsigned int dn_th = 1;
 
     unsigned int parent_num = 1;
     unsigned int depth = 0;
@@ -27,9 +27,14 @@ struct PNSNode{
     // === FUNCTIONS ===
     inline unsigned int& theta(){ type == OR ? pn : dn;}
     inline unsigned int& delta(){ type == OR ? dn : pn;}
+    inline unsigned int& set_theta(unsigned int val){ type == OR ? pn = val : dn=val;}
+    inline unsigned int& set_delta(unsigned int val){ type == OR ? dn = val : pn=val;}
+
 
     inline unsigned int& theta_th(){ type == OR ? pn_th : dn_th;}
     inline unsigned int& delta_th(){ type == OR ? dn_th : pn_th;}
+    inline unsigned int& set_theta_th(unsigned int val){ type == OR ? pn_th = val : dn_th=val;}
+    inline unsigned int& set_delta_th(unsigned int val){ type == OR ? dn_th = val : pn_th=val;}
 };
 
 class PNS{
@@ -46,8 +51,6 @@ public:
     unsigned int get_min_children(PNSNode* node, const ProofType type, bool index) const;
     unsigned int get_sum_children(PNSNode* node, const ProofType type) const;
 
-    unsigned int get_min_delta_index(PNSNode* node, const ProofType type, int& second) const;
-
     // === Helper Functions ===
     void log_solution(std::string filename);
     void log_solution_min(PNSNode* node, std::ofstream& file);
@@ -55,6 +58,11 @@ public:
     void add_state(const Board& b, PNSNode* node);
     void free_states();
     void simplify_board(Board& next_state, const unsigned int action);
+
+    // === DFPN Helper ===
+    void update_threshhold(PNSNode* node);
+    unsigned int get_min_delta_index(PNSNode* node, int& second) const;
+
     
     inline std::vector<Line_info> get_lines(unsigned int action) const{
         return heuristic.linesinfo_per_field[action];

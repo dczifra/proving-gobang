@@ -64,7 +64,8 @@ void PNS_test(bool play = false){
 
     PNS tree;
     PNSNode* node = new PNSNode(b, 0, 1);
-    
+    tree.init_PN_search(node);
+
     unsigned int i = 0;
     while(1){
         tree.PN_search(node);
@@ -82,10 +83,31 @@ void PNS_test(bool play = false){
     if(play) play_with_tree(node, tree);
 }
 
+void DFPNS_test(bool play = false){
+    Board b;
+    int player = 1;
+    //choose_problem(b,player);
+
+    PNS tree;
+    PNSNode* node = new PNSNode(b, 0, 1);
+    tree.init_DFPN_search(node);
+    
+    unsigned int i = 0;
+    while(1){
+        tree.DFPN_search(node);
+        if(i%10000 == 0){
+            tree.stats(node);
+        }
+        if(node->pn*node->dn==0) break;
+        i++;
+    }
+    tree.stats(node);
+}
+
 int main(int argc, char* argv[]) {
     std::cout<<"Proving gobanggame..."<<std::endl;
 
-    PNS_test(argc>1);
+    DFPNS_test(argc>1);
 
     return 0;
 }
