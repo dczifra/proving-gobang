@@ -176,6 +176,9 @@ struct Board{
     void remove_dead_fields_line(const Line_info& line, const std::vector<unsigned int>& field_linesum);
 
     void remove_lines_with_two_ondegree(const std::vector<Line_info>& all_line);
+
+    void keep_comp(std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field, int action);
+    void start_search(std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field, std::vector<int>& status, int from);
 };
 
 

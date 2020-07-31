@@ -270,7 +270,37 @@ void Board::remove_lines_with_two_ondegree(const std::vector<Line_info>& all_lin
     //if(rerun) remove_lines_with_two_ondegree(all_line);
 }
 
+// ==============================================
+//                STEP INTO COMP
+// ==============================================
+void Board::start_search(std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field, std::vector<int>& status, int from){
+    status[from] = 1;
+    for(auto line: linesinfo_per_field[from]){
+        if(line.line_board & black) continue;
 
+        for(auto field: line.points){
+            if(status[field] == -1 && is_valid(field)){
+                start_search(linesinfo_per_field, status, field);
+            }
+        }
+    }
+}
+
+void Board::keep_comp(std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field, int action){
+    std::vector<int> status(ACTION_SIZE, -1); // -1 undiscovered 0 discoverd 1 processed
+
+    start_search(linesinfo_per_field, status, action);
+    for(int i=0;i<ACTION_SIZE;i++){
+        if(status[i] >= 0) continue;
+        else{
+            // === Delete from white board ===
+            if((white & ((1ULL) << i))>0){
+                white = white ^ ((1ULL) << i);
+            }
+            black |= ((1ULL) << i);
+        }
+    }
+}
 
 // ==============================================
 //               SPLIT TO COMPONENTS

@@ -60,7 +60,7 @@ public:
     void simplify_board(Board& next_state, const unsigned int action);
 
     // === DFPN Helper ===
-    void update_threshhold(PNSNode* node);
+    unsigned int update_threshhold(PNSNode* node);
     unsigned int get_min_delta_index(PNSNode* node, int& second) const;
 
     
