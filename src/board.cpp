@@ -279,8 +279,11 @@ void Board::start_search(std::array<std::vector<Line_info>, ACTION_SIZE>& linesi
         if(line.line_board & black) continue;
 
         for(auto field: line.points){
-            if(status[field] == -1 && is_valid(field)){
-                start_search(linesinfo_per_field, status, field);
+            if(status[field] == -1){
+                if(is_valid(field)) start_search(linesinfo_per_field, status, field);
+                else if( white & ((1ULL) << field)){
+                    status[field] = 0;
+                }
             }
         }
     }
