@@ -107,12 +107,8 @@ inline void PNS::simplify_board(Board& next_state, const unsigned int action, in
         next_state.remove_lines_with_two_ondegree(heuristic.all_linesinfo);
         next_state.remove_2lines_all(heuristic.all_linesinfo);
         next_state.remove_dead_fields(heuristic.linesinfo_per_field, action);
-
-
-        //Board b1(next_state);
-        //b1.remove_dead_fields(heuristic.linesinfo_per_field, action);
     }
-    else if(depth%4 == 0){
+    else{
         next_state.keep_comp(heuristic.linesinfo_per_field, action);
     }
 }
@@ -168,6 +164,7 @@ void PNS::extend(PNSNode* node, const unsigned int action){
                 if(states.find(b) != states.end()){
                     //std::cout<<act_node->children[i]->pn << std::endl;
                     act_node->children[i] = states[b];
+                    act_node->children[i] -> parent_num += 1;
                 }
                 else{
                     act_node->children[i] = new PNSNode(b, act_node->depth+1, 1);
