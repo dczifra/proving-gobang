@@ -4,7 +4,7 @@
 #include "limits.h"
 #include "assert.h"
 #include "common.h"
-
+#include <unistd.h>
 
 
 PNSNode::PNSNode(const Board& b, unsigned int d, int heur_val):children(), board(b), depth(d){
@@ -101,7 +101,7 @@ unsigned int PNS::get_sum_children(PNSNode* node, const ProofType type) const{
     return sum;
 }
 
-inline void PNS::simplify_board(Board& next_state, const unsigned int action){
+inline void PNS::simplify_board(Board& next_state, const unsigned int action, int depth){
     if(next_state.node_type == OR){ // Last move: black
 
         next_state.remove_lines_with_two_ondegree(heuristic.all_linesinfo);
@@ -112,7 +112,7 @@ inline void PNS::simplify_board(Board& next_state, const unsigned int action){
         //Board b1(next_state);
         //b1.remove_dead_fields(heuristic.linesinfo_per_field, action);
     }
-    else{
+    else if(depth%4 == 0){
         next_state.keep_comp(heuristic.linesinfo_per_field, action);
     }
 }
@@ -120,7 +120,7 @@ inline void PNS::simplify_board(Board& next_state, const unsigned int action){
 void PNS::extend(PNSNode* node, const unsigned int action){
     Board next_state(node->board, action, get_player(node->type));
 
-    simplify_board(next_state, action);
+    simplify_board(next_state, action, node->depth);
     
     Board reversed(next_state);
     reversed.flip();
@@ -138,7 +138,10 @@ void PNS::extend(PNSNode* node, const unsigned int action){
     else{
         int heur_val = (int) floor(pow(2.0, 8*(next_state.heuristic_val(heuristic.all_linesinfo)-1)));
         node->children[action] = new PNSNode(next_state, node->depth+1, heur_val);
-
+        //display(next_state, true);
+        //printf("%d, %f", heur_val, next_state.heuristic_val(heuristic.all_linesinfo));
+        //usleep(1000000);
+        
         if((next_state.node_type == AND) && next_state.white_win(get_lines(action))){
             node->children[action]->pn = 0;
             node->children[action]->dn = UINT_MAX;
@@ -153,6 +156,7 @@ void PNS::extend(PNSNode* node, const unsigned int action){
 
         // === life-and-death ===
         //std::cout<<node->depth<<std::endl;
+        
         int act = next_state.one_way(get_all_lines());
         PNSNode* act_node = node->children[action];
         if(act > -1){
@@ -161,13 +165,18 @@ void PNS::extend(PNSNode* node, const unsigned int action){
                 if(i == act) continue;
                 // === This will leak memory ===
                 Board b(act_node->board, i, get_player(act_node->type));
-                act_node->children[i] = new PNSNode(b, act_node->depth+1, 1);
                 if(states.find(b) != states.end()){
-                    states[b] = act_node->children[i];
+                    //std::cout<<act_node->children[i]->pn << std::endl;
+                    act_node->children[i] = states[b];
+                }
+                else{
+                    act_node->children[i] = new PNSNode(b, act_node->depth+1, 1);
                 }
                 //extend(act_node, i);
                 act_node->children[i]->pn = (act_node->type == AND ? 0 : UINT_MAX);
                 act_node->children[i]->dn = (act_node->type == AND ? UINT_MAX : 0);
+
+                //delete_node(act_node->children[i]);
             }
         }
     }

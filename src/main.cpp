@@ -1,5 +1,7 @@
 #define DEBUG false
 #define TRANSPOSITION_TABLE false
+#define RECURSIVE_LINE_SEARCH true
+
 
 #include <stdio.h>
 #include <stdlib.h>

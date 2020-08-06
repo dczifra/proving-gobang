@@ -57,7 +57,7 @@ public:
     void read_solution(std::string filename);
     void add_state(const Board& b, PNSNode* node);
     void free_states();
-    void simplify_board(Board& next_state, const unsigned int action);
+    void simplify_board(Board& next_state, const unsigned int action, int depth);
 
     // === DFPN Helper ===
     unsigned int update_threshhold(PNSNode* node);
