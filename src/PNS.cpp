@@ -168,6 +168,7 @@ void PNS::extend(PNSNode* node, const unsigned int action){
                 }
                 else{
                     act_node->children[i] = new PNSNode(b, act_node->depth+1, 1);
+                    states[b] = act_node->children[i];
                 }
                 //extend(act_node, i);
                 act_node->children[i]->pn = (act_node->type == AND ? 0 : UINT_MAX);
