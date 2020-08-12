@@ -109,6 +109,7 @@ void DFPNS_test(bool play = false){
 int main(int argc, char* argv[]) {
     std::cout<<"Proving gobanggame..."<<std::endl;
 
+    //DFPNS_test(argc>1);
     PNS_test(argc>1);
 
     return 0;

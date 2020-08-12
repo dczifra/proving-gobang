@@ -23,6 +23,9 @@ PNSNode::PNSNode(const Board& b, unsigned int d, int heur_val):children(), board
         pn = (type==OR ? 1:sum);
         //dn = (type==AND ? heur_val:sum);
         dn = (type==AND ? 1:sum);
+
+        pn_th = pn;
+        dn_th = dn;
     }
 
     parent_num = 1;
@@ -69,11 +72,9 @@ unsigned int PNS::get_min_delta_index(PNSNode* node, int& second_ind) const{
     for(int i=0;i<ACTION_SIZE;i++){
         if(!node->board.is_valid(i)) continue;
         // === take care of initialization ===
-        unsigned int child = node->children[i] == nullptr ? 1: node->children[i]->delta();
+        unsigned int child = node->children[i] == nullptr ? 1ULL: node->children[i]->delta();
 
         if(child < second_min ){
-            second_min = child;
-            second_ind = i;
             if(child < first_min){
                 second_min = first_min;
                 second_ind = first_ind;
@@ -81,9 +82,13 @@ unsigned int PNS::get_min_delta_index(PNSNode* node, int& second_ind) const{
                 first_min = child;
                 first_ind = i;
             }
+            else{
+                second_min = child;
+                second_ind = i;
+            }
         }
     }
-    return first_min;
+    return first_ind;
 }
 
 
@@ -132,12 +137,10 @@ void PNS::extend(PNSNode* node, const unsigned int action){
         node->children[action] -> parent_num += 1;
     }
     else{
-        int heur_val = (int) floor(pow(2.0, 8*(next_state.heuristic_val(heuristic.all_linesinfo)-1)));
+        int heur_val = 1;
+        //int heur_val = (int) floor(pow(2.0, 8*(next_state.heuristic_val(heuristic.all_linesinfo)-1)));
         node->children[action] = new PNSNode(next_state, node->depth+1, heur_val);
-        //display(next_state, true);
-        //printf("%d, %f", heur_val, next_state.heuristic_val(heuristic.all_linesinfo));
-        //usleep(1000000);
-        
+
         if((next_state.node_type == AND) && next_state.white_win(get_lines(action))){
             node->children[action]->pn = 0;
             node->children[action]->dn = UINT_MAX;
@@ -158,9 +161,10 @@ void PNS::extend(PNSNode* node, const unsigned int action){
         if(act > -1){
             extend(act_node, act);
             for(int i=0;i<ACTION_SIZE;i++){
-                if(i == act) continue;
+                if(i == act || !act_node->board.is_valid(i)) continue;
                 // === This will leak memory ===
                 Board b(act_node->board, i, get_player(act_node->type));
+
                 if(states.find(b) != states.end()){
                     //std::cout<<act_node->children[i]->pn << std::endl;
                     act_node->children[i] = states[b];
@@ -170,6 +174,7 @@ void PNS::extend(PNSNode* node, const unsigned int action){
                     act_node->children[i] = new PNSNode(b, act_node->depth+1, 1);
                     states[b] = act_node->children[i];
                 }
+                //display(act_node->board, true);
                 //extend(act_node, i);
                 act_node->children[i]->pn = (act_node->type == AND ? 0 : UINT_MAX);
                 act_node->children[i]->dn = (act_node->type == AND ? UINT_MAX : 0);
@@ -279,11 +284,12 @@ void PNS::log_solution_min(PNSNode* node, std::ofstream& file){
         file<<node->board.white<<" "<<node->board.black<<" "<<node->pn<<" "<<node->dn<<std::endl;
         
         if( ((node->type == OR) && (node->pn == 0)) ||
-            ((node->type == AND) && (node->dn==0))){
+            ((node->type == AND) && (node->dn==0)) ){
             ProofType proof_type = (node->pn == 0 ? PN:DN);
             unsigned int min_ind = get_min_children(node, proof_type, true);
             //assert(node->children[min_ind] != nullptr);
-            log_solution_min(node->children[min_ind], file);
+            if (min_ind == UINT_MAX) return;
+            else log_solution_min(node->children[min_ind], file);
         }
         else{
             for(int i=0;i<ACTION_SIZE;i++){

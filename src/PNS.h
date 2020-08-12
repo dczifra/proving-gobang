@@ -25,16 +25,16 @@ struct PNSNode{
     NodeType type;
 
     // === FUNCTIONS ===
-    inline unsigned int& theta(){ type == OR ? pn : dn;}
-    inline unsigned int& delta(){ type == OR ? dn : pn;}
-    inline unsigned int& set_theta(unsigned int val){ type == OR ? pn = val : dn=val;}
-    inline unsigned int& set_delta(unsigned int val){ type == OR ? dn = val : pn=val;}
+    inline unsigned int theta(){ return (type == OR ? pn : dn);}
+    inline unsigned int delta(){ return (type == OR ? dn : pn);}
+    void set_theta(unsigned int val){ type == OR ? pn = val : dn=val;}
+    void set_delta(unsigned int val){ type == OR ? dn = val : pn=val;}
 
 
-    inline unsigned int& theta_th(){ type == OR ? pn_th : dn_th;}
-    inline unsigned int& delta_th(){ type == OR ? dn_th : pn_th;}
-    inline unsigned int& set_theta_th(unsigned int val){ type == OR ? pn_th = val : dn_th=val;}
-    inline unsigned int& set_delta_th(unsigned int val){ type == OR ? dn_th = val : pn_th=val;}
+    inline unsigned int theta_th(){ return (type == OR ? pn_th : dn_th);}
+    inline unsigned int delta_th(){ return (type == OR ? dn_th : pn_th);}
+    void set_theta_th(unsigned int val){ type == OR ? pn_th = val : dn_th=val;}
+    void set_delta_th(unsigned int val){ type == OR ? dn_th = val : pn_th=val;}
 };
 
 class PNS{

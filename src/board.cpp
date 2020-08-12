@@ -48,6 +48,7 @@ int Board::one_way(const std::vector<Line_info>& all_lines) const{
                     return field;
                 }
                 else if(emptynum == 2){
+                //else if(emptynum == 2 && node_type == OR){
                     if(two_line[field]) return field;
                     else two_line[field] = 1;
                 }
