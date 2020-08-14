@@ -128,14 +128,17 @@ void test_components2(){
 }
 
 void steps(){
-    std::vector<int> moves = {0,16, 1,17, 2,18, 5, 19, 23};
-
+    //std::vector<int> moves = {0,16, 1,17, 2,18, 5, 19, 23};
+    std::vector<int> moves = {ROW*COL-1, 8, ROW*COL-2, 9, ROW*COL-3, 10, 1, 11};
     Heuristic h;
     Board b;
+    PNS tree;
     int player = 1;
     for(auto act: moves){
         b.move(act, player);
-        if(player == 1) b.keep_comp(h.linesinfo_per_field, act);
+        //if(player == 1) b.keep_comp(h.linesinfo_per_field, act);
+        tree.simplify_board(b, act, -1);
+        tree.simplify_board(b, act, -1);
         display(b,true);
         player = -player;
     }
@@ -160,8 +163,8 @@ void test_DFPN(){
         i++;
     }
     tree.stats(node);
-
 }
+
 int main() {
     std::cout<<"=== TEST ==="<<std::endl;
 

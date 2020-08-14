@@ -448,3 +448,53 @@ void Board::remove_small_components(const std::vector<Line_info>& all_lines){
     }
 
 }
+
+// =======================================
+//             ARTICULATION POINT
+// =======================================
+int Board::get_articulation_point(int node, int d,
+                            std::vector<int>& parent, std::vector<int>& depth, std::vector<int>& low,
+                            std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field){
+    /**
+     * Description:
+     *     Returns: the first discovered acticulation point: cut point of a 2
+     *              connected component
+     * Params:
+     *     parent: init to -1
+     *     depth: init to -1, because it is used also as visited indicator
+     * */
+    depth[node] = d;
+    low[node] = d;
+    unsigned int child_num = 0;
+    bool is_articulation = false;
+
+    for(auto line: linesinfo_per_field[node]){
+        // If line not active, continue
+        if(line.line_board & black) continue;
+
+        for(auto next_node: line.points){
+            // If field is not valid, continue
+            if(!is_valid(next_node)) continue;
+
+            if(depth[next_node] == -1){
+                int articulation = get_articulation_point(next_node, d+1, parent, depth, low, linesinfo_per_field);
+                if(articulation > -1) return articulation;
+
+                parent[next_node] = node;
+                child_num++;
+                if(low[next_node] >= depth[node]){
+                    is_articulation = true;
+                }
+                low[node] = std::min(low[node], low[next_node]);
+            }
+            else if(next_node != parent[node]){
+                low[node] = std::min(low[node], depth[next_node]);
+            }
+        }
+    }
+
+    if(is_articulation && (parent[node] != -1 || child_num > 1)){
+        return node;
+    }
+    else return -1;
+}

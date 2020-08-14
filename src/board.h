@@ -179,6 +179,10 @@ struct Board{
 
     void keep_comp(std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field, int action);
     void start_search(std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field, std::vector<int>& status, int from);
+
+    int get_articulation_point(int node, int d,
+                                std::vector<int>& parent, std::vector<int>& depth, std::vector<int>& low,
+                                std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field);
 };
 
 
