@@ -452,9 +452,28 @@ void Board::remove_small_components(const std::vector<Line_info>& all_lines){
 // =======================================
 //             ARTICULATION POINT
 // =======================================
+void Board::get_one_artic_point(std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field){
+    for(int act = 0; act < ACTION_SIZE; act++){
+        if(is_valid(act)){
+            std::vector<int> parent(ACTION_SIZE, -1);
+            std::vector<int> depth(ACTION_SIZE, -1);
+            std::vector<int> low(ACTION_SIZE, -1);
+
+            int artic = get_articulation_point(act, 0, parent, depth, low, linesinfo_per_field);
+            if(artic > -1){
+                display(*this, true, {artic});
+                std::cout<<artic<<std::endl;
+                //print_v(depth);
+                //print_v(low);
+                return;
+            }
+        }
+    }
+}
+
 int Board::get_articulation_point(int node, int d,
                             std::vector<int>& parent, std::vector<int>& depth, std::vector<int>& low,
-                            std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field){
+                            std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field) const{
     /**
      * Description:
      *     Returns: the first discovered acticulation point: cut point of a 2
@@ -477,13 +496,14 @@ int Board::get_articulation_point(int node, int d,
             if(!is_valid(next_node)) continue;
 
             if(depth[next_node] == -1){
-                int articulation = get_articulation_point(next_node, d+1, parent, depth, low, linesinfo_per_field);
-                if(articulation > -1) return articulation;
-
                 parent[next_node] = node;
+                int artic_point = get_articulation_point(next_node, d+1, parent, depth, low, linesinfo_per_field);
+                if(artic_point > -1) return artic_point;
+
                 child_num++;
                 if(low[next_node] >= depth[node]){
                     is_articulation = true;
+                    //std::cout<<"Artic point: "<<node<<std::endl;
                 }
                 low[node] = std::min(low[node], low[next_node]);
             }

@@ -112,6 +112,9 @@ inline void PNS::simplify_board(Board& next_state, const unsigned int action, in
         next_state.remove_lines_with_two_ondegree(heuristic.all_linesinfo);
         next_state.remove_2lines_all(heuristic.all_linesinfo);
         next_state.remove_dead_fields(heuristic.linesinfo_per_field, action);
+
+
+        next_state.get_one_artic_point(heuristic.linesinfo_per_field);
     }
     else{
         next_state.keep_comp(heuristic.linesinfo_per_field, action);

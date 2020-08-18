@@ -19,7 +19,6 @@ void PNS::DFPN_search(PNSNode* node){
     if(node->pn == 0 || node->dn == 0) return;
     //stats(node, true);
     //display(node->board, true);
-
     //std::cout<<node->theta() <<" "<< node->theta_th() <<" "<< node->delta() <<" "<< node->delta_th()<<std::endl;
 
     while(node->theta() < node->theta_th() && node->delta() < node->delta_th()){
@@ -81,12 +80,10 @@ unsigned int PNS::update_threshhold(PNSNode* node){
     }
     else{
         unsigned int pn_second = node->children[second_ind]->delta();
-        //assert(pn_second < UINT_MAX);
         node->children[min_ind]->set_delta_th(std::min(node->theta_th(), pn_second == (-1)? pn_second:pn_second +1));
     }
 
     unsigned int new_theta_th = node->theta_th()-node->theta()+n_c->theta();
-    //assert(new_theta_th < node->theta_th());
     node->children[min_ind]->set_theta_th(new_theta_th);
     return min_ind;
 }

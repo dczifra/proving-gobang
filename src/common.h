@@ -12,7 +12,7 @@
 //                BOARD INFOS
 // ============================================
 #define ROW 4
-#define COL 9
+#define COL 6
 #define LINEINROW 7
 #define LAYERNUM 7
 
@@ -31,10 +31,11 @@ const unsigned int FLIP_SIZE = BITSIZE-ACTION_SIZE;
 // ============================================
 template<class T>
 using mtx = std::array<std::array<T,ROW>, COL> ;
+void print_v(std::vector<int>& v);
 struct Board;
-void display(const Board board, bool end);
-void display(const mtx<int>& board, bool end);
-void display(const board_int board, bool end);
+void display(const Board board, bool end, std::vector<int> show = std::vector<int>());
+void display(const mtx<int>& board, bool end, std::vector<int> show);
+void display(const board_int board, bool end, std::vector<int> show = std::vector<int>());
 
 // ============================================
 //      Line infos (Shouldn't be in heuristic)

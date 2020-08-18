@@ -90,16 +90,12 @@ void test_components(){
     Heuristic h;
 
     Board b;
-    b.move(12, -1);
-    b.move(13, -1);
-    b.move(14, -1);
-    b.move(15, -1);
-    b.move(3, -1);
-    b.move(6, -1);
-    b.move(9, -1);
-
-    b.move(1, 1);
-    b.move(21, 1);
+    int player = 1;
+    std::vector<int> moves = {0, 12, 1, 13, 2, 14, 5, 15, 6, 3, 7, 6, 10, 9};
+    for(auto act: moves){
+        b.move(act, player);
+        player = -player;
+    }
 
     b.remove_small_components(h.all_linesinfo);
     display(b,true);
@@ -107,41 +103,46 @@ void test_components(){
 
 void test_components2(){
     Heuristic h;
-
-    //std::vector<int> moves = {8, 20, 13, 21, 18, 22, 25, 23};
-    //std::vector<int> moves = {1,4,25,20, 11, 6, 13, 5, 22, 19, 16, 21, 10, 7};
-    //std::vector<int> moves = {1, 4, 2, 5, 6, 3};
-    std::vector<int> moves = {1, 4, 2, 5};
-
     Board b;
     int player = 1;
 
+    std::vector<int> moves = {1, 4, 2, 5};
+
     for(auto act: moves){
         b.move(act, player);
-        //b.remove_small_components(h.all_linesinfo);
-        if(player == -1) b.remove_dead_fields(h.linesinfo_per_field, act);
-        //if(player == -1) b.remove_2lines_all(h.all_linesinfo);
-        if(player == -1) b.remove_2lines(h.linesinfo_per_field, act);
+        if(player == -1){
+            b.remove_dead_fields(h.linesinfo_per_field, act);
+            //b.remove_small_components(h.all_linesinfo);
+            //b.remove_2lines_all(h.all_linesinfo);
+            b.remove_2lines(h.linesinfo_per_field, act);
+        }
         display(b,true);
         player = -player;
     }
 }
 
-void steps(){
-    //std::vector<int> moves = {0,16, 1,17, 2,18, 5, 19, 23};
-    std::vector<int> moves = {ROW*COL-1, 8, ROW*COL-2, 9, ROW*COL-3, 10, 1, 11};
+
+void artic_point(){
+    std::vector<int> moves = {0, ROW*COL/2-1, 8, ROW*COL/2-2, 9, 1, 15, ROW*COL/2+1, 23};
     Heuristic h;
     Board b;
     PNS tree;
+
+    std::vector<int> parent(ACTION_SIZE, -1);
+    std::vector<int> depth(ACTION_SIZE, -1);
+    std::vector<int> low(ACTION_SIZE, -1);
+
     int player = 1;
     for(auto act: moves){
         b.move(act, player);
-        //if(player == 1) b.keep_comp(h.linesinfo_per_field, act);
         tree.simplify_board(b, act, -1);
-        tree.simplify_board(b, act, -1);
+
         display(b,true);
         player = -player;
     }
+    std::cout<<b.get_articulation_point(2, 0, parent, depth, low, h.linesinfo_per_field);
+    print_v(depth);
+    print_v(low);
 }
 
 void test_DFPN(){
@@ -170,7 +171,7 @@ int main() {
 
     //test_components2();
     //test_DFPN();
-    steps();
+    artic_point();
 
     return 0;
 }
