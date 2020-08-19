@@ -54,7 +54,7 @@ void play_with_tree(PNS::PNSNode* node, const PNS& tree){
 }
 
 NodeType choose_problem(Board& b, int& player){
-    b.move({0,1,ROW*COL -1}, player);
+    //b.move({0,1,ROW*COL -1}, player);
     //b.move({0,1,23}, player);
 
     return (player==1?OR:AND);
