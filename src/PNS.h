@@ -8,37 +8,39 @@
 
 enum ProofType: uint8_t {PN, DN};
 
-struct PNSNode{
-    PNSNode(const Board& b, unsigned int d, int heur_val);
 
-    // === DATA ===
-    PNSNode* children[ACTION_SIZE];
-    const Board board;
-
-    unsigned int pn = 1;
-    unsigned int dn = 1;
-    unsigned int pn_th = 1;
-    unsigned int dn_th = 1;
-
-    unsigned int parent_num = 1;
-    unsigned int depth = 0;
-    NodeType type;
-
-    // === FUNCTIONS ===
-    inline unsigned int theta(){ return (type == OR ? pn : dn);}
-    inline unsigned int delta(){ return (type == OR ? dn : pn);}
-    void set_theta(unsigned int val){ type == OR ? pn = val : dn=val;}
-    void set_delta(unsigned int val){ type == OR ? dn = val : pn=val;}
-
-
-    inline unsigned int theta_th(){ return (type == OR ? pn_th : dn_th);}
-    inline unsigned int delta_th(){ return (type == OR ? dn_th : pn_th);}
-    void set_theta_th(unsigned int val){ type == OR ? pn_th = val : dn_th=val;}
-    void set_delta_th(unsigned int val){ type == OR ? dn_th = val : pn_th=val;}
-};
 
 class PNS{
 public:
+    struct PNSNode{
+        PNSNode(const Board& b, unsigned int d, int action, int heur_val, Heuristic& h);
+
+        // === DATA ===
+        PNSNode* children[ACTION_SIZE];
+        const Board board;
+
+        unsigned int pn = 1;
+        unsigned int dn = 1;
+        unsigned int pn_th = 1;
+        unsigned int dn_th = 1;
+
+        unsigned int parent_num = 1;
+        unsigned int depth = 0;
+        NodeType type;
+
+        // === FUNCTIONS ===
+        inline unsigned int theta(){ return (type == OR ? pn : dn);}
+        inline unsigned int delta(){ return (type == OR ? dn : pn);}
+        void set_theta(unsigned int val){ type == OR ? pn = val : dn=val;}
+        void set_delta(unsigned int val){ type == OR ? dn = val : pn=val;}
+
+
+        inline unsigned int theta_th(){ return (type == OR ? pn_th : dn_th);}
+        inline unsigned int delta_th(){ return (type == OR ? dn_th : pn_th);}
+        void set_theta_th(unsigned int val){ type == OR ? pn_th = val : dn_th=val;}
+        void set_delta_th(unsigned int val){ type == OR ? dn_th = val : pn_th=val;}
+    };
+
     ~PNS(){free_states();}
     void PN_search(PNSNode* node);
     void DFPN_search(PNSNode* node);
@@ -64,7 +66,7 @@ public:
     unsigned int get_min_delta_index(PNSNode* node, int& second) const;
 
     
-    inline std::vector<Line_info> get_lines(unsigned int action) const{
+    inline std::vector<Line_info> get_lines(unsigned int action) const {
         return heuristic.linesinfo_per_field[action];
     }
     
@@ -77,7 +79,7 @@ public:
         if(end) std::cout<<std::endl;
     }
 
+    Heuristic heuristic;
 private :
     std::map<Board, PNSNode*> states;
-    Heuristic heuristic;
 };

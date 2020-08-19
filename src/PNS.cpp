@@ -6,16 +6,23 @@
 #include "common.h"
 #include <unistd.h>
 
-
-PNSNode::PNSNode(const Board& b, unsigned int d, int heur_val):children(), board(b), depth(d){
+PNS::PNSNode::PNSNode(const Board& b, unsigned int d, int action, int heur_val, Heuristic& h):children(), board(b), depth(d){
     type = b.node_type;
     unsigned int sum = 0;
     for(int i=0;i<ACTION_SIZE;i++){
         if(b.is_valid(i)) ++sum;
     }
 
+    if((b.node_type == AND) && action > -1 && b.white_win(h.linesinfo_per_field[action])){
+        pn = 0;
+        dn = UINT_MAX;
+    }
+    else if((b.node_type == OR) && b.heuristic_stop(h.all_linesinfo)){
+        pn = UINT_MAX;
+        dn = 0;
+    }
     // === Init proof and disploof number ===
-    if(sum == 0){ // Game is over, black wins
+    else if(sum == 0){ // Game is over, black wins
         pn = UINT_MAX;
         dn = 0;
     }
@@ -31,7 +38,7 @@ PNSNode::PNSNode(const Board& b, unsigned int d, int heur_val):children(), board
     parent_num = 1;
 }
 
-inline unsigned int get_child_value(PNSNode* child_node, const ProofType type){
+inline unsigned int get_child_value(PNS::PNSNode* child_node, const ProofType type){
     if(child_node == nullptr){
         return 1; // Improvement: Initialization policy
     }
@@ -43,7 +50,7 @@ inline unsigned int get_child_value(PNSNode* child_node, const ProofType type){
     }
 }
 
-unsigned int PNS::get_min_children(PNSNode* node, const ProofType type, bool index = false) const{
+unsigned int PNS::get_min_children(PNS::PNSNode* node, const ProofType type, bool index = false) const{
     unsigned int min = UINT_MAX;
     unsigned int min_ind = -1;
 
@@ -62,7 +69,7 @@ unsigned int PNS::get_min_children(PNSNode* node, const ProofType type, bool ind
     else return min;
 }
 
-unsigned int PNS::get_min_delta_index(PNSNode* node, int& second_ind) const{
+unsigned int PNS::get_min_delta_index(PNS::PNSNode* node, int& second_ind) const{
     unsigned int first_min = UINT_MAX;
     unsigned int second_min = UINT_MAX;
 
@@ -92,7 +99,7 @@ unsigned int PNS::get_min_delta_index(PNSNode* node, int& second_ind) const{
 }
 
 
-unsigned int PNS::get_sum_children(PNSNode* node, const ProofType type) const{
+unsigned int PNS::get_sum_children(PNS::PNSNode* node, const ProofType type) const{
     unsigned int sum = 0;
 
     for(int i=0;i<ACTION_SIZE;i++){
@@ -120,7 +127,7 @@ inline void PNS::simplify_board(Board& next_state, const unsigned int action, in
     }
 }
 
-void PNS::extend(PNSNode* node, const unsigned int action){
+void PNS::extend(PNS::PNSNode* node, const unsigned int action){
     Board next_state(node->board, action, get_player(node->type));
 
     simplify_board(next_state, action, node->depth);
@@ -141,57 +148,19 @@ void PNS::extend(PNSNode* node, const unsigned int action){
     else{
         int heur_val = 1;
         //int heur_val = (int) floor(pow(2.0, 8*(next_state.heuristic_val(heuristic.all_linesinfo)-1)));
-        node->children[action] = new PNSNode(next_state, node->depth+1, heur_val);
-
-        if((next_state.node_type == AND) && next_state.white_win(get_lines(action))){
-            node->children[action]->pn = 0;
-            node->children[action]->dn = UINT_MAX;
-            return;
-        }
-        else if((next_state.node_type == OR) && next_state.heuristic_stop(get_all_lines())){
-            node->children[action]->pn = UINT_MAX;
-            node->children[action]->dn = 0;
-            return;
-        }
-        states[next_state] = node->children[action];
-
-        // === life-and-death ===
-        //std::cout<<node->depth<<std::endl;
-        
         int act = next_state.one_way(get_all_lines());
-        PNSNode* act_node = node->children[action];
-        if(act > -1){
-            extend(act_node, act);
-            for(int i=0;i<ACTION_SIZE;i++){
-                if(i == act || !act_node->board.is_valid(i)) continue;
-                // === This will leak memory ===
-                Board b(act_node->board, i, get_player(act_node->type));
+        if(act > -1) next_state.move(act, next_state.node_type== OR ? 1 : -1);
 
-                if(states.find(b) != states.end()){
-                    //std::cout<<act_node->children[i]->pn << std::endl;
-                    act_node->children[i] = states[b];
-                    act_node->children[i] -> parent_num += 1;
-                }
-                else{
-                    act_node->children[i] = new PNSNode(b, act_node->depth+1, 1);
-                    states[b] = act_node->children[i];
-                }
-                //display(act_node->board, true);
-                //extend(act_node, i);
-                act_node->children[i]->pn = (act_node->type == AND ? 0 : UINT_MAX);
-                act_node->children[i]->dn = (act_node->type == AND ? UINT_MAX : 0);
-
-                //delete_node(act_node->children[i]);
-            }
-        }
+        node->children[action] = new PNS::PNSNode(next_state, node->depth+1, action, heur_val, heuristic);
+        states[next_state] = node->children[action];
     }
 }
 
-void PNS::init_PN_search(PNSNode* node){
+void PNS::init_PN_search(PNS::PNSNode* node){
     add_state(node->board, node);
 }
 
-void PNS::PN_search(PNSNode* node){
+void PNS::PN_search(PNS::PNSNode* node){
     assert(node != nullptr);
     if(node->pn == 0 || node->dn == 0) return;
 
@@ -223,7 +192,7 @@ void PNS::PN_search(PNSNode* node){
     }
 }
 
-void PNS::delete_all(PNSNode* node){
+void PNS::delete_all(PNS::PNSNode* node){
     if( node->parent_num>1 ){
         node->parent_num -= 1;
     }
@@ -239,7 +208,7 @@ void PNS::delete_all(PNSNode* node){
         delete node;
     }
 }
-void PNS::delete_node(PNSNode* node){
+void PNS::delete_node(PNS::PNSNode* node){
     // === In this case, we need max 1 branch ===
     if( ((node->type == OR) && (node->pn == 0)) ||
         ((node->type == AND) && (node->dn==0)) ){
@@ -280,7 +249,7 @@ void PNS::log_solution(std::string filename){
     log_file.close();
 }
 
-void PNS::log_solution_min(PNSNode* node, std::ofstream& file){
+void PNS::log_solution_min(PNS::PNSNode* node, std::ofstream& file){
     if(node == nullptr) return;
     else{
         file<<node->board.white<<" "<<node->board.black<<" "<<node->pn<<" "<<node->dn<<std::endl;
@@ -304,7 +273,7 @@ void PNS::log_solution_min(PNSNode* node, std::ofstream& file){
     }
 }
 
-void PNS::add_state(const Board& b, PNSNode* node){
+void PNS::add_state(const Board& b, PNS::PNSNode* node){
     if(states.find(b)==states.end()){
         states[b]=node;
     }

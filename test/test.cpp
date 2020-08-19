@@ -154,11 +154,12 @@ void artic_point(){
 
 void test_DFPN(){
     Board b;
+    Heuristic h;
     int player = 1;
     //choose_problem(b,player);
 
     PNS tree;
-    PNSNode* node = new PNSNode(b, 0, 1);
+    PNS::PNSNode* node = new PNS::PNSNode(b, 0, -1, -1, h);
     tree.init_DFPN_search(node);
     
     unsigned int i = 0;

@@ -13,12 +13,12 @@
 #include "board.h"
 #include "PNS.h"
 
-void play_with_tree(PNSNode* node, const PNS& tree){
+void play_with_tree(PNS::PNSNode* node, const PNS& tree){
     Heuristic heuristic;
 
     int player = get_player(node->type);
     const int human_player = (node->pn == 0?-1:1);
-    PNSNode* act_node = node;
+    PNS::PNSNode* act_node = node;
     int act = -1;
 
     while(1){
@@ -54,7 +54,7 @@ void play_with_tree(PNSNode* node, const PNS& tree){
 }
 
 NodeType choose_problem(Board& b, int& player){
-    //b.move({0,1,ROW*COL -1}, player);
+    b.move({0,1,ROW*COL -1}, player);
     //b.move({0,1,23}, player);
 
     return (player==1?OR:AND);
@@ -66,13 +66,13 @@ void PNS_test(bool play = false){
     choose_problem(b,player);
 
     PNS tree;
-    PNSNode* node = new PNSNode(b, 0, 1);
+    PNS::PNSNode* node = new PNS::PNSNode(b, 0, -1, -1, tree.heuristic);
     tree.init_PN_search(node);
 
     unsigned int i = 0;
     while(1){
         tree.PN_search(node);
-        if(i%10000 == 0){
+        if(i%10000 == 0 && play){
             tree.stats(node);
         }
         if(node->pn*node->dn==0) break;
@@ -92,13 +92,13 @@ void DFPNS_test(bool play = false){
     //choose_problem(b,player);
 
     PNS tree;
-    PNSNode* node = new PNSNode(b, 0, 1);
+    PNS::PNSNode* node = new PNS::PNSNode(b, 0, -1, -1, tree.heuristic);
     tree.init_DFPN_search(node);
     
     unsigned int i = 0;
     while(1){
         tree.DFPN_search(node);
-        if(i%10000 == 0){
+        if(i%10000 == 0 && play){
             tree.stats(node);
         }
         if(node->pn*node->dn==0) break;
