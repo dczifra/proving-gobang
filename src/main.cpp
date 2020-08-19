@@ -1,6 +1,7 @@
 #define DEBUG false
 #define TRANSPOSITION_TABLE false
 #define RECURSIVE_LINE_SEARCH true
+// this macro does not work
 
 
 #include <stdio.h>

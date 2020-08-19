@@ -35,14 +35,11 @@ unsigned long long set_full_board(){
 }
 
 void display(mtx<int>& board, bool end, std::vector<int> show){
-    std::cout<<show.size()<<show[0]<<std::endl;
     std::vector<bool> is_show(ACTION_SIZE, 0);
     for(auto f: show){
         is_show[f]=1;
     }
-    is_show[show[0]] = true;
 
-    //const std::string WARNING = "\033[93m";
     const std::string WARNING = "\033[94m";
     const std::string FAIL = "\033[91m";
     const std::string ENDC = "\033[0m";

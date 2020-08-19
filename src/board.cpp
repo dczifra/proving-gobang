@@ -1,6 +1,8 @@
 #include "board.h"
 #include "assert.h"
 
+#define REC 1
+
 NodeType operator!(const NodeType& type){
     return (type==OR?AND:OR);
 }
@@ -9,7 +11,7 @@ int get_player(const NodeType& type){
     return (type==OR?1:-1);
 }
 
-bool operator<(const Board& b1, const Board& b2) {
+bool operator<(const Board& b1, const Board& b2){
     return (b1.node_type < b2.node_type) || ((b1.node_type == b2.node_type) && b1.white<b2.white) || ( (b1.node_type == b2.node_type) && b1.white == b2.white && b1.black<b2.black);
 }
 
@@ -187,9 +189,9 @@ void Board::remove_2lines_all(const std::vector<Line_info>& all_line){
             }
         }
     }
-    
-    #if RECURSIVE_LINE_SEARCH
-        remove_2lines_all(all_line);
+    #ifdef REC
+    if(rerun) remove_2lines_all(all_line);
+    //remove_2lines_all(all_line);
     #endif
 }
 
@@ -270,8 +272,8 @@ void Board::remove_lines_with_two_ondegree(const std::vector<Line_info>& all_lin
         }
     }
 
-    #if RECURSIVE_LINE_SEARCH
-        remove_lines_with_two_ondegree(all_line);
+    #ifdef REC
+        if(rerun) remove_lines_with_two_ondegree(all_line);
     #endif
 }
 
@@ -518,3 +520,108 @@ int Board::get_articulation_point(int node, int d,
     }
     else return -1;
 }
+
+std::pair<int, bool> Board::Artic_point::get_articulation_point_bipartite(int node, int d){
+    /**
+     * Description:
+     *     Returns: the first discovered acticulation point: cut point of a 2
+     *              connected component
+     * Params:
+     *     parent: init to -1
+     *     depth: init to -1, because it is used also as visited indicator
+     * */
+    depth[node] = d;
+    low[node] = d;
+    unsigned int child_num = 0;
+    bool is_articulation = false;
+
+    for(auto line: linesinfo_per_field[node]){
+        // If line not active, continue
+        if(line.line_board & board->black) continue;
+
+        const unsigned int line_index = line.index;
+        if(depth_line[line_index] == -1){
+            parent_line[line_index] = node;
+            std::pair<int, bool> artic_info = get_articulation_point_bipartite_line(line, d+1);
+            if(artic_info.first > -1) return artic_info;
+
+            child_num++;
+            if(low_line[line_index] >= depth[node]){
+                is_articulation = true;
+                std::cout<<"Artic point: "<<node<<std::endl;
+            }
+            low[node] = std::min(low[node], low_line[line_index]);
+        }
+        else if(line_index != parent[node]){
+            low[node] = std::min(low[node], depth_line[line_index]);
+        }
+
+    }
+    
+    if(is_articulation && (parent[node] != -1 || child_num > 1)){
+        return {node, false};
+    }
+    else return {-1, false};
+}
+
+std::pair<int, bool> Board::Artic_point::get_articulation_point_bipartite_line(Line_info& line, int d){
+    /**
+     * Description:
+     *     Returns: the first discovered acticulation point: cut point of a 2
+     *              connected component
+     * Params:
+     *     parent: init to -1
+     *     depth: init to -1, because it is used also as visited indicator
+     * */
+    const unsigned int line_index = line.index;
+    depth_line[line_index] = d;
+    low_line[line_index] = d;
+    unsigned int child_num = 0;
+    bool is_articulation = false;
+
+    for(auto next_node: (line.points)){
+        // If field is not valid, continue
+        if(!board->is_valid(next_node)) continue;
+
+        if(depth[next_node] == -1){
+            parent[next_node] = line_index;
+            std::pair<int, bool> artic_info = get_articulation_point_bipartite(next_node, d+1);
+            if(artic_info.first > -1) return artic_info;
+
+            child_num++;
+            if(low[next_node] >= depth_line[line_index]){
+                is_articulation = true;
+                std::cout<<"Artic line: "<<line_index<<std::endl;
+                display(*board, true, line.points);
+            }
+            low_line[line_index] = std::min(low_line[line_index], low[next_node]);
+        }
+        else if(next_node != parent_line[line_index]){
+            low_line[line_index] = std::min(low_line[line_index], depth[next_node]);
+        }
+    }
+    
+    if(is_articulation && (parent_line[line_index] != -1 || child_num > 1)){
+        return {line_index, true};
+    }
+    else return {-1, true};
+
+}
+
+Board::Artic_point::Artic_point(int s, Board* b, std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo) :
+        board(b), linesinfo_per_field(linesinfo){
+    start = s;
+    
+    parent.resize(ACTION_SIZE, -1);
+    depth.resize(ACTION_SIZE, -1);
+    low.resize(ACTION_SIZE, -1);
+}
+
+Board::Artic_point::Artic_point(int s, Board* b, int line_size, std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo) :
+        Artic_point(s, b, linesinfo){
+
+    parent_line.resize(line_size, -1);
+    depth_line.resize(line_size, -1);
+    low_line.resize(line_size, -1);
+}
+

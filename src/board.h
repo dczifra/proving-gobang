@@ -15,6 +15,8 @@ NodeType operator!(const NodeType& type);
 
 bool operator<(const Board& b1, const Board& b2);
 
+struct Board;
+
 struct Board{
     board_int white;
     board_int black;
@@ -184,6 +186,25 @@ struct Board{
     int get_articulation_point(int node, int d,
                                 std::vector<int>& parent, std::vector<int>& depth, std::vector<int>& low,
                                 std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field) const;
+
+    class Artic_point{
+    public:
+        int start;
+        std::vector<int> parent, depth, low;
+        std::vector<int> parent_line, depth_line, low_line;
+        std::array<std::vector<Line_info>, ACTION_SIZE> linesinfo_per_field;
+        Board* board;
+
+    public:
+        Artic_point(int s, Board* b, int line_size,
+                    std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo);
+        
+        Artic_point(int s, Board* b,
+                    std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo);
+
+        std::pair<int, bool> get_articulation_point_bipartite(int node, int d);
+        std::pair<int, bool> get_articulation_point_bipartite_line(Line_info& line, int d);
+    };
 };
 
 

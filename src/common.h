@@ -41,6 +41,7 @@ void display(const board_int board, bool end, std::vector<int> show = std::vecto
 //      Line infos (Shouldn't be in heuristic)
 // ============================================
 struct Line_info{
+    unsigned int index;
     unsigned int size;
     board_int line_board;
     std::vector<int> points;

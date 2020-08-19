@@ -91,13 +91,15 @@ void test_components(){
 
     Board b;
     int player = 1;
-    std::vector<int> moves = {0, 12, 1, 13, 2, 14, 5, 15, 6, 3, 7, 6, 10, 9};
+    //std::vector<int> moves = {0, 12, 1, 13, 2, 14, 5, 15, 6, 3, 7, 6, 10, 9};
+    std::vector<int> moves = {12, 13, 14, 29, 26, 5, 6, 4, 15, 7, 0, 2};
     for(auto act: moves){
         b.move(act, player);
         player = -player;
+        b.remove_lines_with_two_ondegree(h.all_linesinfo);
+        b.remove_2lines_all(h.all_linesinfo);
+        b.remove_dead_fields(h.linesinfo_per_field, act);
     }
-
-    b.remove_small_components(h.all_linesinfo);
     display(b,true);
 }
 
@@ -123,7 +125,8 @@ void test_components2(){
 
 
 void artic_point(){
-    std::vector<int> moves = {0, ROW*COL/2-1, 8, ROW*COL/2-2, 9, 1, 15, ROW*COL/2+1, 23};
+    std::vector<int> moves = {0, ROW*COL/2-1, 3, ROW*COL/2-2, 9, 8, 15, ROW*COL/2+1, 23};
+    //std::vector<int> moves = {0, ROW*COL/2-1, 8, ROW*COL/2-2, 9, 1, 15, ROW*COL/2+1, 23};
     Heuristic h;
     Board b;
     PNS tree;
@@ -135,14 +138,18 @@ void artic_point(){
     int player = 1;
     for(auto act: moves){
         b.move(act, player);
-        tree.simplify_board(b, act, -1);
+        //tree.simplify_board(b, act, -1);
 
         display(b,true);
         player = -player;
     }
-    std::cout<<b.get_articulation_point(2, 0, parent, depth, low, h.linesinfo_per_field);
-    print_v(depth);
-    print_v(low);
+    //std::cout<<b.get_articulation_point(2, 0, parent, depth, low, h.linesinfo_per_field);
+    Board::Artic_point p(2, &b, h.all_linesinfo.size(), h.linesinfo_per_field);
+    auto mypair = p.get_articulation_point_bipartite(2, 0);
+    std::cout<<mypair.first<<" "<<mypair.second<<std::endl;
+
+    print_v(p.depth);
+    print_v(p.low);
 }
 
 void test_DFPN(){
@@ -169,9 +176,9 @@ void test_DFPN(){
 int main() {
     std::cout<<"=== TEST ==="<<std::endl;
 
-    //test_components2();
+    test_components();
     //test_DFPN();
-    artic_point();
+    //artic_point();
 
     return 0;
 }

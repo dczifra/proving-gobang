@@ -108,6 +108,7 @@ void Heuristic::generate_compressed_lines(){
         }
         all_linesinfo[i].line_board = board;
         all_linesinfo[i].size = lines[i].size();
+        all_linesinfo[i].index = i;
                 
         // === Append board for every field ===
         for(auto field: lines[i]){
