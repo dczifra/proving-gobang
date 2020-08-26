@@ -32,6 +32,77 @@ struct Args{
     }
 };
 
+NodeType choose_problem(Board& b, int& player){
+    //b.move({0,1,ROW*COL -1}, player);
+    //b.move({0,1,23}, player);
+
+    return (player==1?OR:AND);
+}
+
+void read_solution(std::ifstream& file, std::unordered_map<Board, PNS::PNSNode*, Board_Hash>& states){
+    while(!file.eof()){
+        board_int white, black;
+        unsigned int pn, dn;
+        file>>white;
+        if (file.eof()) {break;}
+        file>>black>>pn>>dn;
+        std::cout<<white<<black<<pn<<dn<<std::endl;
+        Board b;
+        b.white = white;
+        b.black = black;
+        states[b] = nullptr;
+    }
+}
+
+void play_with_solution(std::string filename){
+    PNS tree;
+    std::ifstream myfile(filename);
+
+    std::unordered_map<Board, PNS::PNSNode*, Board_Hash> states;
+    read_solution(myfile, states);
+
+    Board b;
+    Heuristic h;
+    int player = 1;
+    choose_problem(b,player);
+    int human_player = -player;
+    int act = -1;
+
+    while(1){
+        if(player == human_player ){
+            int act0 = b.one_way(h.all_linesinfo);
+            if(act0 >= 0) std::cout<<act0<<" is a must\n";
+            
+            std::cin>>act;
+            tree.simplify_board(b, act, -1);
+        }
+        else{
+            bool end = true;
+            for(int i=0;i<ACTION_SIZE;i++){
+                Board next(b, i, player);
+                tree.simplify_board(next, i, -1);
+                display(next, true);
+                if(states.find(next)!=states.end()){
+                    b = next;
+                    end = false;
+                    act = i;
+                    break;
+                }
+            }
+            if(end){
+                std::cout<<"END\n";
+                break;
+            }
+        }
+
+
+        player = get_player(b.node_type);
+        std::cout<<"Action:\n";
+        display(b, true, {act});
+    }
+    display(b, true);
+}
+
 void play_with_tree(PNS::PNSNode* node, const PNS& tree){
     Heuristic heuristic;
 
@@ -72,12 +143,7 @@ void play_with_tree(PNS::PNSNode* node, const PNS& tree){
     display(act_node->board, true);
 }
 
-NodeType choose_problem(Board& b, int& player){
-    //b.move({0,1,ROW*COL -1}, player);
-    //b.move({0,1,23}, player);
 
-    return (player==1?OR:AND);
-}
 
 void PNS_test(Args& args){
     Board b;
@@ -132,6 +198,6 @@ int main(int argc, char* argv[]) {
     Args args(argc, argv);
     //DFPNS_test(argc>1);
     PNS_test(args);
-
+    //play_with_solution("data/4x6.csv");
     return 0;
 }

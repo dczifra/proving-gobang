@@ -123,9 +123,8 @@ void test_components2(){
     }
 }
 
-
 void artic_point(){
-    std::vector<int> moves = {0, ROW*COL/2-1, 3, ROW*COL/2-2, 9, 8, 15, ROW*COL/2+1, 23};
+    std::vector<int> moves = {0, ROW*COL/2-1, 3, ROW*COL/2-2, 9, 8, 15, ROW*COL/2+1, ROW*COL/2};
     //std::vector<int> moves = {0, ROW*COL/2-1, 8, ROW*COL/2-2, 9, 1, 15, ROW*COL/2+1, 23};
     Heuristic h;
     Board b;
@@ -138,7 +137,7 @@ void artic_point(){
     int player = 1;
     for(auto act: moves){
         b.move(act, player);
-        //tree.simplify_board(b, act, -1);
+        tree.simplify_board(b, act, -1);
 
         display(b,true);
         player = -player;
@@ -177,9 +176,9 @@ void test_DFPN(){
 int main() {
     std::cout<<"=== TEST ==="<<std::endl;
 
-    test_components();
+    //test_components();
     //test_DFPN();
-    //artic_point();
+    artic_point();
 
     return 0;
 }

@@ -120,10 +120,10 @@ inline void PNS::simplify_board(Board& next_state, const unsigned int action, in
         next_state.remove_2lines_all(heuristic.all_linesinfo);
         next_state.remove_dead_fields(heuristic.linesinfo_per_field, action);
 
-        //next_state.get_one_artic_point(heuristic.linesinfo_per_field);
+        //next_state.get_one_artic_point(heuristic);
     }
     else{
-        next_state.keep_comp(heuristic.linesinfo_per_field, action);
+        //next_state.keep_comp(heuristic.linesinfo_per_field, action);
     }
 }
 
@@ -272,6 +272,7 @@ void PNS::log_solution_min(PNS::PNSNode* node, std::ofstream& file){
         }
     }
 }
+
 
 void PNS::add_state(const Board& b, PNS::PNSNode* node){
     if(states.find(b)==states.end()){

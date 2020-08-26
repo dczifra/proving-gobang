@@ -8,6 +8,7 @@
 #include <assert.h>
 
 #include "common.h"
+#include "heuristic.h"
 
 // === NODETYPE ===
 enum NodeType : uint8_t {OR, AND};
@@ -41,7 +42,7 @@ struct Board{
         node_type = b.node_type;
         move(action, player);
     }
-
+/*
     Board& operator=(const Board&& b){
         white = b.white;
         black = b.black;
@@ -49,7 +50,7 @@ struct Board{
         node_type = b.node_type;
         return *this;
     }
-
+*/
     bool operator==(const Board& b) const{
         return (white == b.white) && (black == b.black); 
     }
@@ -186,7 +187,7 @@ struct Board{
     void keep_comp(std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field, int action);
     void start_search(std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field, std::vector<int>& status, int from);
 
-    void get_one_artic_point(std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field);
+    void get_one_artic_point(Heuristic& h);
     int get_articulation_point(int node, int d,
                                 std::vector<int>& parent, std::vector<int>& depth, std::vector<int>& low,
                                 std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field) const;

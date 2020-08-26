@@ -49,8 +49,8 @@ int Board::one_way(const std::vector<Line_info>& all_lines) const{
                 if(emptynum == 1){
                     return field;
                 }
-                else if(emptynum == 2){
-                //else if(emptynum == 2 && node_type == OR){
+                //else if(emptynum == 2){
+                else if(emptynum == 2 && node_type == OR){
                     if(two_line[field]) return field;
                     else two_line[field] = 1;
                 }
@@ -454,21 +454,25 @@ void Board::remove_small_components(const std::vector<Line_info>& all_lines){
 // =======================================
 //             ARTICULATION POINT
 // =======================================
-void Board::get_one_artic_point(std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field){
+void Board::get_one_artic_point(Heuristic& h){
+    Board b(*this);
     for(int act = 0; act < ACTION_SIZE; act++){
         if(is_valid(act)){
-            std::vector<int> parent(ACTION_SIZE, -1);
+            /*std::vector<int> parent(ACTION_SIZE, -1);
             std::vector<int> depth(ACTION_SIZE, -1);
             std::vector<int> low(ACTION_SIZE, -1);
 
-            int artic = get_articulation_point(act, 0, parent, depth, low, linesinfo_per_field);
+            int artic = get_articulation_point(act, 0, parent, depth, low, h.linesinfo_per_field);
             if(artic > -1){
                 display(*this, true, {artic});
                 std::cout<<artic<<std::endl;
                 //print_v(depth);
                 //print_v(low);
                 return;
-            }
+            }*/
+            Artic_point p(2, &b, h.all_linesinfo.size(), h.linesinfo_per_field);
+            auto mypair = p.get_articulation_point_bipartite(2, 0);
+            std::cout<<mypair.first<<" "<<mypair.second<<std::endl;
         }
     }
 }
