@@ -3,12 +3,21 @@
 #include "board.h"
 #include "limits.h"
 #include <map>
+#include <unordered_map>
 
 #include "heuristic.h"
 
 enum ProofType: uint8_t {PN, DN};
 
-
+bool operator<(const Board& b1, const Board& b2);
+struct Board_Hash{
+    std::size_t operator()(Board const& b) const noexcept{
+        std::size_t h1 = std::hash<uint64_t>{}(b.white);
+        std::size_t h2 = std::hash<uint64_t>{}(b.black);
+        std::size_t h3 = std::hash<uint8_t>{}(b.node_type);
+        return  h1 ^ h2 ^ h3;
+    }
+};
 
 class PNS{
 public:
@@ -81,5 +90,6 @@ public:
 
     Heuristic heuristic;
 private :
-    std::map<Board, PNSNode*> states;
+    //std::map<Board, PNSNode*> states;
+    std::unordered_map<Board, PNSNode*, Board_Hash> states;
 };

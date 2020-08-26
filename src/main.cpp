@@ -13,6 +13,25 @@
 #include "board.h"
 #include "PNS.h"
 
+struct Args{
+    bool log = false;
+    bool play = false;
+
+    Args(int argc, char* argv[]){
+        int i=0;
+        while(i<argc){
+            if((std::string) argv[i] == "--log") log = true;
+            else if((std::string) argv[i] == "--play") play = true;
+            else if((std::string )argv[i] == "--help"){
+                std::cout<<"Help for AMOBA\nARGS:\n";
+                std::cout<<"--play: Play with tree\n";
+                std::cout<<"--log: log root PN and DN\n";
+            }
+            i++;
+        }
+    }
+};
+
 void play_with_tree(PNS::PNSNode* node, const PNS& tree){
     Heuristic heuristic;
 
@@ -60,7 +79,7 @@ NodeType choose_problem(Board& b, int& player){
     return (player==1?OR:AND);
 }
 
-void PNS_test(bool play = false){
+void PNS_test(Args& args){
     Board b;
     int player = 1;
     choose_problem(b,player);
@@ -72,7 +91,7 @@ void PNS_test(bool play = false){
     unsigned int i = 0;
     while(1){
         tree.PN_search(node);
-        if(i%10000 == 0 && play){
+        if(i%10000 == 0 && args.log){
             tree.stats(node);
         }
         if(node->pn*node->dn==0) break;
@@ -83,10 +102,10 @@ void PNS_test(bool play = false){
     std::string filename("../data/"+std::to_string(ROW)+"x"+std::to_string(COL)+".csv");
     std::ofstream logfile(filename);
     tree.log_solution_min(node, logfile);
-    if(play) play_with_tree(node, tree);
+    if(args.play) play_with_tree(node, tree);
 }
 
-void DFPNS_test(bool play = false){
+void DFPNS_test(Args& args){
     Board b;
     int player = 1;
     //choose_problem(b,player);
@@ -98,7 +117,7 @@ void DFPNS_test(bool play = false){
     unsigned int i = 0;
     while(1){
         tree.DFPN_search(node);
-        if(i%10000 == 0 && play){
+        if(i%10000 == 0 && args.log){
             tree.stats(node);
         }
         if(node->pn*node->dn==0) break;
@@ -110,8 +129,9 @@ void DFPNS_test(bool play = false){
 int main(int argc, char* argv[]) {
     std::cout<<"Proving gobanggame..."<<std::endl;
 
+    Args args(argc, argv);
     //DFPNS_test(argc>1);
-    PNS_test(argc>1);
+    PNS_test(args);
 
     return 0;
 }

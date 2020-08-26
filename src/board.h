@@ -9,12 +9,12 @@
 
 #include "common.h"
 
+// === NODETYPE ===
 enum NodeType : uint8_t {OR, AND};
 int get_player(const NodeType& type);
 NodeType operator!(const NodeType& type);
 
-bool operator<(const Board& b1, const Board& b2);
-
+// === BOARD ===
 struct Board;
 
 struct Board{
@@ -48,6 +48,10 @@ struct Board{
         //blocked_lines = b.blocked_lines;
         node_type = b.node_type;
         return *this;
+    }
+
+    bool operator==(const Board& b) const{
+        return (white == b.white) && (black == b.black); 
     }
 
     inline void init(){
