@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fstream>
+#include <sstream>
 
 #include "common.h"
 #include "heuristic.h"
@@ -16,21 +17,34 @@
 struct Args{
     bool log = false;
     bool play = false;
+    bool test = false;
 
     Args(int argc, char* argv[]){
         int i=0;
         while(i<argc){
             if((std::string) argv[i] == "--log") log = true;
             else if((std::string) argv[i] == "--play") play = true;
+            else if((std::string) argv[i] == "--test") test = true;
             else if((std::string )argv[i] == "--help"){
                 std::cout<<"Help for AMOBA\nARGS:\n";
                 std::cout<<"--play: Play with tree\n";
                 std::cout<<"--log: log root PN and DN\n";
+                std::cout<<"--test: Tets mode, you can play the solution\n";
             }
             i++;
         }
     }
 };
+
+int get_game_ended(Board& b, int action, Heuristic& h){
+    if((b.node_type == AND) && action > -1 && b.white_win(h.linesinfo_per_field[action])){
+        return 1;
+    }
+    else if((b.node_type == OR) && b.heuristic_stop(h.all_linesinfo)){
+        return -1;
+    }
+    else return 0;
+}
 
 NodeType choose_problem(Board& b, int& player){
     //b.move({0,1,ROW*COL -1}, player);
@@ -39,71 +53,89 @@ NodeType choose_problem(Board& b, int& player){
     return (player==1?OR:AND);
 }
 
-void read_solution(std::ifstream& file, std::unordered_map<Board, PNS::PNSNode*, Board_Hash>& states){
-    while(!file.eof()){
-        board_int white, black;
+void read_solution(std::string filename, std::unordered_map<Board, PNS::PNSNode*, Board_Hash>& states){
+    std::ifstream file(filename);
+    if(file.is_open()){
+        std::cout<<"Processing file...\n";
+    }
+    else{
+        std::cout<<"File not found: "<<filename<<std::endl;
+    }
+
+    std::string s;
+    std::getline (file, s);
+    while(s != "" && s != "\n"){
+        //std::cout<<s<<std::endl;
         unsigned int pn, dn;
-        file>>white;
-        if (file.eof()) {break;}
-        file>>black>>pn>>dn;
-        std::cout<<white<<black<<pn<<dn<<std::endl;
         Board b;
-        b.white = white;
-        b.black = black;
+        std::stringstream sstream(s);
+        sstream>>b.white>>b.black>>b.node_type>>pn>>dn;
         states[b] = nullptr;
+
+        std::getline (file, s);
     }
 }
 
 void play_with_solution(std::string filename){
-    PNS tree;
-    std::ifstream myfile(filename);
-
+    // === Read Solution Tree ===
     std::unordered_map<Board, PNS::PNSNode*, Board_Hash> states;
-    read_solution(myfile, states);
+    read_solution(filename, states);
+    printf("Proof/disproof tree size: %zu\n", states.size());
 
+    // === Init variables ===
+    PNS tree;
     Board b;
-    Heuristic h;
-    int player = 1;
+    int act=-1, human_player, player = 1;
     choose_problem(b,player);
-    int human_player = -player;
-    int act = -1;
+    human_player = -player;
 
-    while(1){
+
+    while(get_game_ended(b, act, tree.heuristic) == 0){
+        std::vector<int> color;
+        // === Human player can choose ===
         if(player == human_player ){
-            int act0 = b.one_way(h.all_linesinfo);
-            if(act0 >= 0) std::cout<<act0<<" is a must\n";
-            
             std::cin>>act;
+            b.move(act, human_player);
             tree.simplify_board(b, act, -1);
         }
         else{
-            bool end = true;
+            // === Find the next child in Solution Tree ===
             for(int i=0;i<ACTION_SIZE;i++){
+                if(!b.is_valid(i)) continue;
+
+                // === Simplification and one way ===
                 Board next(b, i, player);
                 tree.simplify_board(next, i, -1);
-                display(next, true);
+                int one_way = next.one_way(tree.heuristic.all_linesinfo);
+                if(one_way>=0){
+                    next.move(one_way, -player);
+                    //int one_way2 = next.one_way(tree.heuristic.all_linesinfo);
+                    //if(one_way2>=0){
+                    //    next.move(one_way2, player);
+                    //}
+                }
+                //display(next, true);
+
+                // === We found the child ===
                 if(states.find(next)!=states.end()){
                     b = next;
-                    end = false;
                     act = i;
+                    if(one_way>-1) color = {one_way};
                     break;
                 }
             }
-            if(end){
-                std::cout<<"END\n";
-                break;
-            }
         }
-
+        color.push_back(act);
 
         player = get_player(b.node_type);
-        std::cout<<"Action:\n";
-        display(b, true, {act});
+        printf("Action: %d\n", act);
+        display(b, true, color);
     }
-    display(b, true);
+    std::cout<<"END\n";
 }
 
 void play_with_tree(PNS::PNSNode* node, const PNS& tree){
+    PNS t;
     Heuristic heuristic;
 
     int player = get_player(node->type);
@@ -137,13 +169,10 @@ void play_with_tree(PNS::PNSNode* node, const PNS& tree){
         //player = -player;
         player = get_player(act_node->type);
         std::cout<<"Action:\n";
-        display(act_node->board, true);
-
+        display(act_node->board, true, {act});
     }
     display(act_node->board, true);
 }
-
-
 
 void PNS_test(Args& args){
     Board b;
@@ -196,8 +225,13 @@ int main(int argc, char* argv[]) {
     std::cout<<"Proving gobanggame..."<<std::endl;
 
     Args args(argc, argv);
-    //DFPNS_test(argc>1);
-    PNS_test(args);
-    //play_with_solution("data/4x6.csv");
+
+    if(args.test){
+        play_with_solution("../data/"+std::to_string(ROW)+"x"+std::to_string(COL)+".csv");
+    }
+    else{
+        //DFPNS_test(argc>1);
+        PNS_test(args);
+    }
     return 0;
 }

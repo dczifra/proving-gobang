@@ -10,7 +10,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/AMOBA_DEBUG",
-            "args": [],
+            "args": ["--play"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

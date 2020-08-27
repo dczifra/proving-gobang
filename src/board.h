@@ -14,6 +14,7 @@
 enum NodeType : uint8_t {OR, AND};
 int get_player(const NodeType& type);
 NodeType operator!(const NodeType& type);
+std::istream& operator >> (std::istream& i, NodeType& type);
 
 // === BOARD ===
 struct Board;

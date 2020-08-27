@@ -252,7 +252,7 @@ void PNS::log_solution(std::string filename){
 void PNS::log_solution_min(PNS::PNSNode* node, std::ofstream& file){
     if(node == nullptr) return;
     else{
-        file<<node->board.white<<" "<<node->board.black<<" "<<node->pn<<" "<<node->dn<<std::endl;
+        file<<node->board.white<<" "<<node->board.black<<" "<<node->board.node_type<<" "<<node->pn<<" "<<node->dn<<std::endl;
         
         if( ((node->type == OR) && (node->pn == 0)) ||
             ((node->type == AND) && (node->dn==0)) ){
