@@ -93,7 +93,13 @@ void play_with_solution(std::string filename){
     while(get_game_ended(b, act, tree.heuristic) == 0){
         std::vector<int> color;
         // === Human player can choose ===
-        if(player == human_player ){
+        act = b.one_way(tree.heuristic.all_linesinfo);
+        if(act>=0){
+            b.move(act, player);
+            std::cout<<"One-way end detected"<<std::endl;
+            //tree.simplify_board(b, act, -1);
+        }
+        else if(player == human_player ){
             std::cin>>act;
             b.move(act, human_player);
             tree.simplify_board(b, act, -1);
@@ -109,10 +115,6 @@ void play_with_solution(std::string filename){
                 int one_way = next.one_way(tree.heuristic.all_linesinfo);
                 if(one_way>=0){
                     next.move(one_way, -player);
-                    //int one_way2 = next.one_way(tree.heuristic.all_linesinfo);
-                    //if(one_way2>=0){
-                    //    next.move(one_way2, player);
-                    //}
                 }
                 //display(next, true);
 

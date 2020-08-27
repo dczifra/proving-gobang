@@ -46,8 +46,7 @@ void display(mtx<int>& board, bool end, std::vector<int> show){
 
 
     int back_step = ROW+5; 
-    printf("                           \n");
-    printf("=== Gobang Game ===\n");
+    printf("=== Gobang Game ===               \n");
     printf("  ");
     for(int i=0;i<COL;i++){
         std::string num = std::to_string(i);
@@ -76,7 +75,7 @@ void display(mtx<int>& board, bool end, std::vector<int> show){
     }
     printf(" +%s+\n",std::string(2*COL,'=').c_str());
     if (!end) printf("\033[%dA",back_step);
-    printf("                           \n");
+    printf("                           \n\n");
     printf("\033[1A");
 }
 
