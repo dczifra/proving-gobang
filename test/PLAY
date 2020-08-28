@@ -1,0 +1,4 @@
+#!/bin/bash
+sed -i 's/#define COL.*/#define COL '"$1"'/g' ../src/common.h
+make
+./AMOBA --test

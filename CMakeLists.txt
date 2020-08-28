@@ -20,7 +20,7 @@ add_executable(AMOBA_DEBUG src/main.cpp)
 set(CMAKE_CXX_FLAGS "-g")
 add_executable(TEST test/test.cpp)
 
-file(COPY ${CMAKE_BINARY_DIR}/../test/measure.sh
+file(COPY ${CMAKE_BINARY_DIR}/../test/measure.sh  ${CMAKE_BINARY_DIR}/../test/PLAY
   DESTINATION ${CMAKE_BINARY_DIR}
   FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
   GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
