@@ -661,9 +661,10 @@ std::pair<int, bool> Board::Artic_point::get_articulation_point_bipartite(int no
      *     parent: init to -1
      *     depth: init to -1, because it is used also as visited indicator
      * */
-    depth[node] = d;
-    low[node] = d;
-    unsigned int child_num = 0;
+    depth[node] = reach_time;
+    low[node] = reach_time;
+    ++reach_time;
+    //unsigned int child_num = 0;
     bool is_articulation = false;
 
     for (auto line : linesinfo_per_field[node])
@@ -680,11 +681,12 @@ std::pair<int, bool> Board::Artic_point::get_articulation_point_bipartite(int no
             if (artic_info.first > -1)
                 return artic_info;
 
-            child_num++;
+            //child_num++;
             if (low_line[line_index] >= depth[node])
             {
                 is_articulation = true;
                 std::cout << "Artic point: " << node << std::endl;
+                return {node, false};
             }
             low[node] = std::min(low[node], low_line[line_index]);
         }
@@ -694,12 +696,12 @@ std::pair<int, bool> Board::Artic_point::get_articulation_point_bipartite(int no
         }
     }
 
-    if (is_articulation && (parent[node] != -1 || child_num > 1))
+    //if (is_articulation && (parent[node] != -1 || child_num > 1))
+    if (is_articulation)
     {
         return {node, false};
     }
-    else
-        return {-1, false};
+    else return {-1, false};
 }
 
 std::pair<int, bool> Board::Artic_point::get_articulation_point_bipartite_line(Line_info &line, int d)
@@ -713,9 +715,10 @@ std::pair<int, bool> Board::Artic_point::get_articulation_point_bipartite_line(L
      *     depth: init to -1, because it is used also as visited indicator
      * */
     const unsigned int line_index = line.index;
-    depth_line[line_index] = d;
-    low_line[line_index] = d;
-    unsigned int child_num = 0;
+    depth_line[line_index] = reach_time;
+    low_line[line_index] = reach_time;
+    ++reach_time;
+    //unsigned int child_num = 0;
     bool is_articulation = false;
 
     for (auto next_node : (line.points))
@@ -731,12 +734,13 @@ std::pair<int, bool> Board::Artic_point::get_articulation_point_bipartite_line(L
             if (artic_info.first > -1)
                 return artic_info;
 
-            child_num++;
+            //child_num++;
             if (low[next_node] >= depth_line[line_index])
             {
                 is_articulation = true;
                 std::cout << "Artic line: " << line_index << std::endl;
                 display(*board, true, line.points);
+                return {line_index, true};
             }
             low_line[line_index] = std::min(low_line[line_index], low[next_node]);
         }
@@ -746,17 +750,18 @@ std::pair<int, bool> Board::Artic_point::get_articulation_point_bipartite_line(L
         }
     }
 
-    if (is_articulation && (parent_line[line_index] != -1 || child_num > 1))
+    //if (is_articulation && (parent_line[line_index] != -1 || child_num > 1))
+    if (is_articulation)
     {
         return {line_index, true};
     }
-    else
-        return {-1, true};
+    else return {-1, true};
 }
 
 Board::Artic_point::Artic_point(int s, Board *b, std::array<std::vector<Line_info>, ACTION_SIZE> &linesinfo) : board(b), linesinfo_per_field(linesinfo)
 {
     start = s;
+    empty_nodes = __builtin_popcountll(board->get_valids());
 
     parent.resize(ACTION_SIZE, -1);
     depth.resize(ACTION_SIZE, -1);
@@ -769,4 +774,48 @@ Board::Artic_point::Artic_point(int s, Board *b, int line_size, std::array<std::
     parent_line.resize(line_size, -1);
     depth_line.resize(line_size, -1);
     low_line.resize(line_size, -1);
+}
+
+std::tuple<int, board_int, board_int> Board::Artic_point::get_parts(){
+    // === Get first empty node ===
+    int node = -1;
+    for(int i=0;i<ACTION_SIZE;i++){
+        if(board->is_valid(i)){
+            node = i;
+            break;
+        }
+    }
+
+    assert(node >= 0);
+    depth[node] = reach_time;
+    low[node] = reach_time;
+    ++ reach_time;
+
+    // === Get first empty line ===
+    for (auto line : linesinfo_per_field[node]){
+        // If line not active, continue
+        if (line.line_board & board->black){
+            continue;
+        }
+        else{
+            auto artic_pair = get_articulation_point_bipartite_line(line, 1);
+            if(artic_pair.first > -1 || reach_time < empty_nodes){
+                board_int comp1 = 0;
+                board_int comp2 = 0;
+                for(int n=0;n<ACTION_SIZE;n++){
+                    if(!board->is_valid(n)) continue;
+
+                    if(depth[n] == -1) comp1 |= ((1ULL)<<n);
+                    else comp2 |= ((1ULL)<<n);
+                }
+                return std::make_tuple(artic_pair.first, comp1, comp2);
+            }
+            else{
+                return std::make_tuple(-1, 0, 0);
+            }
+            break;
+        }
+    }
+
+    // === Search for components ===
 }

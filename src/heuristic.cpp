@@ -98,7 +98,7 @@ int half(const int& a){ return (a%2 == 0) ? a/2 : (a+1)/2;}
 
 void Heuristic::generate_compressed_lines(){
     std::cout<<lines.size()<<std::endl;
-    
+
     all_linesinfo.resize(lines.size());
     for(int i=0;i<lines.size();i++){
         // === Do the compressed board ===
@@ -171,7 +171,7 @@ void Heuristic::generate_lines(){
 
     // ## 2 ##
     lines.push_back({{1,0}, {0,1}});
-    if(DIFFERENT_CORNER){
+    if(!DIFFERENT_CORNER){
         lines.push_back({{COL-2,0}, {COL-1,1}});
     }
     else{

@@ -6,6 +6,7 @@
 #include <math.h>
 #include <cmath>
 #include <assert.h>
+#include <tuple>
 
 #include "common.h"
 #include "heuristic.h"
@@ -196,6 +197,8 @@ struct Board{
     class Artic_point{
     public:
         int start;
+        int reach_time = 0;
+        int empty_nodes;
         std::vector<int> parent, depth, low;
         std::vector<int> parent_line, depth_line, low_line;
         std::array<std::vector<Line_info>, ACTION_SIZE> linesinfo_per_field;
@@ -210,6 +213,7 @@ struct Board{
 
         std::pair<int, bool> get_articulation_point_bipartite(int node, int d);
         std::pair<int, bool> get_articulation_point_bipartite_line(Line_info& line, int d);
+        std::tuple<int, board_int, board_int> get_parts();
     };
 };
 

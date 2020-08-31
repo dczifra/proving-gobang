@@ -143,9 +143,14 @@ void artic_point(){
         player = -player;
     }
     //std::cout<<b.get_articulation_point(2, 0, parent, depth, low, h.linesinfo_per_field);
+    
     Board::Artic_point p(2, &b, h.all_linesinfo.size(), h.linesinfo_per_field);
-    auto mypair = p.get_articulation_point_bipartite(2, 0);
-    std::cout<<mypair.first<<" "<<mypair.second<<std::endl;
+    auto comps = p.get_parts();
+    std::cout<<"They are the components:\n";
+    display(std::get<1>(comps), true);
+    display(std::get<2>(comps), true);
+    //auto mypair = p.get_articulation_point_bipartite(2, 0);
+    //std::cout<<mypair.first<<" "<<mypair.second<<std::endl;
 
     print_v(p.depth);
     print_v(p.low);
