@@ -170,6 +170,7 @@ void Heuristic::generate_lines(){
     // ## 2 ##
     lines.push_back({{1,0}, {0,1}});
     lines.push_back({{COL-2,0}, {COL-1,1}});
+    //lines.push_back({{COL-1,2}, {COL-2,3}});
     
     lines_per_action.resize(ROW*COL);
     for(int i=0;i<lines.size();i++){
