@@ -232,7 +232,7 @@ int main(int argc, char* argv[]) {
         play_with_solution("../data/"+std::to_string(ROW)+"x"+std::to_string(COL)+".csv");
     }
     else{
-        //DFPNS_test(argc>1);
+        //DFPNS_test(args);
         PNS_test(args);
     }
     return 0;
