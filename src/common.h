@@ -18,6 +18,10 @@
 
 #define BITSIZE 64
 #define board_int std::uint64_t
+
+#define INNER_LINE  true
+#define DIFFERENT_CORNER  false
+
 unsigned long long set_full_board();
 
 const unsigned long long FULL_BOARD = set_full_board();
