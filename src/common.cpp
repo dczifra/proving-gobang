@@ -29,8 +29,8 @@ void print_v(std::vector<int>& v){
 }
 
 unsigned long long set_full_board(){
-    unsigned long long board;
-    for(int i=0;i<ROW*COL;i++) board|=(1ULL<<i);
+    unsigned long long board = 0;
+    for(int i=0;i<ROW*COL;i++) board|=((1ULL)<<i);
     return board;
 }
 

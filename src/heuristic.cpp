@@ -97,7 +97,7 @@ int half(const int& a){ return (a%2 == 0) ? a/2 : (a+1)/2;}
 
 
 void Heuristic::generate_compressed_lines(){
-    std::cout<<lines.size()<<std::endl;
+    //std::cout<<lines.size()<<std::endl;
 
     all_linesinfo.resize(lines.size());
     for(int i=0;i<lines.size();i++){

@@ -185,16 +185,8 @@ void PNS_test(Args& args){
     PNS::PNSNode* node = new PNS::PNSNode(b, 0, -1, -1, tree.heuristic);
     tree.init_PN_search(node);
 
-    unsigned int i = 0;
-    while(1){
-        tree.PN_search(node);
-        if(i%10000 == 0 && args.log){
-            tree.stats(node);
-        }
-        if(node->pn*node->dn==0) break;
-        i++;
-    }
-    tree.stats(node);
+    tree.evalueate_node_with_PNS(node, args.log);
+    tree.stats(node, true);
     
     std::string filename("../data/"+std::to_string(ROW)+"x"+std::to_string(COL)+".csv");
     std::ofstream logfile(filename);

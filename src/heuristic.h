@@ -23,11 +23,11 @@ public:
 
 public:
     Heuristic(){
-        std::cout<<"Heuristic begin\n";
+        std::cout<<"=== Heuristic begin ===\n";
         generate_lines();
-        std::cout<<"Gen lines Done\n";
+        std::cout<<"[Done] Generate lines\n";
         generate_compressed_lines();
-        std::cout<<"Heuristic end\n";
+        std::cout<<"===Heuristic end ===\n";
     }
     
     void generate_lines();

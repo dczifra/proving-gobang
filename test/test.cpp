@@ -124,7 +124,8 @@ void test_components2(){
 }
 
 void artic_point(){
-    std::vector<int> moves = {0, ROW*COL/2-1, 3, ROW*COL/2-2, 9, 8, 15, ROW*COL/2+1, ROW*COL/2};
+    std::vector<int> moves = {0, ROW*COL/2-1, 3, ROW*COL/2-2, 9, 8, 15, ROW*COL/2+1};
+    //std::vector<int> moves = {0, ROW*COL/2-1, 3, ROW*COL/2-2, 9, 8, 15, ROW*COL/2+1, ROW*COL/2};
     //std::vector<int> moves = {0, ROW*COL/2-1, 8, ROW*COL/2-2, 9, 1, 15, ROW*COL/2+1, 23};
     Heuristic h;
     Board b;
@@ -144,13 +145,11 @@ void artic_point(){
     }
     //std::cout<<b.get_articulation_point(2, 0, parent, depth, low, h.linesinfo_per_field);
     
-    Board::Artic_point p(2, &b, h.all_linesinfo.size(), h.linesinfo_per_field);
+    Board::Artic_point p(&b, h.all_linesinfo.size(), h.linesinfo_per_field);
     auto comps = p.get_parts();
-    std::cout<<"They are the components:\n";
+    printf("They are the components: %d \n", std::get<0>(comps));
     display(std::get<1>(comps), true);
     display(std::get<2>(comps), true);
-    //auto mypair = p.get_articulation_point_bipartite(2, 0);
-    //std::cout<<mypair.first<<" "<<mypair.second<<std::endl;
 
     print_v(p.depth);
     print_v(p.low);
@@ -184,6 +183,11 @@ int main() {
     //test_components();
     //test_DFPN();
     artic_point();
+
+    Board b;
+    b.move(0,1);
+    display(b.get_valids(), true);
+    std::cout<<__builtin_popcountll(b.get_valids())<<std::endl;
 
     return 0;
 }
