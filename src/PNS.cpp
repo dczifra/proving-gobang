@@ -118,12 +118,78 @@ inline void PNS::simplify_board(Board& next_state, const unsigned int action, in
 
         next_state.remove_lines_with_two_ondegree(heuristic.all_linesinfo);
         next_state.remove_2lines_all(heuristic.all_linesinfo);
-        next_state.remove_dead_fields(heuristic.linesinfo_per_field, action);
+        next_state.remove_dead_fields_all(heuristic.all_linesinfo);
 
         //next_state.get_one_artic_point(heuristic);
     }
     else{
         //next_state.keep_comp(heuristic.linesinfo_per_field, action);
+    }
+}
+
+void PNS::evaluate_components(PNSNode* node){
+    assert(node->type == OR);
+
+    Board::Artic_point p(&(node->board), heuristic.all_linesinfo.size(), heuristic.linesinfo_per_field);
+    auto comps = p.get_parts();
+    int artic_point = std::get<0>(comps);
+
+    if(artic_point > -1){
+        board_int comp1 = std::get<1>(comps);
+        board_int comp2 = std::get<2>(comps);
+
+        display(node->board, true);
+        display(comp1, true);
+        display(comp2, true);
+
+        Board b_small(node->board);
+        b_small.black |= comp2;
+
+        // 1. Evalute smaller component without artic point
+        PNSNode* small_comp = new PNS::PNSNode(b_small, node->depth+1, -1, -1, heuristic);
+        add_state(small_comp);
+        evalueate_node_with_PNS(small_comp);
+        if(small_comp->pn == 0){
+            delete_node(node);
+            node = small_comp;
+            return;
+        }
+        else{
+            delete_node(small_comp);
+
+            // 2. Evaluate small component with artic point
+            (b_small.white) |= ((1ULL)<<artic_point);
+            PNSNode* small_comp_mod = new PNS::PNSNode(b_small, node->depth, -1, -1, heuristic);
+            add_state(small_comp_mod);
+            evalueate_node_with_PNS(small_comp_mod);
+            bool attacker_win = small_comp_mod->pn == 0;
+            delete_node(small_comp_mod);
+
+            Board new_board(node->board);
+            new_board.black |= comp1;
+            // 3. If Attacker wins 
+            if(attacker_win){
+                new_board.white |= ((1ULL)<<artic_point);
+            }
+
+            delete_node(node);
+            node = new PNS::PNSNode(new_board, node->depth, -1, -1, heuristic);
+            add_state(node);
+
+            //TODO: write to extend:
+            // if(depth>...) evalueate_node_with_PNS(node);
+        }
+    }
+}
+
+void PNS::evalueate_node_with_PNS(PNSNode* node, bool log){
+    int i=0;
+    while(node->pn*node->dn != 0){
+        PN_search(node);
+        if(log && i%10000 == 0){
+            stats(node);
+        }
+        ++i;
     }
 }
 
@@ -153,6 +219,10 @@ void PNS::extend(PNS::PNSNode* node, const unsigned int action){
 
         node->children[action] = new PNS::PNSNode(next_state, node->depth+1, action, heur_val, heuristic);
         states[next_state] = node->children[action];
+
+        if(node->children[action]->type == OR){
+            evaluate_components(node->children[action]);
+        }
     }
 }
 
@@ -173,7 +243,6 @@ void PNS::PN_search(PNS::PNSNode* node){
         // === Update PN and DN in node ===
         node->pn = get_min_children(node, PN);
         node->dn = get_sum_children(node, DN);
-
     }
     else{                 // === AND node ===
         unsigned int min_ind = get_min_children(node, DN, true);
@@ -277,6 +346,12 @@ void PNS::log_solution_min(PNS::PNSNode* node, std::ofstream& file){
 void PNS::add_state(const Board& b, PNS::PNSNode* node){
     if(states.find(b)==states.end()){
         states[b]=node;
+    }
+}
+
+void PNS::add_state(PNS::PNSNode* node){
+    if(states.find(node->board)==states.end()){
+        states[node->board]=node;
     }
 }
 

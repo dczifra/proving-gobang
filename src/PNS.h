@@ -56,6 +56,9 @@ public:
     void init_PN_search(PNSNode* node);
     void init_DFPN_search(PNSNode* node);
 
+    void evalueate_node_with_PNS(PNSNode* node, bool log = false);
+    void evaluate_components(PNSNode* node);
+
     void extend(PNSNode* node, const unsigned int action);
     void delete_all(PNSNode* node);
     void delete_node(PNSNode* node);
@@ -67,6 +70,7 @@ public:
     void log_solution_min(PNSNode* node, std::ofstream& file);
     void read_solution(std::string filename);
     void add_state(const Board& b, PNSNode* node);
+    void add_state(PNS::PNSNode* node);
     void free_states();
     void simplify_board(Board& next_state, const unsigned int action, int depth);
 

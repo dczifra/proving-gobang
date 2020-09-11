@@ -119,7 +119,7 @@ struct Board{
         return !((white | black) & ((1ULL)<<action));
     }
 
-    inline board_int get_valids(){
+    inline board_int get_valids() const{
         return ~(white | black) & FULL_BOARD;
     }
 
@@ -177,6 +177,7 @@ struct Board{
                                         const std::vector<bool>& free_node,
                                         int& num_component);
     void remove_small_components(const std::vector<Line_info>& all_lines);
+    void remove_dead_fields_all(const std::vector<Line_info> &all_line);
     void remove_dead_fields(const std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field,
                         const int action);
     void remove_2lines(const std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo_per_field,
@@ -198,17 +199,18 @@ struct Board{
     public:
         int start;
         int reach_time = 0;
+        int reached_nodes = 0;
         int empty_nodes;
         std::vector<int> parent, depth, low;
         std::vector<int> parent_line, depth_line, low_line;
         std::array<std::vector<Line_info>, ACTION_SIZE> linesinfo_per_field;
-        Board* board;
+        const Board* board;
 
     public:
-        Artic_point(int s, Board* b, int line_size,
+        Artic_point(const Board* b, int line_size,
                     std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo);
         
-        Artic_point(int s, Board* b,
+        Artic_point(const Board* b,
                     std::array<std::vector<Line_info>, ACTION_SIZE>& linesinfo);
 
         std::pair<int, bool> get_articulation_point_bipartite(int node, int d);
