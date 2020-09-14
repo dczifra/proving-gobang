@@ -59,7 +59,7 @@ public:
     void evalueate_node_with_PNS(PNSNode* node, bool log = false);
     void evaluate_components(PNSNode* node);
 
-    void extend(PNSNode* node, const unsigned int action);
+    void extend(PNSNode* node, unsigned int action);
     void delete_all(PNSNode* node);
     void delete_node(PNSNode* node);
     unsigned int get_min_children(PNSNode* node, const ProofType type, bool index) const;
@@ -73,6 +73,7 @@ public:
     void add_state(PNS::PNSNode* node);
     void free_states();
     void simplify_board(Board& next_state, const unsigned int action, int depth);
+    bool game_ended(const Board& b, int action);
 
     // === DFPN Helper ===
     unsigned int update_threshhold(PNSNode* node);

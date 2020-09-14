@@ -606,7 +606,7 @@ void Board::get_one_artic_point(Heuristic &h)
                 //print_v(low);
                 return;
             }*/
-            Artic_point p(&b, h.all_linesinfo.size(), h.linesinfo_per_field);
+            Artic_point p(&b, h.all_linesinfo, h.linesinfo_per_field);
             auto mypair = p.get_articulation_point_bipartite(2, 0);
             std::cout << mypair.first << " " << mypair.second << std::endl;
         }
@@ -703,7 +703,7 @@ std::pair<int, bool> Board::Artic_point::get_articulation_point_bipartite(int no
 
             if (low_line[line_index] >= depth[node])
             {
-                std::cout << "Artic point: " << node << std::endl;
+                //std::cout << "Artic point: " << node << std::endl;
                 return {node, false};
             }
             low[node] = std::min(low[node], low_line[line_index]);
@@ -762,7 +762,8 @@ std::pair<int, bool> Board::Artic_point::get_articulation_point_bipartite_line(L
     return {-1, true};
 }
 
-Board::Artic_point::Artic_point(const Board *b, std::array<std::vector<Line_info>, ACTION_SIZE> &linesinfo) : board(b), linesinfo_per_field(linesinfo)
+Board::Artic_point::Artic_point(const Board *b, std::vector<Line_info>& all_linesinfo0,
+    std::array<std::vector<Line_info>, ACTION_SIZE> &linesinfo, int no_lines) : board(b), all_linesinfo(all_linesinfo0), linesinfo_per_field(linesinfo)
 {
     empty_nodes = __builtin_popcountll(board->get_valids());
 
@@ -771,24 +772,34 @@ Board::Artic_point::Artic_point(const Board *b, std::array<std::vector<Line_info
     low.resize(ACTION_SIZE, -1);
 }
 
-Board::Artic_point::Artic_point(const Board *b, int line_size, std::array<std::vector<Line_info>, ACTION_SIZE> &linesinfo) : Artic_point(b, linesinfo)
+Board::Artic_point::Artic_point(const Board *b, std::vector<Line_info>& all_linesinfo0,
+    std::array<std::vector<Line_info>, ACTION_SIZE> &linesinfo) : Artic_point(b, all_linesinfo0, linesinfo, -1)
 {
-
+    unsigned int line_size = all_linesinfo.size();
     parent_line.resize(line_size, -1);
     depth_line.resize(line_size, -1);
     low_line.resize(line_size, -1);
 }
 
 std::tuple<int, board_int, board_int> Board::Artic_point::get_parts(){
-    // === Get first empty node ===
+    Line_info empty_line;
     int node = -1;
-    for(int i=0;i<ACTION_SIZE;i++){
-        if(board->is_valid(i)){
-            node = i;
-            break;
+    // === Find first empty line ===
+    for (auto line : all_linesinfo){
+        if (line.line_board & board->black) continue;
+
+        // === For every field on the line ===
+        for (auto field : line.points)
+        {
+            if(board->is_valid(field)){
+                node = field;
+            }
         }
     }
 
+    if(node == -1){
+        display(*board, true);
+    }
     assert(node >= 0);
     depth[node] = reach_time;
     low[node] = reach_time;
@@ -796,7 +807,7 @@ std::tuple<int, board_int, board_int> Board::Artic_point::get_parts(){
     ++reached_nodes;
 
     // === Get first empty line ===
-    for (auto line : linesinfo_per_field[node]){
+    for(auto line : linesinfo_per_field[node]){
         // If line not active, continue
         if (line.line_board & board->black){
             continue;
@@ -827,7 +838,7 @@ std::tuple<int, board_int, board_int> Board::Artic_point::get_parts(){
                 }
             }
             else{
-                return std::make_tuple(-1, 0, 0);
+                return std::make_tuple(-1, (0ULL), (0ULL));
             }
             break;
         }

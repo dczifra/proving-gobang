@@ -124,7 +124,9 @@ void test_components2(){
 }
 
 void artic_point(){
-    std::vector<int> moves = {0, ROW*COL/2-1, 3, ROW*COL/2-2, 9, 8, 15, ROW*COL/2+1};
+    std::vector<int> moves = {0, 2, 1, 4, 3, 6, 5, 7, 11, 10, 15, 16, 21, 18, 22, 19, 23, 20};
+    //std::vector<int> moves = {1, 2, 17, 14, 5, 4, 8, 6, 9, 12 ,11, 13};
+    //std::vector<int> moves = {0, ROW*COL/2-1, 3, ROW*COL/2-2, 9, 8, 15, ROW*COL/2+1};
     //std::vector<int> moves = {0, ROW*COL/2-1, 3, ROW*COL/2-2, 9, 8, 15, ROW*COL/2+1, ROW*COL/2};
     //std::vector<int> moves = {0, ROW*COL/2-1, 8, ROW*COL/2-2, 9, 1, 15, ROW*COL/2+1, 23};
     Heuristic h;
@@ -138,14 +140,14 @@ void artic_point(){
     int player = 1;
     for(auto act: moves){
         b.move(act, player);
-        tree.simplify_board(b, act, -1);
+        //tree.simplify_board(b, act, -1);
 
         display(b,true);
         player = -player;
     }
     //std::cout<<b.get_articulation_point(2, 0, parent, depth, low, h.linesinfo_per_field);
     
-    Board::Artic_point p(&b, h.all_linesinfo.size(), h.linesinfo_per_field);
+    Board::Artic_point p(&b, h.all_linesinfo, h.linesinfo_per_field);
     auto comps = p.get_parts();
     printf("They are the components: %d \n", std::get<0>(comps));
     display(std::get<1>(comps), true);

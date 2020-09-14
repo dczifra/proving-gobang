@@ -6,6 +6,8 @@
 #include "common.h"
 #include <unistd.h>
 
+
+
 PNS::PNSNode::PNSNode(const Board& b, unsigned int d, int action, int heur_val, Heuristic& h):children(), board(b), depth(d){
     type = b.node_type;
     unsigned int sum = 0;
@@ -113,6 +115,16 @@ unsigned int PNS::get_sum_children(PNS::PNSNode* node, const ProofType type) con
     return sum;
 }
 
+bool PNS::game_ended(const Board& b, int action){
+    if((b.node_type == AND) && action > -1 && b.white_win(heuristic.linesinfo_per_field[action])){
+        return true;
+    }
+    else if((b.node_type == OR) && b.heuristic_stop(heuristic.all_linesinfo)){
+        return true;
+    }
+    return false;
+}
+
 inline void PNS::simplify_board(Board& next_state, const unsigned int action, int depth){
     if(next_state.node_type == OR){ // Last move: black
 
@@ -130,7 +142,10 @@ inline void PNS::simplify_board(Board& next_state, const unsigned int action, in
 void PNS::evaluate_components(PNSNode* node){
     assert(node->type == OR);
 
-    Board::Artic_point p(&(node->board), heuristic.all_linesinfo.size(), heuristic.linesinfo_per_field);
+    //std::cout<<"Eval\n";
+    //display(node->board, true);
+
+    Board::Artic_point p(&(node->board), heuristic.all_linesinfo, heuristic.linesinfo_per_field);
     auto comps = p.get_parts();
     int artic_point = std::get<0>(comps);
 
@@ -138,9 +153,9 @@ void PNS::evaluate_components(PNSNode* node){
         board_int comp1 = std::get<1>(comps);
         board_int comp2 = std::get<2>(comps);
 
-        display(node->board, true);
-        display(comp1, true);
-        display(comp2, true);
+        //display(node->board, true, {artic_point});
+        //display(comp1, true, {artic_point});
+        //display(comp2, true, {artic_point});
 
         Board b_small(node->board);
         b_small.black |= comp2;
@@ -193,10 +208,21 @@ void PNS::evalueate_node_with_PNS(PNSNode* node, bool log){
     }
 }
 
-void PNS::extend(PNS::PNSNode* node, const unsigned int action){
+void PNS::extend(PNS::PNSNode* node, unsigned int action){
     Board next_state(node->board, action, get_player(node->type));
 
     simplify_board(next_state, action, node->depth);
+    //simplify_board(next_state, action, node->depth);
+
+    int last_act = action;
+    while(!game_ended(next_state, last_act)){
+        int temp_act = next_state.one_way(get_all_lines());
+        if(temp_act > -1){
+            last_act = temp_act;
+            next_state.move(last_act, next_state.node_type== OR ? 1 : -1);
+        }
+        else break;
+    }
     
     Board reversed(next_state);
     reversed.flip();
@@ -212,16 +238,14 @@ void PNS::extend(PNS::PNSNode* node, const unsigned int action){
         node->children[action] -> parent_num += 1;
     }
     else{
-        int heur_val = 1;
-        //int heur_val = (int) floor(pow(2.0, 8*(next_state.heuristic_val(heuristic.all_linesinfo)-1)));
-        int act = next_state.one_way(get_all_lines());
-        if(act > -1) next_state.move(act, next_state.node_type== OR ? 1 : -1);
-
-        node->children[action] = new PNS::PNSNode(next_state, node->depth+1, action, heur_val, heuristic);
+        int heur_val = 1;//(int) floor(pow(2.0, 8*(next_state.heuristic_val(heuristic.all_linesinfo)-1)));
+        node->children[action] = new PNS::PNSNode(next_state, node->depth+1, last_act, heur_val, heuristic);
         states[next_state] = node->children[action];
 
-        if(node->children[action]->type == OR){
-            evaluate_components(node->children[action]);
+        if(node->children[action]->type == OR && (node->children[action]->pn)*(node->children[action]->dn) != 0){
+            //std::cout<<action<<" "<<last_act<<" "<<node->children[action]->pn<<" "<<node->children[action]->dn<<std::endl;
+            //std::cout<<(next_state.node_type == AND)<<next_state.white_win(heuristic.linesinfo_per_field[action])<<std::endl;
+            //evaluate_components(node->children[action]);
         }
     }
 }
