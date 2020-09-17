@@ -246,7 +246,7 @@ void PNS::extend(PNS::PNSNode* node, unsigned int action){
         if(node->children[action]->type == OR && (node->children[action]->pn)*(node->children[action]->dn) != 0){
             //std::cout<<action<<" "<<last_act<<" "<<node->children[action]->pn<<" "<<node->children[action]->dn<<std::endl;
             //std::cout<<(next_state.node_type == AND)<<next_state.white_win(heuristic.linesinfo_per_field[action])<<std::endl;
-            //evaluate_components(node->children[action]);
+            evaluate_components(node->children[action]);
         }
     }
 }
