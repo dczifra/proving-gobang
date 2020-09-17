@@ -115,6 +115,7 @@ void play_with_solution(std::string filename){
                 Board next(b, i, player);
                 tree.simplify_board(next, i, -1);
                 int last_act = i;
+                color = {i};
                 while(!tree.game_ended(next, last_act)){
                     int temp_act = next.one_way(tree.get_all_lines());
                     if(temp_act > -1){
@@ -126,8 +127,10 @@ void play_with_solution(std::string filename){
                 }
                 //display(next, true);
 
+                Board reversed(next);
+                reversed.flip();
                 // === We found the child ===
-                if(states.find(next)!=states.end()){
+                if(states.find(next)!=states.end() || states.find(reversed)!=states.end()){
                     b = next;
                     act = last_act;
                     break;
