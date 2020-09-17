@@ -1,8 +1,7 @@
 #!/bin/bash
 
-git clone https://github.com/doma945/prooving-gobang.git
-cd prooving-gobang/
-wget -r --no-parent --cut-dirs=3 -R "index.html*" -e robots=off https://old.renyi.hu/~doma945/temp/Amoba/proofs
+git pull
+wget -r --no-parent --cut-dirs=5 -R "index.html*" -e robots=off https://old.renyi.hu/~doma945/temp/Amoba/proofs/
 mv old.renyi.hu data
 mkdir build
 cd build

@@ -1,6 +1,6 @@
 # cmake .. -DCMAKE_CXX_FLAGS="-fsanitize=address  -fsanitize=leak -g" -DCMAKE_C_FLAGS="-fsanitize=address  -fsanitize=leak -g" -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address  -fsanitize=leak" -DCMAKE_MODULE_LINKER_FLAGS="-fsanitize=address  -fsanitize=leak"
 
-cmake_minimum_required(VERSION 2.1)
+cmake_minimum_required(VERSION 2.5)
 project(AMOBA)
 
 set(CMAKE_CXX_STANDARD 14)
