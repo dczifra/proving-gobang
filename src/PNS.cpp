@@ -15,7 +15,8 @@ PNS::PNSNode::PNSNode(const Board& b, unsigned int d, int action, int heur_val, 
         if(b.is_valid(i)) ++sum;
     }
 
-    if((b.node_type == AND) && action > -1 && b.white_win(h.linesinfo_per_field[action])){
+    if(b.white_win(h.all_linesinfo)){
+    //if((b.node_type == AND) && action > -1 && b.white_win(h.linesinfo_per_field[action])){
         pn = 0;
         dn = UINT_MAX;
     }
@@ -255,7 +256,9 @@ void PNS::init_PN_search(PNS::PNSNode* node){
 }
 
 void PNS::PN_search(PNS::PNSNode* node){
+    //assert(!node->board.white_win(heuristic.all_linesinfo));
     assert(node != nullptr);
+
     if(node->pn == 0 || node->dn == 0) return;
 
     if(node->type == OR){ // === OR  node ===
