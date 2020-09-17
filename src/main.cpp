@@ -129,7 +129,7 @@ void play_with_solution(std::string filename){
                 // === We found the child ===
                 if(states.find(next)!=states.end()){
                     b = next;
-                    act = i;
+                    act = last_act;
                     break;
                 }
             }
