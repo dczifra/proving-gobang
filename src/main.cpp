@@ -109,12 +109,20 @@ void play_with_solution(std::string filename){
             for(int i=0;i<ACTION_SIZE;i++){
                 if(!b.is_valid(i)) continue;
 
+                color.resize(0);
+
                 // === Simplification and one way ===
                 Board next(b, i, player);
                 tree.simplify_board(next, i, -1);
-                int one_way = next.one_way(tree.heuristic.all_linesinfo);
-                if(one_way>=0){
-                    next.move(one_way, -player);
+                int last_act = i;
+                while(!tree.game_ended(next, last_act)){
+                    int temp_act = next.one_way(tree.get_all_lines());
+                    if(temp_act > -1){
+                        last_act = temp_act;
+                        next.move(last_act, next.node_type== OR ? 1 : -1);
+                        color.push_back(last_act);
+                    }
+                    else break;
                 }
                 //display(next, true);
 
@@ -122,7 +130,6 @@ void play_with_solution(std::string filename){
                 if(states.find(next)!=states.end()){
                     b = next;
                     act = i;
-                    if(one_way>-1) color = {one_way};
                     break;
                 }
             }
