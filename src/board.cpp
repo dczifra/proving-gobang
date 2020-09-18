@@ -844,4 +844,5 @@ std::tuple<int, board_int, board_int> Board::Artic_point::get_parts(){
         }
     }
     // === Search for components ===
+    return std::make_tuple(-1, (0ULL), (0ULL));
 }
