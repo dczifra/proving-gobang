@@ -117,6 +117,7 @@ unsigned int PNS::get_sum_children(PNS::PNSNode* node, const ProofType type) con
 }
 
 bool PNS::game_ended(const Board& b, int action){
+    //if(b.white_win(heuristic.all_linesinfo)){
     if((b.node_type == AND) && action > -1 && b.white_win(heuristic.linesinfo_per_field[action])){
         return true;
     }

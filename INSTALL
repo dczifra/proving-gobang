@@ -1,8 +1,17 @@
 #!/bin/bash
+folder="Amoba"
+if [ "$#" = "1" ]; then
+    folder="$1"
+    echo $folder
+fi
+
+rm -rf data
+mkdir data
+wget -r --no-parent --cut-dirs=5 -R "index.html*" -e robots=off "https://old.renyi.hu/~doma945/temp/$folder/proof/"
+mv old.renyi.hu data/proof
+wget -r --no-parent --cut-dirs=5 -R "index.html*" -e robots=off "https://old.renyi.hu/~doma945/temp/$folder/disproof/"
+mv old.renyi.hu data/disproof
 
 git pull
-wget -r --no-parent --cut-dirs=5 -R "index.html*" -e robots=off https://old.renyi.hu/~doma945/temp/Amoba/proofs/
-mv old.renyi.hu data
-mkdir build
 cd build
 cmake ..
