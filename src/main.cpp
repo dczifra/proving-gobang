@@ -89,17 +89,12 @@ void play_with_solution(Args& args){
     while(!tree.game_ended(b, act)){
         std::vector<int> color;
         // === Human player can choose ===
-        //act = b.one_way(tree.heuristic.all_linesinfo);
         act = -1;
-        if(act>=0){
-            b.move(act, player);
-            std::cout<<"One-way end detected"<<std::endl;
-            //tree.simplify_board(b, act, -1);
-        }
-        else if(player == human_player ){
+        if(player == human_player ){
             int row, col;
             std::cin>>row>>col;
             act = col*ROW+row;
+            
             b.move(act, human_player);
             tree.simplify_board(b, act, -1);
         }
@@ -151,7 +146,7 @@ void PNS_test(Args& args){
     choose_problem(b,player, args);
 
     PNS tree;
-    PNS::PNSNode* node = new PNS::PNSNode(b, 0, -1, -1, tree.heuristic);
+    PNS::PNSNode* node = new PNS::PNSNode(b, 0, -1, -1, PNS::heuristic);
     tree.init_PN_search(node);
 
     tree.evalueate_node_with_PNS(node, args.log);
@@ -167,7 +162,7 @@ void DFPNS_test(Args& args){
     //choose_problem(b,player, args);
 
     PNS tree;
-    PNS::PNSNode* node = new PNS::PNSNode(b, 0, -1, -1, tree.heuristic);
+    PNS::PNSNode* node = new PNS::PNSNode(b, 0, -1, -1, PNS::heuristic);
     tree.init_DFPN_search(node);
     
     unsigned int i = 0;
@@ -181,6 +176,8 @@ void DFPNS_test(Args& args){
     }
     tree.stats(node);
 }
+
+Heuristic PNS::heuristic;
 
 int main(int argc, char* argv[]){
     std::cout<<"Proving gobanggame..."<<std::endl;

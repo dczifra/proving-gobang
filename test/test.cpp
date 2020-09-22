@@ -124,7 +124,8 @@ void test_components2(){
 }
 
 void artic_point(){
-    std::vector<int> moves = {0, 2, 1, 4, 3, 6, 5, 7, 11, 10, 15, 16, 21, 18, 22, 19, 23, 20};
+    std::vector<int> moves = {1,4, 7, 6, 11, 12, 14, 17, 20, 25, 27, 19};
+    //std::vector<int> moves = {0, 2, 1, 4, 3, 6, 5, 7, 11, 10, 15, 16, 21, 18, 22, 19, 23, 20};
     //std::vector<int> moves = {1, 2, 17, 14, 5, 4, 8, 6, 9, 12 ,11, 13};
     //std::vector<int> moves = {0, ROW*COL/2-1, 3, ROW*COL/2-2, 9, 8, 15, ROW*COL/2+1};
     //std::vector<int> moves = {0, ROW*COL/2-1, 3, ROW*COL/2-2, 9, 8, 15, ROW*COL/2+1, ROW*COL/2};
@@ -140,7 +141,7 @@ void artic_point(){
     int player = 1;
     for(auto act: moves){
         b.move(act, player);
-        //tree.simplify_board(b, act, -1);
+        tree.simplify_board(b, act, -1);
 
         display(b,true);
         player = -player;
@@ -179,6 +180,7 @@ void test_DFPN(){
     tree.stats(node);
 }
 
+Heuristic PNS::heuristic;
 int main() {
     std::cout<<"=== TEST ==="<<std::endl;
 
@@ -190,6 +192,11 @@ int main() {
     b.move(0,1);
     display(b.get_valids(), true);
     std::cout<<__builtin_popcountll(b.get_valids())<<std::endl;
+
+    PNS::PNSNode* node = new PNS::PNSNode(b, 0, -1, -1, PNS::heuristic);
+    delete node;
+    //node = new PNS::PNSNode(b, 0, -1, -1, PNS::heuristic);
+    delete node;
 
     return 0;
 }

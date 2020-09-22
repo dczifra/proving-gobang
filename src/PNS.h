@@ -93,7 +93,7 @@ public:
         if(end) std::cout<<std::endl;
     }
 
-    Heuristic heuristic;
+    static Heuristic heuristic;
 private :
     //std::map<Board, PNSNode*> states;
     std::unordered_map<Board, PNSNode*, Board_Hash> states;

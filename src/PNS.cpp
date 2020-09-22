@@ -144,43 +144,44 @@ inline void PNS::simplify_board(Board& next_state, const unsigned int action, in
 void PNS::evaluate_components(PNSNode* node){
     assert(node->type == OR);
 
-    //std::cout<<"Eval\n";
-    //display(node->board, true);
+    display(node->board, true);
 
     Board::Artic_point p(&(node->board), heuristic.all_linesinfo, heuristic.linesinfo_per_field);
     auto comps = p.get_parts();
     int artic_point = std::get<0>(comps);
+    std::cout<<artic_point<<std::endl;
 
     if(artic_point > -1){
         board_int comp1 = std::get<1>(comps);
         board_int comp2 = std::get<2>(comps);
 
-        //display(node->board, true, {artic_point});
-        //display(comp1, true, {artic_point});
-        //display(comp2, true, {artic_point});
+        display(node->board, true, {artic_point});
+        display(comp1, true, {artic_point});
+        display(comp2, true, {artic_point});
 
         Board b_small(node->board);
         b_small.black |= comp2;
 
         // 1. Evalute smaller component without artic point
         PNSNode* small_comp = new PNS::PNSNode(b_small, node->depth+1, -1, -1, heuristic);
-        add_state(small_comp);
         evalueate_node_with_PNS(small_comp);
+        add_state(small_comp);
         if(small_comp->pn == 0){
-            delete_node(node);
+            delete_all(node);
             node = small_comp;
             return;
         }
         else{
-            delete_node(small_comp);
+            delete_all(small_comp);
 
             // 2. Evaluate small component with artic point
             (b_small.white) |= ((1ULL)<<artic_point);
             PNSNode* small_comp_mod = new PNS::PNSNode(b_small, node->depth, -1, -1, heuristic);
             add_state(small_comp_mod);
             evalueate_node_with_PNS(small_comp_mod);
-            bool attacker_win = small_comp_mod->pn == 0;
-            delete_node(small_comp_mod);
+
+            bool attacker_win = (small_comp_mod->pn == 0);
+            delete_all(small_comp_mod);
 
             Board new_board(node->board);
             new_board.black |= comp1;
@@ -189,8 +190,10 @@ void PNS::evaluate_components(PNSNode* node){
                 new_board.white |= ((1ULL)<<artic_point);
             }
 
-            delete_node(node);
-            node = new PNS::PNSNode(new_board, node->depth, -1, -1, heuristic);
+            int depth = node->depth;
+            delete_all(node);
+            //delete node;
+            node = new PNS::PNSNode(new_board, depth, -1, -1, heuristic);
             add_state(node);
 
             //TODO: write to extend:
@@ -305,6 +308,7 @@ void PNS::delete_all(PNS::PNSNode* node){
         delete node;
     }
 }
+
 void PNS::delete_node(PNS::PNSNode* node){
     // === In this case, we need max 1 branch ===
     if( ((node->type == OR) && (node->pn == 0)) ||

@@ -5,12 +5,13 @@
     "version": "0.2.0",
     "configurations": [
 
+
         {
             "name": "AMOBA_DEBUG",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/AMOBA_DEBUG",
-            "args": ["--play"],
+            "args": ["--log"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
