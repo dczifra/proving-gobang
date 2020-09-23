@@ -153,6 +153,8 @@ PNS::PNSNode* PNS::evaluate_components(PNSNode* node){
     int artic_point = std::get<0>(comps);
 
     if(artic_point > -1){
+        delete_all(node);
+
         board_int comp1 = std::get<1>(comps);
         board_int comp2 = std::get<2>(comps);
 
@@ -164,27 +166,39 @@ PNS::PNSNode* PNS::evaluate_components(PNSNode* node){
         b_small.black |= comp2;
 
         // 1. Evalute smaller component without artic point
-        PNSNode* small_comp = new PNS::PNSNode(b_small, base_depth, -1, -1, heuristic);
+        PNSNode* small_comp;
+        if(states.find(b_small) != states.end()){
+            small_comp = states[b_small];
+            small_comp -> parent_num += 1;
+        }
+        else{
+            small_comp = new PNS::PNSNode(b_small, base_depth, -1, -1, heuristic);
+            add_state(small_comp);
+        }
         evalueate_node_with_PNS(small_comp);
-        add_state(small_comp);
-        delete_all(node);
 
         if(small_comp->pn == 0){
             //std::cout<<"Small\n";
             return small_comp;
         }
         else{
-            delete_all(small_comp);
-            //return new PNSNode(base_board, base_depth, -1, -1, heuristic);
+            //delete_all(small_comp);
 
             // 2. Evaluate small component with artic point
             (b_small.white) |= ((1ULL)<<artic_point);
-            PNSNode* small_comp_mod = new PNS::PNSNode(b_small, base_depth, -1, -1, heuristic);
-            add_state(small_comp_mod);
+            PNSNode* small_comp_mod;
+            if(states.find(b_small) != states.end()){
+                small_comp_mod = states[b_small];
+                small_comp_mod -> parent_num += 1;
+            }
+            else{
+                small_comp_mod = new PNS::PNSNode(b_small, base_depth, -1, -1, heuristic);
+                add_state(small_comp_mod);
+            }
             evalueate_node_with_PNS(small_comp_mod);
 
             bool attacker_win = (small_comp_mod->pn == 0);
-            delete_all(small_comp_mod);
+            //delete_all(small_comp_mod);
 
             Board big_board(node->board);
             big_board.black |= comp1;
@@ -193,8 +207,15 @@ PNS::PNSNode* PNS::evaluate_components(PNSNode* node){
                 big_board.white |= ((1ULL)<<artic_point);
             }
 
-            PNSNode* big_comp = new PNS::PNSNode(big_board, base_depth, -1, -1, heuristic);
-            add_state(big_comp);
+            PNSNode* big_comp;
+            if(states.find(big_board) != states.end()){
+                big_comp = states[big_board];
+                big_comp -> parent_num += 1;
+            }
+            else{
+                big_comp = new PNS::PNSNode(big_board, base_depth, -1, -1, heuristic);
+                add_state(big_comp);
+            }
             return big_comp;
 
             //TODO: write to extend:
