@@ -57,7 +57,7 @@ public:
     void init_DFPN_search(PNSNode* node);
 
     void evalueate_node_with_PNS(PNSNode* node, bool log = false);
-    void evaluate_components(PNSNode* node);
+    PNSNode* evaluate_components(PNSNode* node);
 
     void extend(PNSNode* node, unsigned int action);
     void delete_all(PNSNode* node);

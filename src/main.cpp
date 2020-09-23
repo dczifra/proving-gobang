@@ -180,7 +180,9 @@ void DFPNS_test(Args& args){
 Heuristic PNS::heuristic;
 
 int main(int argc, char* argv[]){
-    std::cout<<"Proving gobanggame..."<<std::endl;
+    printf("#############\n");
+    printf("# Board %dx%d #\n", ROW, COL);
+    printf("#############\n");
 
     Args args(argc, argv);
 
