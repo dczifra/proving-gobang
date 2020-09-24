@@ -5,6 +5,7 @@
 #include "heuristic.h"
 #include "board.h"
 #include "PNS.h"
+#include "artic_point.h"
 // =================================================================
 //                     TEST THE BOARD's GOODNESS
 // =================================================================
@@ -148,7 +149,7 @@ void artic_point(){
     }
     //std::cout<<b.get_articulation_point(2, 0, parent, depth, low, h.linesinfo_per_field);
     
-    Board::Artic_point p(&b, h.all_linesinfo, h.linesinfo_per_field);
+    Artic_point p(b, h.all_linesinfo, h.linesinfo_per_field);
     auto comps = p.get_parts();
     printf("They are the components: %d \n", std::get<0>(comps));
     display(std::get<1>(comps), true);

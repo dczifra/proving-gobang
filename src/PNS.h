@@ -21,6 +21,7 @@ struct Board_Hash{
 
 class PNS{
 public:
+    friend class Play; 
     struct PNSNode{
         PNSNode(const Board& b, unsigned int d, int action, int heur_val, Heuristic& h);
 
@@ -56,8 +57,9 @@ public:
     void init_PN_search(PNSNode* node);
     void init_DFPN_search(PNSNode* node);
 
+    PNSNode* create_and_eval_node(Board& board, int base_depth, bool eval);
     void evalueate_node_with_PNS(PNSNode* node, bool log = false);
-    PNSNode* evaluate_components(PNSNode* node);
+    PNSNode* evaluate_components(Board& base_board, const int base_depth);
 
     void extend(PNSNode* node, unsigned int action);
     void delete_all(PNSNode* node);

@@ -4,8 +4,9 @@
 #include "limits.h"
 #include "assert.h"
 #include "common.h"
-#include <unistd.h>
+#include "artic_point.h"
 
+#include <unistd.h>
 
 
 PNS::PNSNode::PNSNode(const Board& b, unsigned int d, int action, int heur_val, Heuristic& h):children(), board(b), depth(d){
@@ -141,81 +142,64 @@ inline void PNS::simplify_board(Board& next_state, const unsigned int action, in
     }
 }
 
-PNS::PNSNode* PNS::evaluate_components(PNSNode* node){
-    assert(node->type == OR);
+PNS::PNSNode* PNS::create_and_eval_node(Board& board, int base_depth, bool eval){
+    PNSNode* node;
+    Board flipped(board);
+    flipped.flip();
 
-    Board base_board(node->board);
-    int base_depth = node->depth;
-    //display(node->board, true);
+    if(states.find(board) != states.end()){
+        node = states[board];
+        node -> parent_num += 1;
+    }
+    else if(states.find(flipped) != states.end()){
+        node = states[flipped];
+        node -> parent_num += 1; 
+    }
+    else{
+        node = new PNS::PNSNode(board, base_depth, -1, -1, heuristic);
+        add_state(node);
+    }
 
-    Board::Artic_point p(&(node->board), heuristic.all_linesinfo, heuristic.linesinfo_per_field);
-    auto comps = p.get_parts();
-    int artic_point = std::get<0>(comps);
+    if(eval) evalueate_node_with_PNS(node);
+    return node;
+}
+
+PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
+    assert(base_board.node_type == OR);
+    bool delete_comps = true;
+    //display(base_board, true);
+
+    Artic_point comps(base_board, heuristic.all_linesinfo, heuristic.linesinfo_per_field);
+    int artic_point;
+    Board small_board, big_board;
+    std::tie(artic_point, small_board, big_board) = comps.get_parts();
 
     if(artic_point > -1){
-        delete_all(node);
-
-        board_int comp1 = std::get<1>(comps);
-        board_int comp2 = std::get<2>(comps);
-
         //display(base_board, true, {artic_point});
         //display(comp1, true, {artic_point});
         //display(comp2, true, {artic_point});
 
-        Board b_small(base_board);
-        b_small.black |= comp2;
-
         // 1. Evalute smaller component without artic point
-        PNSNode* small_comp;
-        if(states.find(b_small) != states.end()){
-            small_comp = states[b_small];
-            small_comp -> parent_num += 1;
-        }
-        else{
-            small_comp = new PNS::PNSNode(b_small, base_depth, -1, -1, heuristic);
-            add_state(small_comp);
-        }
-        evalueate_node_with_PNS(small_comp);
+        PNSNode* small_comp = create_and_eval_node(small_board, base_depth, true);
 
         if(small_comp->pn == 0){
             //std::cout<<"Small\n";
             return small_comp;
         }
         else{
-            //delete_all(small_comp);
+            if (delete_comps) delete_all(small_comp);
 
             // 2. Evaluate small component with artic point
-            (b_small.white) |= ((1ULL)<<artic_point);
-            PNSNode* small_comp_mod;
-            if(states.find(b_small) != states.end()){
-                small_comp_mod = states[b_small];
-                small_comp_mod -> parent_num += 1;
-            }
-            else{
-                small_comp_mod = new PNS::PNSNode(b_small, base_depth, -1, -1, heuristic);
-                add_state(small_comp_mod);
-            }
-            evalueate_node_with_PNS(small_comp_mod);
+            (small_board.white) |= ((1ULL)<<artic_point);
+            PNSNode* small_comp_mod = create_and_eval_node(small_board, base_depth, true);
 
-            bool attacker_win = (small_comp_mod->pn == 0);
-            //delete_all(small_comp_mod);
-
-            Board big_board(node->board);
-            big_board.black |= comp1;
-            // 3. If Attacker wins 
-            if(attacker_win){
+            // 3-4. If Attacker wins: C* else C
+            if(small_comp_mod->pn == 0){
                 big_board.white |= ((1ULL)<<artic_point);
             }
+            if (delete_comps) delete_all(small_comp_mod);
 
-            PNSNode* big_comp;
-            if(states.find(big_board) != states.end()){
-                big_comp = states[big_board];
-                big_comp -> parent_num += 1;
-            }
-            else{
-                big_comp = new PNS::PNSNode(big_board, base_depth, -1, -1, heuristic);
-                add_state(big_comp);
-            }
+            PNSNode* big_comp = create_and_eval_node(big_board, base_depth, false);
             return big_comp;
 
             //TODO: write to extend:
@@ -223,6 +207,8 @@ PNS::PNSNode* PNS::evaluate_components(PNSNode* node){
         }
     }
     else{
+        PNSNode* node = new PNSNode(base_board, base_depth, -1, -1, heuristic);
+        states[base_board] = node;
         return node;
     }
 }
@@ -270,16 +256,14 @@ void PNS::extend(PNS::PNSNode* node, unsigned int action){
     else{
         assert(node->children[action] == nullptr);
         int heur_val = 1;//(int) floor(pow(2.0, 8*(next_state.heuristic_val(heuristic.all_linesinfo)-1)));
-        node->children[action] = new PNS::PNSNode(next_state, node->depth+1, last_act, heur_val, heuristic);
-        //delete_all(node->children[action]);
-        //node->children[action] = new PNS::PNSNode(next_state, node->depth+1, last_act, heur_val, heuristic);
-        states[next_state] = node->children[action];
 
-        if(node->children[action]->type == OR && !game_ended(next_state, last_act)){
-        //if(node->children[action]->type == OR && (node->children[action]->pn)*(node->children[action]->dn) != 0){
-            //evaluate_components(node->children[action]);
-            node->children[action] = evaluate_components(node->children[action]);
-            //add_state(node->children[action]);
+        // 2-connected componets, if not ended
+        if(next_state.node_type == OR && !game_ended(next_state, last_act)){
+            node->children[action] = evaluate_components(next_state, node->depth+1);
+        }
+        else{
+            node->children[action] = new PNS::PNSNode(next_state, node->depth+1, last_act, heur_val, heuristic);
+            states[next_state] = node->children[action];
         }
     }
 }
