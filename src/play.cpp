@@ -75,6 +75,7 @@ Board Play::move_in_solution(int last_act, int& act, std::vector<int>& color){
         }
         else break;
     }
+    act = last_act;
 
     // components
     Artic_point comps(next, tree.heuristic.all_linesinfo, tree.heuristic.linesinfo_per_field);
@@ -82,7 +83,35 @@ Board Play::move_in_solution(int last_act, int& act, std::vector<int>& color){
     Board small_board, big_board;
     std::tie(artic_point, small_board, big_board) = comps.get_parts();
 
-    act = last_act;
+    if(artic_point > -1){
+        //printf("=== ARTIC POINT ===\n");
+        Board small_board_f(small_board);
+        small_board_f.flip();
+        Board big_board_f(big_board);
+        big_board_f.flip();
+
+        if(tree.states.find(small_board) != tree.states.end() || tree.states.find(small_board_f) != tree.states.end()){
+            printf("Small comp win\n");
+            display(small_board, true);
+            return small_board;
+        }
+        else if(tree.states.find(big_board) != tree.states.end() || tree.states.find(big_board_f) != tree.states.end()){
+            printf("Big comp win\n");
+            display(big_board, true);
+            return big_board;
+        }
+        else{
+            big_board.white |= ((1ULL)<<artic_point);
+            big_board_f = big_board;
+            big_board_f.flip();
+            if(tree.states.find(big_board) != tree.states.end() || tree.states.find(big_board_f) != tree.states.end()){
+                printf("Small-Big combo win win\n");
+                display(big_board, true);
+                return big_board;
+            }
+        }
+    }
+
     return next;
     //display(next, true);
 }
@@ -115,6 +144,10 @@ void Play::play_with_solution(){
             }
             if(curr_action== ACTION_SIZE){
                 printf("Not found next step\n");
+                PNS::PNSNode* node = new PNS::PNSNode(board, -1, -1, -1, tree.heuristic);
+                PNS new_tree;
+                new_tree.evalueate_node_with_PNS(node, false, true);
+                printf("Node pn: %d\n", node->pn);
                 break;
             }
         }

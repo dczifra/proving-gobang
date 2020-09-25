@@ -6,6 +6,7 @@
 #include "board.h"
 #include "PNS.h"
 #include "artic_point.h"
+#include "PNS.h"
 // =================================================================
 //                     TEST THE BOARD's GOODNESS
 // =================================================================
@@ -187,17 +188,14 @@ int main() {
 
     //test_components();
     //test_DFPN();
-    artic_point();
+    //artic_point();
 
+    PNS tree;
     Board b;
-    b.move(0,1);
-    display(b.get_valids(), true);
-    std::cout<<__builtin_popcountll(b.get_valids())<<std::endl;
+    PNS::PNSNode* node = new PNS::PNSNode(b, -1,-1,-1,tree.heuristic);
 
-    PNS::PNSNode* node = new PNS::PNSNode(b, 0, -1, -1, PNS::heuristic);
-    delete node;
-    //node = new PNS::PNSNode(b, 0, -1, -1, PNS::heuristic);
-    delete node;
+    tree.evalueate_node_with_PNS(node, true, false);
+    tree.stats(node);
 
     return 0;
 }
