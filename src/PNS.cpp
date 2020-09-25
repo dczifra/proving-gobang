@@ -157,7 +157,8 @@ PNS::PNSNode* PNS::create_and_eval_node(Board& board, int base_depth, bool eval,
     }
     else{
         node = new PNS::PNSNode(board, base_depth, -1, -1, heuristic);
-        add_state(node);
+        states[board] = node;
+        //add_state(node);
     }
 
     if(eval) evalueate_node_with_PNS(node, false, true);
@@ -201,7 +202,7 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
             if (delete_comps) delete_all(small_comp_mod);
 
             // TODO: Improve...
-            bool eval_big = __builtin_popcountll(big_board.get_valids()) < 10;
+            bool eval_big = __builtin_popcountll(big_board.get_valids()) < EVAL_TRESHOLD;
             //if(eval_big) display(big_board, true);
             PNSNode* big_comp = create_and_eval_node(big_board, base_depth, eval_big);
             return big_comp;
@@ -259,15 +260,15 @@ void PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
         int heur_val = 1;//(int) floor(pow(2.0, 8*(next_state.heuristic_val(heuristic.all_linesinfo)-1)));
 
         // 2-connected componets, if not ended
-        //if(__builtin_popcountll(next_state.get_valids()) < 10){
-        //    evalueate_node_with_PNS(node);
-        //}
         if(!fast_eval && next_state.node_type == OR && !game_ended(next_state, last_act)){
             node->children[action] = evaluate_components(next_state, node->depth+1);
         }
         else{
             node->children[action] = new PNS::PNSNode(next_state, node->depth+1, last_act, heur_val, heuristic);
             states[next_state] = node->children[action];
+            if(__builtin_popcountll(next_state.get_valids()) < EVAL_TRESHOLD){
+                evalueate_node_with_PNS(node->children[action], false, true);
+            }
         }
     }
 }

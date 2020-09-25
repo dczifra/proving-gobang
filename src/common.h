@@ -22,6 +22,8 @@
 #define INNER_LINE  true
 #define DIFFERENT_CORNER  false
 
+#define EVAL_TRESHOLD 12
+
 unsigned long long set_full_board();
 
 const unsigned long long FULL_BOARD = set_full_board();
