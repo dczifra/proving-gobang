@@ -52,18 +52,19 @@ public:
     };
 
     ~PNS(){free_states();}
-    void PN_search(PNSNode* node);
+    void PN_search(PNSNode* node, bool fast_eval);
     void DFPN_search(PNSNode* node);
     void init_PN_search(PNSNode* node);
     void init_DFPN_search(PNSNode* node);
 
-    PNSNode* create_and_eval_node(Board& board, int base_depth, bool eval);
-    void evalueate_node_with_PNS(PNSNode* node, bool log = false);
+    PNSNode* create_and_eval_node(Board& board, int base_depth, bool eval, bool search_in_states);
+    void evalueate_node_with_PNS(PNSNode* node, bool log = false, bool fast_eval = false);
     PNSNode* evaluate_components(Board& base_board, const int base_depth);
 
-    void extend(PNSNode* node, unsigned int action);
+    void extend(PNSNode* node, unsigned int action, bool fast_eval);
     void delete_all(PNSNode* node);
     void delete_node(PNSNode* node);
+    void delete_children(PNS::PNSNode* node);
     unsigned int get_min_children(PNSNode* node, const ProofType type, bool index) const;
     unsigned int get_sum_children(PNSNode* node, const ProofType type) const;
 
@@ -91,7 +92,8 @@ public:
     }
 
     void stats(PNSNode* node, bool end = false){
-        std::cout<<"\rPN: "<<node->pn<<" DN: "<<node->dn<<" States size: "<<states.size()<<std::flush;
+        if(node != nullptr) std::cout<<"\rPN: "<<node->pn<<" DN: "<<node->dn;
+        std::cout<<" States size: "<<states.size()<<std::flush;
         if(end) std::cout<<std::endl;
     }
 

@@ -1,4 +1,5 @@
 #include "play.h"
+#include "artic_point.h"
 
 #include<sstream>
 #include<fstream>
@@ -76,7 +77,10 @@ Board Play::move_in_solution(int last_act, int& act, std::vector<int>& color){
     }
 
     // components
-    
+    Artic_point comps(next, tree.heuristic.all_linesinfo, tree.heuristic.linesinfo_per_field);
+    int artic_point;
+    Board small_board, big_board;
+    std::tie(artic_point, small_board, big_board) = comps.get_parts();
 
     act = last_act;
     return next;

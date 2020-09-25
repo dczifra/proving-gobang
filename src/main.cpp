@@ -59,6 +59,9 @@ void PNS_test(Args& args){
     
     std::ofstream logfile(args.get_filename());
     tree.log_solution_min(node, logfile);
+
+    tree.delete_all(node);
+    tree.stats(nullptr, true);
 }
 
 void DFPNS_test(Args& args){

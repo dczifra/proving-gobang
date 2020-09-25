@@ -28,7 +28,7 @@ void PNS::DFPN_search(PNSNode* node){
         if(node->type == OR){ // === OR  node ===
 
             if(min_ind == (-1)); // Disproof found
-            else if(node->children[min_ind] == nullptr) extend(node, min_ind);
+            else if(node->children[min_ind] == nullptr) extend(node, min_ind, false);
             else{
                 update_threshhold(node);
                 DFPN_search(node->children[min_ind]);
@@ -40,7 +40,7 @@ void PNS::DFPN_search(PNSNode* node){
         }
         else{                 // === AND node ===
             if(min_ind == (-1)); // Proof found
-            else if(node->children[min_ind] == nullptr) extend(node, min_ind);
+            else if(node->children[min_ind] == nullptr) extend(node, min_ind, false);
             else{
                 update_threshhold(node);
                 DFPN_search(node->children[min_ind]);

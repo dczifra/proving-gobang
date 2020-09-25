@@ -142,7 +142,7 @@ inline void PNS::simplify_board(Board& next_state, const unsigned int action, in
     }
 }
 
-PNS::PNSNode* PNS::create_and_eval_node(Board& board, int base_depth, bool eval){
+PNS::PNSNode* PNS::create_and_eval_node(Board& board, int base_depth, bool eval, bool search = false){
     PNSNode* node;
     Board flipped(board);
     flipped.flip();
@@ -160,7 +160,7 @@ PNS::PNSNode* PNS::create_and_eval_node(Board& board, int base_depth, bool eval)
         add_state(node);
     }
 
-    if(eval) evalueate_node_with_PNS(node);
+    if(eval) evalueate_node_with_PNS(node, false, true);
     return node;
 }
 
@@ -184,6 +184,7 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
 
         if(small_comp->pn == 0){
             //std::cout<<"Small\n";
+            //std::cout<<" "<<__builtin_popcountll(small_board.get_valids())<<std::endl;
             return small_comp;
         }
         else{
@@ -199,11 +200,11 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
             }
             if (delete_comps) delete_all(small_comp_mod);
 
-            PNSNode* big_comp = create_and_eval_node(big_board, base_depth, false);
+            // TODO: Improve...
+            bool eval_big = __builtin_popcountll(big_board.get_valids()) < 10;
+            //if(eval_big) display(big_board, true);
+            PNSNode* big_comp = create_and_eval_node(big_board, base_depth, eval_big);
             return big_comp;
-
-            //TODO: write to extend:
-            // if(depth>...) evalueate_node_with_PNS(node);
         }
     }
     else{
@@ -213,10 +214,10 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
     }
 }
 
-void PNS::evalueate_node_with_PNS(PNSNode* node, bool log){
+void PNS::evalueate_node_with_PNS(PNSNode* node, bool log, bool fast_eval){
     int i=0;
     while(node->pn*node->dn != 0){
-        PN_search(node);
+        PN_search(node, fast_eval);
         if(log && i%10000 == 0){
             stats(node);
         }
@@ -224,7 +225,7 @@ void PNS::evalueate_node_with_PNS(PNSNode* node, bool log){
     }
 }
 
-void PNS::extend(PNS::PNSNode* node, unsigned int action){
+void PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
     Board next_state(node->board, action, get_player(node->type));
 
     simplify_board(next_state, action, node->depth);
@@ -258,7 +259,10 @@ void PNS::extend(PNS::PNSNode* node, unsigned int action){
         int heur_val = 1;//(int) floor(pow(2.0, 8*(next_state.heuristic_val(heuristic.all_linesinfo)-1)));
 
         // 2-connected componets, if not ended
-        if(next_state.node_type == OR && !game_ended(next_state, last_act)){
+        //if(__builtin_popcountll(next_state.get_valids()) < 10){
+        //    evalueate_node_with_PNS(node);
+        //}
+        if(!fast_eval && next_state.node_type == OR && !game_ended(next_state, last_act)){
             node->children[action] = evaluate_components(next_state, node->depth+1);
         }
         else{
@@ -272,7 +276,7 @@ void PNS::init_PN_search(PNS::PNSNode* node){
     add_state(node->board, node);
 }
 
-void PNS::PN_search(PNS::PNSNode* node){
+void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
     //assert(!node->board.white_win(heuristic.all_linesinfo));
     assert(node != nullptr);
 
@@ -282,8 +286,8 @@ void PNS::PN_search(PNS::PNSNode* node){
         unsigned int min_ind = get_min_children(node, PN, true);
 
         if(min_ind == (-1)) 0; // Disproof found
-        else if(node->children[min_ind] == nullptr) extend(node, min_ind);
-        else PN_search(node->children[min_ind]);
+        else if(node->children[min_ind] == nullptr) extend(node, min_ind, fast_eval);
+        else PN_search(node->children[min_ind], fast_eval);
         // === Update PN and DN in node ===
         node->pn = get_min_children(node, PN);
         node->dn = get_sum_children(node, DN);
@@ -292,8 +296,8 @@ void PNS::PN_search(PNS::PNSNode* node){
         unsigned int min_ind = get_min_children(node, DN, true);
 
         if(min_ind == (-1)) 0; // Proof found
-        else if(node->children[min_ind] == nullptr) extend(node, min_ind);
-        else PN_search(node->children[min_ind]);
+        else if(node->children[min_ind] == nullptr) extend(node, min_ind, fast_eval);
+        else PN_search(node->children[min_ind], fast_eval);
         // === Update PN and DN in node ===
         node->pn = get_sum_children(node, PN);
         node->dn = get_min_children(node, DN);
@@ -302,6 +306,21 @@ void PNS::PN_search(PNS::PNSNode* node){
     // If PN or DN is 0, delete all unused descendents
     if(node->pn == 0 || node->dn == 0){
         delete_node(node);
+    }
+}
+
+void PNS::delete_children(PNS::PNSNode* node){
+    if( node->parent_num>1 ){
+        node->parent_num -= 1;
+    }
+    else{
+        for(int i=0;i<ACTION_SIZE;i++){
+            if((!node->board.is_valid(i)) || (node->children[i]==nullptr)) continue;
+            else{
+                delete_all(node->children[i]);
+                node->children[i]=nullptr;
+            }
+        }
     }
 }
 
