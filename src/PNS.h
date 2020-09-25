@@ -93,7 +93,7 @@ public:
 
     void stats(PNSNode* node, bool end = false){
         if(node != nullptr) std::cout<<"\rPN: "<<node->pn<<" DN: "<<node->dn;
-        std::cout<<" States size: "<<states.size()<<std::flush;
+        std::cout<<" States size: "<<states.size()<<"        "<<std::flush;
         if(end) std::cout<<std::endl;
     }
 

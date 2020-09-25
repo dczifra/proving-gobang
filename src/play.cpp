@@ -147,7 +147,7 @@ void Play::play_with_solution(){
                 PNS::PNSNode* node = new PNS::PNSNode(board, -1, -1, -1, tree.heuristic);
                 PNS new_tree;
                 new_tree.evalueate_node_with_PNS(node, false, true);
-                printf("Node pn: %d\n", node->pn);
+                printf("Node pn: %d States size: %d\n", node->pn, (int) new_tree.states.size());
                 break;
             }
         }
