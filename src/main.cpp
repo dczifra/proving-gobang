@@ -97,7 +97,7 @@ int main(int argc, char* argv[]){
 
     if(args.test){
         Play game(args.get_filename(), args.disproof);
-        game.play_with_solution();
+        game.play_with_solution2();
     }
     else{
         //DFPNS_test(args);

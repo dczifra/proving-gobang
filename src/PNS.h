@@ -61,7 +61,7 @@ public:
     void evalueate_node_with_PNS(PNSNode* node, bool log = false, bool fast_eval = false);
     PNSNode* evaluate_components(Board& base_board, const int base_depth);
 
-    void extend(PNSNode* node, unsigned int action, bool fast_eval);
+    Board extend(PNSNode* node, unsigned int action, bool fast_eval);
     void delete_all(PNSNode* node);
     void delete_node(PNSNode* node);
     void delete_children(PNS::PNSNode* node);

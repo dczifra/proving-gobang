@@ -226,7 +226,7 @@ void PNS::evalueate_node_with_PNS(PNSNode* node, bool log, bool fast_eval){
     }
 }
 
-void PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
+Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
     Board next_state(node->board, action, get_player(node->type));
 
     simplify_board(next_state, action, node->depth);
@@ -249,11 +249,13 @@ void PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
     if(states.find(next_state) != states.end()){
         node->children[action] = states[next_state];
         node->children[action] -> parent_num += 1;
+        return next_state;
     }
     // === Find next_state in reversed discovered states ===
     else if (states.find(reversed) != states.end()){
         node->children[action] = states[reversed];
         node->children[action] -> parent_num += 1;
+        return next_state;
     }
     else{
         assert(node->children[action] == nullptr);
@@ -266,10 +268,11 @@ void PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
         else{
             node->children[action] = new PNS::PNSNode(next_state, node->depth+1, last_act, heur_val, heuristic);
             states[next_state] = node->children[action];
-            if(__builtin_popcountll(next_state.get_valids()) < EVAL_TRESHOLD){
-                evalueate_node_with_PNS(node->children[action], false, true);
+            if(fast_eval && __builtin_popcountll(next_state.get_valids()) < EVAL_TRESHOLD){
+                evalueate_node_with_PNS(node->children[action], false, false);
             }
         }
+        return node->children[action]->board;
     }
 }
 

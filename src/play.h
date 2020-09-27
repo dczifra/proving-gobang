@@ -11,6 +11,10 @@ class Play{
 public:
     Play(std::string filename, bool disproof);
     void play_with_solution();
+    void play_with_solution2();
+
+    void build_tree();
+
     static NodeType choose_problem(Board& b, int& player, bool disproof);
 
 private:
