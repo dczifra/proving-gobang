@@ -7,11 +7,11 @@
 Play::Play(std::string filename, bool disproof){
     player = 1;
     choose_problem(board, player, disproof);
-    human_player = -player;
 
     // === Read Solution Tree ===
     read_solution(filename);
     printf("Proof/disproof tree size: %zu\n", tree.states.size());
+    human_player = (tree.states[board]->pn == 0 ? -player:player);
 
     build_tree();
 }
@@ -191,28 +191,22 @@ void Play::play_with_solution2(){
         act = -1;
         // === Human player can choose ===
         if(player == human_player ){
-            act = move_human();
+            int row, col;
+            std::cin>>row>>col;
+            act = col*ROW+row;
+            board = tree.states[board]->children[act]->board;
         }
         else{
             // === Find the next child in Solution Tree ===
             if(board.node_type == OR) act = tree.get_min_children(tree.states[board], PN, true);
             else act = tree.get_min_children(tree.states[board], DN, true);
 
-            int curr_action=act;
-            if(curr_action == ACTION_SIZE or curr_action == -1){
-                printf("Not found next step\n");
-                PNS::PNSNode* node = new PNS::PNSNode(board, -1, -1, -1, tree.heuristic);
-                PNS new_tree;
-                new_tree.evalueate_node_with_PNS(node, false, true);
-                printf("Node pn: %d States size: %d\n", node->pn, (int) new_tree.states.size());
+            if(act == ACTION_SIZE or act == -1){
+                printf("Not found next step %d\n", act);
             }
             else
             {
-                act = curr_action;
-                //Board next = move_in_solution(curr_action, act, color);
                 board = tree.states[board]->children[act]->board;
-                display(board, true);
-                std::cout<<board.node_type<<std::endl;
             }
 
         }

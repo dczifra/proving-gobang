@@ -262,7 +262,7 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
         int heur_val = 1;//(int) floor(pow(2.0, 8*(next_state.heuristic_val(heuristic.all_linesinfo)-1)));
 
         // 2-connected componets, if not ended
-        if(!fast_eval && next_state.node_type == OR && !game_ended(next_state, last_act)){
+        if(0 && !fast_eval && next_state.node_type == OR && !game_ended(next_state, last_act)){
             node->children[action] = evaluate_components(next_state, node->depth+1);
         }
         else{
