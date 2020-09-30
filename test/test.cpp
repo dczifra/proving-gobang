@@ -126,38 +126,30 @@ void test_components2(){
 }
 
 void artic_point(){
-    std::vector<int> moves = {0,1,8,10};
-    //std::vector<int> moves = {0, 2, 1, 4, 3, 6, 5, 7, 11, 10, 15, 16, 21, 18, 22, 19, 23, 20};
-    //std::vector<int> moves = {1, 2, 17, 14, 5, 4, 8, 6, 9, 12 ,11, 13};
-    //std::vector<int> moves = {0, ROW*COL/2-1, 3, ROW*COL/2-2, 9, 8, 15, ROW*COL/2+1};
-    //std::vector<int> moves = {0, ROW*COL/2-1, 3, ROW*COL/2-2, 9, 8, 15, ROW*COL/2+1, ROW*COL/2};
-    //std::vector<int> moves = {0, ROW*COL/2-1, 8, ROW*COL/2-2, 9, 1, 15, ROW*COL/2+1, 23};
-    Heuristic h;
+    std::vector<int> moves = {0,1,8,10, 29, 24, 25, 30, 5, 2, 17, 21};
+
     Board b;
     PNS tree;
-
-    std::vector<int> parent(ACTION_SIZE, -1);
-    std::vector<int> depth(ACTION_SIZE, -1);
-    std::vector<int> low(ACTION_SIZE, -1);
 
     int player = 1;
     for(auto act: moves){
         b.move(act, player);
-        tree.simplify_board(b, act, -1);
-
-        display(b,true);
+        //tree.simplify_board(b, -1, -1);
+        //display(b,true);
         player = -player;
     }
-    //std::cout<<b.get_articulation_point(2, 0, parent, depth, low, h.linesinfo_per_field);
-    
-    Artic_point p(b, h.all_linesinfo, h.linesinfo_per_field);
-    auto comps = p.get_parts();
-    printf("They are the components: %d \n", std::get<0>(comps));
-    display(std::get<1>(comps), true);
-    display(std::get<2>(comps), true);
+    display(b, true);
 
-    print_v(p.depth);
-    print_v(p.low);
+    //PNS::PNSNode* node= new PNS::PNSNode(b, -1, -1, -1, tree.heuristic);
+    //b = tree.extend(node, 21, false);
+    //display(b, true);
+    tree.evaluate_components(b, -1);
+    
+    //Artic_point p(b, tree.heuristic.all_linesinfo, tree.heuristic.linesinfo_per_field);
+    //auto comps = p.get_parts();
+    //printf("They are the components: %d \n", std::get<0>(comps));
+    //display(std::get<1>(comps), true);
+    //display(std::get<2>(comps), true);
 }
 
 void test_DFPN(){

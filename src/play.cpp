@@ -11,13 +11,13 @@ Play::Play(std::string filename, bool disproof){
     // === Read Solution Tree ===
     read_solution(filename);
     printf("Proof/disproof tree size: %zu\n", tree.states.size());
-    human_player = (tree.states[board]->pn == 0 ? -player:player);
+    human_player = (tree.states[board]->pn == 0 ? -1:1);
 
     //build_tree();
 }
 
 NodeType Play::choose_problem(Board& board, int& player, bool disproof){
-    if(disproof) board.move({0,1}, player);
+    if(disproof) board.move({0,1, ROW*COL-1}, player);
     //board.move({0,1,23}, player);
 
     return (player==1?OR:AND);
@@ -230,12 +230,11 @@ void Play::play_with_solution2(){
             {
                 board = tree.states[board]->children[act]->board;
             }
-
         }
         color.push_back(act);
 
         player = get_player(board.node_type);
-        printf("Action: %d\n", act);
+        printf("Action: %d pn: %d\n", act, tree.states[board]->pn);
         //tree.simplify_board(board, -1, -1);
         display(board, true, color);
     }

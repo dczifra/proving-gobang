@@ -60,6 +60,7 @@ void PNS_test(Args& args){
     std::ofstream logfile(args.get_filename());
     std::set<Board> logged;
     tree.log_solution_min(node, logfile, logged);
+    logfile.close();
 
     tree.delete_all(node);
     tree.stats(nullptr, true);

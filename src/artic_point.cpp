@@ -161,8 +161,15 @@ std::tuple<int, Board, Board> Artic_point::get_parts(){
 
                 Board b1(board);
                 b1.black |= comp2;
+                //b1.white &= comp1;
                 Board b2(board);
                 b2.black |= comp1;
+                //b2.white &= comp2;
+                //display(comp1, true);
+                //display(comp2, true);
+                b1.remove_dead_fields_all(all_linesinfo);
+                b2.remove_dead_fields_all(all_linesinfo);
+
                 if(__builtin_popcountll(comp1) < __builtin_popcountll(comp2)){
 
                     return std::make_tuple(artic_pair.first, b1, b2);

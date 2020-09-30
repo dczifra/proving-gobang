@@ -21,7 +21,7 @@ PNS::PNSNode::PNSNode(const Board& b, unsigned int d, int action, int heur_val, 
         pn = 0;
         dn = UINT_MAX;
     }
-    else if((b.node_type == OR) && b.heuristic_stop(h.all_linesinfo)){
+    else if((b.node_type == AND) && b.heuristic_stop(h.all_linesinfo)){
         pn = UINT_MAX;
         dn = 0;
     }
@@ -122,7 +122,7 @@ bool PNS::game_ended(const Board& b, int action){
     //if((b.node_type == AND) && action > -1 && b.white_win(heuristic.linesinfo_per_field[action])){
         return true;
     }
-    else if((b.node_type == OR) && b.heuristic_stop(heuristic.all_linesinfo)){
+    else if((b.node_type == AND) && b.heuristic_stop(heuristic.all_linesinfo)){
         return true;
     }
     return false;
@@ -185,8 +185,9 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
         //#endif
 
         // 1. Evalute smaller component without artic point
-        PNSNode* small_comp = create_and_eval_node(small_board, base_depth, true);
-
+        //display(small_board, true);
+        PNSNode* small_comp = create_and_eval_node(small_board, base_depth, false);
+        //std::cout<<small_comp->pn<<std::endl;
         if(small_comp->pn == 0){
             #if TALKY
                 std::cout<<"Small comp\n";
@@ -200,8 +201,9 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
 
             // 2. Evaluate small component with artic point
             (small_board.white) |= ((1ULL)<<artic_point);
-            PNSNode* small_comp_mod = create_and_eval_node(small_board, base_depth, true);
-
+            //display(small_board, true);
+            PNSNode* small_comp_mod = create_and_eval_node(small_board, base_depth, false);
+            //std::cout<<small_comp_mod->pn<<std::endl;
             // 3-4. If Attacker wins: C* else C
             //display(small_board.black, true);
             //display(small_board.white, true);
@@ -257,6 +259,9 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
         }
         else break;
     }
+    //simplify_board(next_state, action, node->depth);
+
+
     
     Board reversed(next_state);
     reversed.flip();
@@ -278,7 +283,7 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
         int heur_val = 1;//(int) floor(pow(2.0, 8*(next_state.heuristic_val(heuristic.all_linesinfo)-1)));
 
         // 2-connected componets, if not ended
-        if(!fast_eval && next_state.node_type == OR && !game_ended(next_state, last_act)){
+        if(0 && !fast_eval && next_state.node_type == OR && !game_ended(next_state, last_act)){
             //std::cout<<"Next state\n";
             //display(next_state, true);
             node->children[action] = evaluate_components(next_state, node->depth+1);
