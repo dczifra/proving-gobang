@@ -161,7 +161,7 @@ PNS::PNSNode* PNS::create_and_eval_node(Board& board, int base_depth, bool eval,
         //add_state(node);
     }
 
-    if(eval) evalueate_node_with_PNS(node, false, true);
+    if(eval) evalueate_node_with_PNS(node, false, false);
     return node;
 }
 
@@ -179,12 +179,19 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
         //display(base_board, true, {artic_point});
         //display(comp1, true, {artic_point});
         //display(comp2, true, {artic_point});
+        //#if TALKY
+        //    std::cout<<"Artic point: "<<artic_point<<std::endl;
+        //    display(base_board, true);
+        //#endif
 
         // 1. Evalute smaller component without artic point
         PNSNode* small_comp = create_and_eval_node(small_board, base_depth, true);
 
         if(small_comp->pn == 0){
-            //std::cout<<"Small\n";
+            #if TALKY
+                std::cout<<"Small comp\n";
+                display(small_board, true);
+            #endif
             //std::cout<<" "<<__builtin_popcountll(small_board.get_valids())<<std::endl;
             return small_comp;
         }
@@ -196,10 +203,19 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
             PNSNode* small_comp_mod = create_and_eval_node(small_board, base_depth, true);
 
             // 3-4. If Attacker wins: C* else C
+            //display(small_board.black, true);
+            //display(small_board.white, true);
+            //std::cout<<small_comp_mod->pn<<std::endl;
+
             if(small_comp_mod->pn == 0){
                 big_board.white |= ((1ULL)<<artic_point);
             }
             if (delete_comps) delete_all(small_comp_mod);
+
+            #if TALKY
+                std::cout<<"Big comp\n";
+                display(big_board, true);
+            #endif
 
             // TODO: Improve...
             bool eval_big = __builtin_popcountll(big_board.get_valids()) < EVAL_TRESHOLD;
@@ -262,7 +278,9 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
         int heur_val = 1;//(int) floor(pow(2.0, 8*(next_state.heuristic_val(heuristic.all_linesinfo)-1)));
 
         // 2-connected componets, if not ended
-        if(0 && !fast_eval && next_state.node_type == OR && !game_ended(next_state, last_act)){
+        if(!fast_eval && next_state.node_type == OR && !game_ended(next_state, last_act)){
+            //std::cout<<"Next state\n";
+            //display(next_state, true);
             node->children[action] = evaluate_components(next_state, node->depth+1);
         }
         else{
@@ -368,43 +386,24 @@ void PNS::delete_node(PNS::PNSNode* node){
 }
 
 // === Helper Functions ===
-void PNS::log_solution(std::string filename){
-    std::ofstream log_file;
-    log_file.open(filename);
-    if (!log_file.is_open()) {
-        std::cout<<"Problem with file (Check file/folder existency)\n";
-    }
-
-    for(auto & it: states){
-        Board board = it.first;
-        unsigned int pn = it.second->pn;
-        unsigned int dn = it.second->dn;
-        if(pn == 0 || dn == 0)
-            log_file<<board.white<<" "<<board.black<<" "<<pn<<" "<<dn<<std::endl;
-    }
-
-    log_file.close();
-}
-
-void PNS::log_solution_min(PNS::PNSNode* node, std::ofstream& file){
+void PNS::log_solution_min(PNS::PNSNode* node, std::ofstream& file, std::set<Board>& logged){
     if(node == nullptr) return;
-    else{
+    else if(logged.find(node->board) == logged.end()){
+        logged.insert(node->board);
         file<<node->board.white<<" "<<node->board.black<<" "<<node->board.node_type<<" "<<node->pn<<" "<<node->dn<<std::endl;
         
         if( ((node->type == OR) && (node->pn == 0)) ||
             ((node->type == AND) && (node->dn==0)) ){
             ProofType proof_type = (node->pn == 0 ? PN:DN);
             unsigned int min_ind = get_min_children(node, proof_type, true);
-            //assert(node->children[min_ind] != nullptr);
             if (min_ind == UINT_MAX) return;
-            else log_solution_min(node->children[min_ind], file);
+            else log_solution_min(node->children[min_ind], file, logged);
         }
         else{
             for(int i=0;i<ACTION_SIZE;i++){
                 if(!node->board.is_valid(i)) continue;
-                //assert(node->children[i] != nullptr);
 
-                log_solution_min(node->children[i], file);
+                log_solution_min(node->children[i], file, logged);
             }
         }
     }

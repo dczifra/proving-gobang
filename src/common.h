@@ -23,6 +23,7 @@
 #define DIFFERENT_CORNER  false
 
 #define EVAL_TRESHOLD 12
+#define TALKY false
 
 unsigned long long set_full_board();
 

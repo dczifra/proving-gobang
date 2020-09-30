@@ -2,10 +2,11 @@
 #include "common.h"
 #include "board.h"
 #include "limits.h"
+#include "heuristic.h"
+
 #include <map>
 #include <unordered_map>
-
-#include "heuristic.h"
+#include <set>
 
 enum ProofType: uint8_t {PN, DN};
 
@@ -69,8 +70,7 @@ public:
     unsigned int get_sum_children(PNSNode* node, const ProofType type) const;
 
     // === Helper Functions ===
-    void log_solution(std::string filename);
-    void log_solution_min(PNSNode* node, std::ofstream& file);
+    void log_solution_min(PNSNode* node, std::ofstream& file, std::set<Board>& logged);
     void read_solution(std::string filename);
     void add_state(const Board& b, PNSNode* node);
     void add_state(PNS::PNSNode* node);
@@ -92,8 +92,8 @@ public:
     }
 
     void stats(PNSNode* node, bool end = false){
-        if(node != nullptr) std::cout<<"\rPN: "<<node->pn<<" DN: "<<node->dn;
-        std::cout<<" States size: "<<states.size()<<"        "<<std::flush;
+        if(node != nullptr) std::cout<<"\rPN: "<<node->pn<<" DN: "<<node->dn<<" ";
+        std::cout<<"States size: "<<states.size()<<"        "<<std::flush;
         if(end) std::cout<<std::endl;
     }
 

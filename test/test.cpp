@@ -126,7 +126,7 @@ void test_components2(){
 }
 
 void artic_point(){
-    std::vector<int> moves = {1,4, 7, 6, 11, 12, 14, 17, 20, 25, 27, 19};
+    std::vector<int> moves = {0,1,8,10};
     //std::vector<int> moves = {0, 2, 1, 4, 3, 6, 5, 7, 11, 10, 15, 16, 21, 18, 22, 19, 23, 20};
     //std::vector<int> moves = {1, 2, 17, 14, 5, 4, 8, 6, 9, 12 ,11, 13};
     //std::vector<int> moves = {0, ROW*COL/2-1, 3, ROW*COL/2-2, 9, 8, 15, ROW*COL/2+1};
@@ -188,14 +188,10 @@ int main() {
 
     //test_components();
     //test_DFPN();
-    //artic_point();
-
-    PNS tree;
-    Board b;
-    PNS::PNSNode* node = new PNS::PNSNode(b, -1,-1,-1,tree.heuristic);
-
-    tree.evalueate_node_with_PNS(node, true, false);
-    tree.stats(node);
+    artic_point();
+    //PNS::PNSNode* node = new PNS::PNSNode(b, -1,-1,-1,tree.heuristic);
+    //tree.evalueate_node_with_PNS(node, true, false);
+    //tree.stats(node);
 
     return 0;
 }

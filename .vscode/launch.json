@@ -11,7 +11,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/AMOBA_DEBUG",
-            "args": ["--test"],
+            "args": ["--test", "--disproof"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build",
             "environment": [],

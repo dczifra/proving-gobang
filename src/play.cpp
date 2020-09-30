@@ -13,7 +13,7 @@ Play::Play(std::string filename, bool disproof){
     printf("Proof/disproof tree size: %zu\n", tree.states.size());
     human_player = (tree.states[board]->pn == 0 ? -player:player);
 
-    build_tree();
+    //build_tree();
 }
 
 NodeType Play::choose_problem(Board& board, int& player, bool disproof){
@@ -173,9 +173,13 @@ void Play::play_with_solution(){
 
 void Play::build_tree(){
     PNS new_tree;
+    int iter = 0;
     for(auto state: tree.states){
+        std::cout<<"\r"<<(iter++)<<"    "<<std::flush;
+
         for(int i=0;i<ACTION_SIZE;i++){
-            Board next = new_tree.extend(state.second, i, false);
+            //display(state.first, true);
+            Board next = new_tree.extend(state.second, i, true);
             if(tree.states.find(next) != tree.states.end()){
                 state.second->children[i] = tree.states[next];
             }
@@ -183,12 +187,30 @@ void Play::build_tree(){
     }
 }
 
+void Play::build_node(Board b){
+    PNS new_tree;
+
+    assert(tree.states.find(b) != tree.states.end());
+
+    for(int i=0;i<ACTION_SIZE;i++){
+        //display(state.first, true);
+        if(!b.is_valid(i)) continue;
+        
+        Board next = new_tree.extend(tree.states[b], i, false);
+        if(tree.states.find(next) != tree.states.end()){
+            tree.states[b]->children[i] = tree.states[next];
+        }
+    }
+}
+
 void Play::play_with_solution2(){
     int act;
+
 
     while(!tree.game_ended(board, act)){
         std::vector<int> color;
         act = -1;
+        build_node(board);
         // === Human player can choose ===
         if(player == human_player ){
             int row, col;
@@ -214,6 +236,7 @@ void Play::play_with_solution2(){
 
         player = get_player(board.node_type);
         printf("Action: %d\n", act);
+        //tree.simplify_board(board, -1, -1);
         display(board, true, color);
     }
     std::cout<<"END\n";

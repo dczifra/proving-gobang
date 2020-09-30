@@ -14,6 +14,7 @@ public:
     void play_with_solution2();
 
     void build_tree();
+    void build_node(Board b);
 
     static NodeType choose_problem(Board& b, int& player, bool disproof);
 
