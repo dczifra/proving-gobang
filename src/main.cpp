@@ -54,7 +54,7 @@ void PNS_test(Args& args){
     PNS::PNSNode* node = new PNS::PNSNode(b, 0, -1, -1, PNS::heuristic);
     tree.init_PN_search(node);
 
-    tree.evalueate_node_with_PNS(node, args.log, false);
+    tree.evalueate_node_with_PNS(node, args.log, true);
     tree.stats(node, true);
     
     std::ofstream logfile(args.get_filename());

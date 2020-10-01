@@ -176,7 +176,7 @@ void test_DFPN(){
 
 Heuristic PNS::heuristic;
 int main() {
-    std::cout<<"=== TEST ==="<<std::endl;
+    std::cout<<"### TEST ###"<<std::endl;
 
     //test_components();
     //test_DFPN();

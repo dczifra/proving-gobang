@@ -161,7 +161,7 @@ PNS::PNSNode* PNS::create_and_eval_node(Board& board, int base_depth, bool eval,
         //add_state(node);
     }
 
-    if(eval) evalueate_node_with_PNS(node, false, false);
+    if(eval) evalueate_node_with_PNS(node, false, true);
     return node;
 }
 
@@ -176,18 +176,18 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
     std::tie(artic_point, small_board, big_board) = comps.get_parts();
 
     if(artic_point > -1){
-        //display(base_board, true, {artic_point});
-        //display(comp1, true, {artic_point});
-        //display(comp2, true, {artic_point});
         //#if TALKY
         //    std::cout<<"Artic point: "<<artic_point<<std::endl;
         //    display(base_board, true);
         //#endif
 
         // 1. Evalute smaller component without artic point
-        //display(small_board, true);
-        PNSNode* small_comp = create_and_eval_node(small_board, base_depth, false);
-        //std::cout<<small_comp->pn<<std::endl;
+        PNSNode* small_comp = create_and_eval_node(small_board, base_depth, true);
+        #if TALKY
+            display(small_board, true);
+            std::cout<<small_comp->pn<<std::endl;
+        #endif
+
         if(small_comp->pn == 0){
             #if TALKY
                 std::cout<<"Small comp\n";
@@ -201,14 +201,13 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
 
             // 2. Evaluate small component with artic point
             (small_board.white) |= ((1ULL)<<artic_point);
-            //display(small_board, true);
-            PNSNode* small_comp_mod = create_and_eval_node(small_board, base_depth, false);
-            //std::cout<<small_comp_mod->pn<<std::endl;
-            // 3-4. If Attacker wins: C* else C
-            //display(small_board.black, true);
-            //display(small_board.white, true);
-            //std::cout<<small_comp_mod->pn<<std::endl;
+            PNSNode* small_comp_mod = create_and_eval_node(small_board, base_depth, true);
+            #if TALKY
+                display(small_board, true);
+                std::cout<<small_comp_mod->pn<<std::endl;
+            #endif
 
+            // 3-4. If Attacker wins: C* else C
             if(small_comp_mod->pn == 0){
                 big_board.white |= ((1ULL)<<artic_point);
             }
@@ -259,7 +258,7 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
         }
         else break;
     }
-    //simplify_board(next_state, action, node->depth);
+    simplify_board(next_state, action, node->depth);
 
 
     
@@ -284,14 +283,12 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
 
         // 2-connected componets, if not ended
         if(0 && !fast_eval && next_state.node_type == OR && !game_ended(next_state, last_act)){
-            //std::cout<<"Next state\n";
-            //display(next_state, true);
             node->children[action] = evaluate_components(next_state, node->depth+1);
         }
         else{
             node->children[action] = new PNS::PNSNode(next_state, node->depth+1, last_act, heur_val, heuristic);
             states[next_state] = node->children[action];
-            if(fast_eval && __builtin_popcountll(next_state.get_valids()) < EVAL_TRESHOLD){
+            if(!fast_eval && __builtin_popcountll(next_state.get_valids()) < EVAL_TRESHOLD){
                 evalueate_node_with_PNS(node->children[action], false, false);
             }
         }
