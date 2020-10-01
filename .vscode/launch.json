@@ -4,15 +4,14 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
-
         {
             "name": "AMOBA_DEBUG",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/AMOBA_DEBUG",
+            "args": ["--disproof"],
             //"args": ["--test", "--disproof"],
-            "args": [],
+            //"args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build",
             "environment": [],

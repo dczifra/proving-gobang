@@ -125,6 +125,9 @@ bool PNS::game_ended(const Board& b, int action){
     else if((b.node_type == AND) && b.heuristic_stop(heuristic.all_linesinfo)){
         return true;
     }
+    else if(b.white == 0 && b.black == FULL_BOARD){
+        return true;
+    }
     return false;
 }
 
@@ -161,7 +164,7 @@ PNS::PNSNode* PNS::create_and_eval_node(Board& board, int base_depth, bool eval,
         //add_state(node);
     }
 
-    if(eval) evalueate_node_with_PNS(node, false, true);
+    if(eval) evalueate_node_with_PNS(node, false, false);
     return node;
 }
 
@@ -282,14 +285,14 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
         int heur_val = 1;//(int) floor(pow(2.0, 8*(next_state.heuristic_val(heuristic.all_linesinfo)-1)));
 
         // 2-connected componets, if not ended
-        if(0 && !fast_eval && next_state.node_type == OR && !game_ended(next_state, last_act)){
+        if(!fast_eval && next_state.node_type == OR && !game_ended(next_state, last_act)){
             node->children[action] = evaluate_components(next_state, node->depth+1);
         }
         else{
             node->children[action] = new PNS::PNSNode(next_state, node->depth+1, last_act, heur_val, heuristic);
             states[next_state] = node->children[action];
             if(!fast_eval && __builtin_popcountll(next_state.get_valids()) < EVAL_TRESHOLD){
-                evalueate_node_with_PNS(node->children[action], false, false);
+                evalueate_node_with_PNS(node->children[action], false, true);
             }
         }
         return node->children[action]->board;

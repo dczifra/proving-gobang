@@ -22,7 +22,7 @@
 #define INNER_LINE  true
 #define DIFFERENT_CORNER  false
 
-#define EVAL_TRESHOLD 12
+#define EVAL_TRESHOLD 6
 #define TALKY false
 
 unsigned long long set_full_board();

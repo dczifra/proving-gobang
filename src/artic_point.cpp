@@ -126,7 +126,8 @@ std::tuple<int, Board, Board> Artic_point::get_parts(){
     }
 
     if(node == -1){
-        display(board, true);
+        display(board.white, true);
+        display(board.black, true);
     }
     assert(node >= 0);
     depth[node] = reach_time;
