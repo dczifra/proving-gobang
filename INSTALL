@@ -1,6 +1,17 @@
 #!/bin/bash
 folder="Amoba"
-if [ "$#" = "1" ]; then
+
+if [ "$1" = "--nauty" ]; then
+    echo "[INSTALL] Installing Nauty"
+    wget users.cecs.anu.edu.au/~bdm/nauty/nauty27r1.tar.gz
+    tar xvzf nauty27r1.tar.gz
+    cd nauty27r1
+    ./configure
+    make
+    rm ../nauty27r1.tar.gz
+    echo "[INSTALL] Nauty installed"
+    exit 1
+elif [ "$#" = "1" ]; then
     folder="$1"
     echo $folder
 fi
