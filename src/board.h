@@ -125,6 +125,19 @@ struct Board{
         return ~(white | black) & FULL_BOARD;
     }
 
+    inline int get_valid_num() const{
+        return __builtin_popcountll(~(white | black) & FULL_BOARD);
+    }
+
+    int get_active_line_num(const std::vector<Line_info> & lines) const{
+        int sum = 0;
+        for(auto line: lines){
+            bool is_free = !(line.line_board & black);
+            if(is_free) ++sum;
+        }
+        return sum;
+    }
+
     // === GAME OVER FUNCTIONS===
     bool white_win(const std::vector<Line_info> & lines) const {
         for(auto line: lines){

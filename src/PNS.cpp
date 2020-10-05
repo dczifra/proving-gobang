@@ -170,7 +170,7 @@ PNS::PNSNode* PNS::create_and_eval_node(Board& board, int base_depth, bool eval,
 
 PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
     assert(base_board.node_type == OR);
-    bool delete_comps = true;
+    bool delete_comps = false;
     //display(base_board, true);
 
     Artic_point comps(base_board, heuristic.all_linesinfo, heuristic.linesinfo_per_field);
