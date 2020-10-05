@@ -4,13 +4,19 @@ Description:
 * This is a project in order find the game theoretic value of the MxNxK problem with M=N=infty, K=7.
 With other words: - we want to prove (Does exists win-strategy for player one?) in the 7-in-a-row game on infinite board. 
 
-# Compile:
+# Install:
+```
+git clone https://github.com/doma945/prooving-gobang
+cd prooving-gobang
+./INSTALL --nauty
+./INSTALL Amoba_comp3
+```
+
+# RUN:
 
 ```
-mkdir build
 cd build
-cmake ..
-make
+./AMOBA
 ```
 
 This will generate:

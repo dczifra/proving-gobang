@@ -1,6 +1,4 @@
 #include "PNS.h"
-#define max(A,B) ((A)<(B)?(B):(A))
-#define MAXN ROW*COL+2*ROW+3*COL+max(0,COL-8)*ROW
 
 #include "../nauty27r1/nauty.h"
 #include <iostream>
@@ -9,6 +7,9 @@
 // g++ -o main nauty.cpp ../nauty27r1/nauty.c ../nauty27r1/nautil.c ../nauty27r1/naugraph.c ../nauty27r1/schreier.c ../nauty27r1/naurng.c 
 // TODO: set putstring second argument to const in nauty (for no warnings)!!!
 
+// Questions:
+//   * Free after malloc?
+//   * global graph (avoid malloc all the time)
 void init_graph(){
     // === Basic variables ===
     set s[MAXM];  /* a set */
@@ -67,24 +68,26 @@ void init_graph(){
     std::cout<<std::endl;
 }
 
-void convert_board(Board& b){
+void convert_board(const Board& b){
     PNS tree;
     std::cout<<(ROW*COL+tree.heuristic.all_linesinfo.size())<<" "<<MAXN<<std::endl;
+    int nodes = b.get_valid_num();
+    int n = nodes+b.get_active_line_num(tree.heuristic.all_linesinfo);
+    int m = SETWORDSNEEDED(n);
 
-    graph g[MAXN*MAXM], cg[MAXN*MAXM];  /* a graph */
+    // === Declare variables ===
+    //DYNALLSTAT(graph,g,g_sz);
+    graph* g = new graph[MAXN*MAXM];
+    DYNALLSTAT(graph,cg,cg_sz);
     int lab[MAXN],ptn[MAXN],orbits[MAXN];
     static DEFAULTOPTIONS_GRAPH(options);
     statsblk stats;
     options.getcanon = TRUE;
     
-    int nodes = b.get_valid_num();
-    int n = nodes+b.get_active_line_num(tree.heuristic.all_linesinfo);
-    int m = SETWORDSNEEDED(n);
-
     nauty_check(WORDSIZE,m,n,NAUTYVERSIONID);
     // === INIT nodes and edges ===
+    DYNALLOC2(graph,cg,cg_sz,m,n,"malloc");
     EMPTYGRAPH(g,m,n);
-
     printf("%d %d\n", n, m);
 
     int line_ind = 0;
@@ -93,8 +96,8 @@ void convert_board(Board& b){
         if(is_free){
             for(auto field : line.points){
                 if(b.is_valid(field)){
-                    printf("%d %d\n", nodes+line_ind, field);
-                    //ADDONEEDGE(g,nodes+line_ind,field,m);
+                    //printf("%d %d\n", nodes+line_ind, field);
+                    ADDONEEDGE(g,nodes+line_ind,field,m);
                 }
             }
             line_ind++;
@@ -116,6 +119,8 @@ void convert_board(Board& b){
     }
     std::cout<<std::endl;
     std::cout<<"End"<<std::endl;
+
+    // Shouldn't we free after malloc ???
 }
 
 Heuristic PNS::heuristic;

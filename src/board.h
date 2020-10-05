@@ -56,7 +56,7 @@ struct Board{
     }
 */
     bool operator==(const Board& b) const{
-        return (white == b.white) && (black == b.black); 
+        return (white == b.white) && (black == b.black) && node_type == b.node_type; 
     }
 
     inline void init(){
@@ -211,5 +211,13 @@ struct Board{
 
 };
 
+struct Board_Hash{
+    std::size_t operator()(Board const& b) const noexcept{
+        std::size_t h1 = std::hash<uint64_t>{}(b.white);
+        std::size_t h2 = std::hash<uint64_t>{}(b.black);
+        std::size_t h3 = std::hash<uint8_t>{}(b.node_type);
+        return  h1 ^ h2 ^ h3;
+    }
+};
 
 #endif
