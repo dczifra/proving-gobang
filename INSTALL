@@ -17,6 +17,7 @@ elif [ "$#" = "1" ]; then
 fi
 
 rm -rf data
+mkdir data
 wget -r --no-parent --cut-dirs=5 -R "index.html*" -e robots=off "https://old.renyi.hu/~doma945/temp/$folder/proof/"
 mv old.renyi.hu data/proof
 wget -r --no-parent --cut-dirs=5 -R "index.html*" -e robots=off "https://old.renyi.hu/~doma945/temp/$folder/disproof/"
