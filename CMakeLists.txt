@@ -31,7 +31,7 @@ file(COPY ${CMAKE_BINARY_DIR}/../test/measure.sh  ${CMAKE_BINARY_DIR}/../test/PL
   FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
   GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
-target_link_libraries(AMOBA amoba)
-target_link_libraries(AMOBA_DEBUG amoba)
-target_link_libraries(TEST amoba)
+target_link_libraries(AMOBA amoba nauty)
+target_link_libraries(AMOBA_DEBUG amoba nauty)
+target_link_libraries(TEST amoba nauty)
 target_link_libraries(NAUTY amoba nauty)

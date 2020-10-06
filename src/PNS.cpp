@@ -135,8 +135,6 @@ inline void PNS::simplify_board(Board& next_state, const unsigned int action, in
         next_state.remove_lines_with_two_ondegree(heuristic.all_linesinfo);
         next_state.remove_2lines_all(heuristic.all_linesinfo);
         next_state.remove_dead_fields_all(heuristic.all_linesinfo);
-
-        //next_state.get_one_artic_point(heuristic);
     }
     else{
         //next_state.keep_comp(heuristic.linesinfo_per_field, action);
@@ -148,18 +146,13 @@ PNS::PNSNode* PNS::create_and_eval_node(Board& board, int base_depth, bool eval,
     Board flipped(board);
     flipped.flip();
 
-    if(states.find(board) != states.end()){
-        node = states[board];
+    if(has_board(board)){
+        node = get_states(board);
         node -> parent_num += 1;
-    }
-    else if(states.find(flipped) != states.end()){
-        node = states[flipped];
-        node -> parent_num += 1; 
     }
     else{
         node = new PNS::PNSNode(board, base_depth, -1, -1, heuristic);
-        states[board] = node;
-        //add_state(node);
+        add_board(board, node);
     }
 
     if(eval) evalueate_node_with_PNS(node, false, false);
@@ -168,7 +161,7 @@ PNS::PNSNode* PNS::create_and_eval_node(Board& board, int base_depth, bool eval,
 
 PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
     assert(base_board.node_type == OR);
-    bool delete_comps = false;
+    bool delete_comps = true;
 
     int artic_point;
     Board small_board, big_board;
@@ -221,7 +214,7 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
     }
     else{
         PNSNode* node = new PNSNode(base_board, base_depth, -1, -1, heuristic);
-        states[base_board] = node;
+        add_board(base_board, node);
         return node;
     }
 }
@@ -252,20 +245,11 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
         }
         else break;
     }
-    //simplify_board(next_state, action, node->depth);
+    simplify_board(next_state, action, node->depth);
 
-    Board reversed(next_state);
-    reversed.flip();
-
-    // === Find next_state in discovered states ===
-    if(states.find(next_state) != states.end()){
-        node->children[action] = states[next_state];
-        node->children[action] -> parent_num += 1;
-        return next_state;
-    }
-    // === Find next_state in reversed discovered states ===
-    else if (states.find(reversed) != states.end()){
-        node->children[action] = states[reversed];
+    if(has_board(next_state)){
+        PNSNode* child = get_states(next_state);
+        node->children[action] = child;
         node->children[action] -> parent_num += 1;
         return next_state;
     }
@@ -278,7 +262,7 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
         }
         else{
             node->children[action] = new PNS::PNSNode(next_state, node->depth+1, last_act, -1, heuristic);
-            states[next_state] = node->children[action];
+            add_board(next_state, node->children[action]);
             if(!fast_eval && __builtin_popcountll(next_state.get_valids()) < EVAL_TRESHOLD){
                 evalueate_node_with_PNS(node->children[action], false, true);
             }
@@ -288,7 +272,7 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
 }
 
 void PNS::init_PN_search(PNS::PNSNode* node){
-    add_state(node->board, node);
+    add_board(node->board, node);
 }
 
 void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
@@ -351,7 +335,7 @@ void PNS::delete_all(PNS::PNSNode* node){
                 node->children[i]=nullptr;
             }
         }
-        states.erase(node->board);
+        delete_from_map(node->board);
         delete node;
     }
 }
@@ -402,21 +386,67 @@ void PNS::log_solution_min(PNS::PNSNode* node, std::ofstream& file, std::set<Boa
     }
 }
 
-
-void PNS::add_state(const Board& b, PNS::PNSNode* node){
-    if(states.find(b)==states.end()){
-        states[b]=node;
-    }
-}
-
-void PNS::add_state(PNS::PNSNode* node){
-    if(states.find(node->board)==states.end()){
-        states[node->board]=node;
-    }
-}
-
 void PNS::free_states(){
     for(auto node_it: states){
         delete node_it.second;
     }
+}
+
+bool PNS::has_board(const Board& board){
+    #if ISOM
+        std::vector<int> isom = isom_machine.get_canonical_graph(board, heuristic.all_linesinfo);
+        if(states.find(isom) != states.end()) return true;
+        else return false;
+    #else
+        Board reversed(board);
+        reversed.flip();
+
+        if(states.find(board) != states.end()) return true;
+        else if(states.find(reversed) != states.end()) return true;
+        else return false;
+    #endif
+}
+
+void PNS::add_board(const Board& board, PNS::PNSNode* node){
+    #if ISOM
+        std::vector<int> isom = isom_machine.get_canonical_graph(board, heuristic.all_linesinfo);
+        assert(states.find(isom) == states.end());
+        states[isom] = node;
+    #else
+        assert(states.find(board) == states.end());
+        states[board] = node;
+    #endif
+}
+
+PNS::PNSNode* PNS::get_states(const Board& board){
+    #if ISOM
+        std::vector<int> isom = isom_machine.get_canonical_graph(board, heuristic.all_linesinfo);
+        assert(states.find(isom) != states.end());
+        return states[isom];
+    #else
+        Board reversed(board);
+        reversed.flip();
+
+        if(states.find(board) != states.end()){
+            return states[board];
+        }
+        else if(states.find(reversed) != states.end()){
+            return states[reversed];
+        }
+        else{
+            assert(states.find(board) != states.end());
+            return nullptr;
+        }
+    #endif
+}
+
+void PNS::delete_from_map(const Board& board){
+    #if ISOM
+        std::vector<int> isom = isom_machine.get_canonical_graph(board, heuristic.all_linesinfo);
+        assert(states.find(isom) != states.end());
+        states.erase(isom);
+    #else
+        assert(states.find(board) != states.end());
+        states.erase(board);
+    #endif
 }

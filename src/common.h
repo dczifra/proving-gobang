@@ -24,6 +24,7 @@
 
 #define EVAL_TRESHOLD 12
 #define TALKY false
+#define ISOM true
 
 unsigned long long set_full_board();
 

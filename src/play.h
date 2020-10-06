@@ -5,6 +5,7 @@
 #include "board.h"
 #include "PNS.h"
 
+#include <map>
 struct Args;
 
 class Play{
@@ -28,4 +29,5 @@ private:
     PNS tree;
     Board board;
     int human_player, player;
+    std::map<std::vector<int>, bool> isom_map;
 };

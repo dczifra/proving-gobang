@@ -88,7 +88,7 @@ void DFPNS_test(Args& args){
 }
 
 Heuristic PNS::heuristic;
-CanonicalOrder PNS::izom_machine;
+CanonicalOrder PNS::isom_machine;
 
 int main(int argc, char* argv[]){
     std::string spam = (COL > 9 ? "#" : "");

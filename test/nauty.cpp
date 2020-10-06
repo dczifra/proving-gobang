@@ -70,14 +70,21 @@ void init_graph(){
 
 void convert_board(const Board& b){
     PNS tree;
-    std::cout<<(ROW*COL+tree.heuristic.all_linesinfo.size())<<" "<<MAXN<<std::endl;
+    //std::cout<<(ROW*COL+tree.heuristic.all_linesinfo.size())<<" "<<MAXN<<std::endl;
     int nodes = b.get_valid_num();
     int n = nodes+b.get_active_line_num(tree.heuristic.all_linesinfo);
     int m = SETWORDSNEEDED(n);
+    int index[ROW*COL];
+    int sum = 0;
+    for(int i=0;i<ROW*COL;i++){
+        if(b.is_valid(i)) index[i] = (sum++);
+        else index[i]=-1;
+    }
 
     // === Declare variables ===
     //DYNALLSTAT(graph,g,g_sz);
-    graph* g = new graph[MAXN*MAXM];
+    std::cout<<n<<" "<<nodes<<" "<<b.get_active_line_num(tree.heuristic.all_linesinfo)<<std::endl;
+    graph* g = new graph[MAXM*MAXN];
     DYNALLSTAT(graph,cg,cg_sz);
     int lab[MAXN],ptn[MAXN],orbits[MAXN];
     static DEFAULTOPTIONS_GRAPH(options);
@@ -86,6 +93,7 @@ void convert_board(const Board& b){
     
     nauty_check(WORDSIZE,m,n,NAUTYVERSIONID);
     // === INIT nodes and edges ===
+    //DYNALLOC2(graph,g,g_sz,m,n,"malloc");
     DYNALLOC2(graph,cg,cg_sz,m,n,"malloc");
     EMPTYGRAPH(g,m,n);
     printf("%d %d\n", n, m);
@@ -96,8 +104,8 @@ void convert_board(const Board& b){
         if(is_free){
             for(auto field : line.points){
                 if(b.is_valid(field)){
-                    //printf("%d %d\n", nodes+line_ind, field);
-                    ADDONEEDGE(g,nodes+line_ind,field,m);
+                    //printf("%d %d\n", nodes+line_ind, index[field]);
+                    ADDONEEDGE(g,nodes+line_ind,index[field],m);
                 }
             }
             line_ind++;
@@ -120,10 +128,12 @@ void convert_board(const Board& b){
     std::cout<<std::endl;
     std::cout<<"End"<<std::endl;
 
-    // Shouldn't we free after malloc ???
+    delete[] g;
 }
 
 Heuristic PNS::heuristic;
+CanonicalOrder PNS::isom_machine;
+
 int main(){
     std::cout<<"###################\n";
     printf("# Nauty           #\n#  * Version: %d  #\n", 27);
@@ -133,7 +143,10 @@ int main(){
     //init_graph();
 
     Board b;
+    b.white = 8726315008;
+    b.black = 1348403199;
     convert_board(b);
+    //convert_board(b);
 
     return 0;
 }

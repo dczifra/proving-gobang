@@ -14,6 +14,7 @@
 #include "board.h"
 #include "PNS.h"
 #include "play.h"
+#include "canonicalorder.h"
 
 struct Args{
     bool log = false;
@@ -88,6 +89,7 @@ void DFPNS_test(Args& args){
 }
 
 Heuristic PNS::heuristic;
+CanonicalOrder PNS::isom_machine;
 
 int main(int argc, char* argv[]){
     std::string spam = (COL > 9 ? "#" : "");

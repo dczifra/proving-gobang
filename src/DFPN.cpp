@@ -4,7 +4,7 @@
 #include "common.h"
 
 void PNS::init_DFPN_search(PNSNode* node){
-    add_state(node->board, node);
+    add_board(node->board, node);
 
     node->set_theta_th(UINT_MAX);
     node->set_delta_th(UINT_MAX);

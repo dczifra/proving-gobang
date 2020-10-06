@@ -66,11 +66,10 @@ public:
     // === Helper Functions ===
     void log_solution_min(PNSNode* node, std::ofstream& file, std::set<Board>& logged);
     void read_solution(std::string filename);
-    void add_state(const Board& b, PNSNode* node);
-    void add_state(PNS::PNSNode* node);
     void free_states();
     void simplify_board(Board& next_state, const unsigned int action, int depth);
     bool game_ended(const Board& b, int action);
+    
 
     // === DFPN Helper ===
     unsigned int update_threshhold(PNSNode* node);
@@ -91,9 +90,19 @@ public:
         if(end) std::cout<<std::endl;
     }
 
+    // === MAP ===
+    bool has_board(const Board& board);
+    void add_board(const Board& board, PNSNode* node);
+    void delete_from_map(const Board& board);
+    PNSNode* get_states(const Board& board);
+
     static Heuristic heuristic;
-    static CanonicalOrder izom_machine;
+    static CanonicalOrder isom_machine;
 private :
     //std::map<Board, PNSNode*> states;
+    #if ISOM
+    std::map<std::vector<int>, PNSNode*> states;
+    #else
     std::unordered_map<Board, PNSNode*, Board_Hash> states;
+    #endif
 };

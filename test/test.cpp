@@ -175,6 +175,7 @@ void test_DFPN(){
 }
 
 Heuristic PNS::heuristic;
+CanonicalOrder PNS::isom_machine;
 int main() {
     std::cout<<"### TEST ###"<<std::endl;
 
