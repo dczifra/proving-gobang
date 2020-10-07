@@ -117,7 +117,10 @@ void convert_board(const Board& b){
         ptn[i] = 1;
         lab[i] = i;
     }
-    ptn[nodes] = 0;
+    ptn[nodes-1] = 0; // 1. color nodes
+    ptn[nodes-3] = 0; // 2. color edges
+    ptn[n-1] = 0;     // 3. color OR/AND bit
+
 
     // === The labeling ===
     densenauty(g,lab,ptn,orbits,&options,&stats,m,n,cg);

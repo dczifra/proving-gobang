@@ -20,6 +20,7 @@ public:
         static DEFAULTOPTIONS_GRAPH(opt);
         options = opt;
         options.getcanon = TRUE;
+        options.defaultptn = FALSE;
     }
     ~CanonicalOrder(){
         delete[] g;
@@ -64,7 +65,7 @@ public:
             ptn[i] = 1;
             lab[i] = i;
         }
-        ptn[nodes] = 0;   // 1. color nodes
+        ptn[nodes-1] = 0; // 1. color nodes
         ptn[nodes-3] = 0; // 2. color edges
         ptn[n-1] = 0;     // 3. color OR/AND bit
 
