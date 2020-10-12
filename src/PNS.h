@@ -101,7 +101,8 @@ public:
 private :
     //std::map<Board, PNSNode*> states;
     #if ISOM
-    std::map<std::vector<uint64_t>, PNSNode*> states;
+    //std::map<std::vector<uint64_t>, PNSNode*> states;
+    std::unordered_map<std::vector<uint64_t>, PNSNode*, Vector_Hash> states;
     #else
     std::unordered_map<Board, PNSNode*, Board_Hash> states;
     #endif
