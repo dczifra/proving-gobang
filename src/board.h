@@ -222,7 +222,7 @@ struct Board_Hash{
 
 struct Vector_Hash{
     std::size_t operator()(const std::vector<unsigned long>& v) const noexcept{
-        std::size_t h_all;
+        std::size_t h_all = 0;
         for(auto h: v){
             h_all ^= std::hash<uint64_t>{}(h);
         }
