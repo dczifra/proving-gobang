@@ -52,11 +52,11 @@ void Play::read_solution(std::string filename){
                 isom_map[isom] = node;
             }
             else{
-                printf("Origin %d\n", board.node_type);
-                display(isom_map[isom]->board, true);
-                printf("New: %d\n", b.node_type);
-                display(b, true);
-                tree.isom_machine.get_conversion(isom_map[isom]->board, b, tree.heuristic.all_linesinfo);
+                //printf("Origin %d\n", board.node_type);
+                //display(isom_map[isom]->board, true);
+                //printf("New: %d\n", b.node_type);
+                //display(b, true);
+                //tree.isom_machine.get_conversion(isom_map[isom]->board, b, tree.heuristic.all_linesinfo);
             }
         }
         else{
