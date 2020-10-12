@@ -174,6 +174,43 @@ void test_DFPN(){
     tree.stats(node);
 }
 
+void canonical_order2(){
+    Board b1;
+    b1. white = 528401ULL;
+    b1.black = 131334ULL;
+    b1.move(14, 1);
+    b1.move(9, -1);
+    Board b2;
+    b2.white = 528409ULL;
+    b2.black = 131846ULL;
+
+    display(b1, true);
+    display(b2, true);
+
+    PNS tree;
+    tree.isom_machine.get_conversion(b1, b2, tree.heuristic.all_linesinfo);
+}
+
+void canonical_order(){
+    PNS tree;
+    Board b1;
+    int player = 1;
+    std::vector<int> moves = {1,4,8,9, 13, 14, 18, 12, 17, 6, 0, 16, 11, 2, 19, 10};
+    for(auto m: moves){b1.move(m, player);player=-player;}
+    tree.simplify_board(b1, -1, -1);
+
+    Board b2;
+    moves = {0,1,2,3,4,14, 19, 15, 5, 18, 6, 17, 8, 9, 10, 11};
+    for(auto m: moves){b2.move(m, player);player=-player;}
+    tree.simplify_board(b2, -1, -1);
+    b2.black |= ((1ULL)<<12);
+
+    display(b1, true);
+    display(b2, true);
+
+    tree.isom_machine.get_conversion(b1, b2, tree.heuristic.all_linesinfo);
+}
+
 Heuristic PNS::heuristic;
 CanonicalOrder PNS::isom_machine;
 int main() {
@@ -181,7 +218,9 @@ int main() {
 
     //test_components();
     //test_DFPN();
-    artic_point();
+    //artic_point();
+    canonical_order();
+    //canonical_order();
     //PNS::PNSNode* node = new PNS::PNSNode(b, -1,-1,-1,tree.heuristic);
     //tree.evalueate_node_with_PNS(node, true, false);
     //tree.stats(node);

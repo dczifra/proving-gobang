@@ -91,7 +91,7 @@ public:
     }
 
     // === MAP ===
-    bool has_board(const Board& board);
+    //bool has_board(const Board& board);
     void add_board(const Board& board, PNSNode* node);
     void delete_from_map(const Board& board);
     PNSNode* get_states(const Board& board);
@@ -101,7 +101,7 @@ public:
 private :
     //std::map<Board, PNSNode*> states;
     #if ISOM
-    std::map<std::vector<int>, PNSNode*> states;
+    std::map<std::vector<uint64_t>, PNSNode*> states;
     #else
     std::unordered_map<Board, PNSNode*, Board_Hash> states;
     #endif

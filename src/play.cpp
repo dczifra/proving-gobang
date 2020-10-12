@@ -41,22 +41,30 @@ void Play::read_solution(std::string filename){
 
         std::stringstream sstream(s);
         sstream>>b.white>>b.black>>b.node_type>>pn>>dn;
-        if(!tree.has_board(b)){
+        if(tree.get_states(b)==nullptr){
             PNS::PNSNode* node = new PNS::PNSNode(b, -1, -1, -1,tree.heuristic);
             node->pn = pn;
             node->dn = dn;
             tree.add_board(b, node);
-            //tree.states[b] = node;
+
+            std::vector<uint64_t> isom = tree.isom_machine.get_canonical_graph(b, tree.heuristic.all_linesinfo);
+            if(isom_map.find(isom) == isom_map.end()){
+                isom_map[isom] = node;
+            }
+            else{
+                printf("Origin %d\n", board.node_type);
+                display(isom_map[isom]->board, true);
+                printf("New: %d\n", b.node_type);
+                display(b, true);
+                tree.isom_machine.get_conversion(isom_map[isom]->board, b, tree.heuristic.all_linesinfo);
+            }
         }
         else{
             //printf("Duplicated state:\n");
             //display(b, true);
         }
 
-        std::vector<int> isom = tree.isom_machine.get_canonical_graph(b, tree.heuristic.all_linesinfo);
-        if(isom_map.find(isom) == isom_map.end()){
-            isom_map[isom] = 1;
-        }
+
     }
 }
 
@@ -87,8 +95,9 @@ void Play::build_node(Board b){
         if(!b.is_valid(i)) continue;
         
         Board next = new_tree.extend(tree.get_states(b), i, false);
-        if(tree.has_board(next)){
-            tree.get_states(b)->children[i] = tree.get_states(next);
+        PNS::PNSNode* child = tree.get_states(next);
+        if(child != nullptr){
+            tree.get_states(b)->children[i] = child;
         }
     }
 }

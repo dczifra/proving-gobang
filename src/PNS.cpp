@@ -146,8 +146,8 @@ PNS::PNSNode* PNS::create_and_eval_node(Board& board, int base_depth, bool eval,
     Board flipped(board);
     flipped.flip();
 
-    if(has_board(board)){
-        node = get_states(board);
+    node = get_states(board);
+    if(node != nullptr){
         node -> parent_num += 1;
     }
     else{
@@ -247,8 +247,8 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
     }
     simplify_board(next_state, action, node->depth);
 
-    if(has_board(next_state)){
-        PNSNode* child = get_states(next_state);
+    PNSNode* child = get_states(next_state);
+    if(child != nullptr){
         node->children[action] = child;
         node->children[action] -> parent_num += 1;
         return next_state;
@@ -267,6 +267,7 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
                 evalueate_node_with_PNS(node->children[action], false, true);
             }
         }
+
         return node->children[action]->board;
     }
 }
@@ -283,7 +284,6 @@ void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
 
     if(node->type == OR){ // === OR  node ===
         unsigned int min_ind = get_min_children(node, PN, true);
-
         if(min_ind == (-1)) 0; // Disproof found
         else if(node->children[min_ind] == nullptr) extend(node, min_ind, fast_eval);
         else PN_search(node->children[min_ind], fast_eval);
@@ -293,7 +293,6 @@ void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
     }
     else{                 // === AND node ===
         unsigned int min_ind = get_min_children(node, DN, true);
-
         if(min_ind == (-1)) 0; // Proof found
         else if(node->children[min_ind] == nullptr) extend(node, min_ind, fast_eval);
         else PN_search(node->children[min_ind], fast_eval);
@@ -391,10 +390,10 @@ void PNS::free_states(){
         delete node_it.second;
     }
 }
-
+/*
 bool PNS::has_board(const Board& board){
     #if ISOM
-        std::vector<int> isom = isom_machine.get_canonical_graph(board, heuristic.all_linesinfo);
+        std::vector<uint64_t> isom = isom_machine.get_canonical_graph(board, heuristic.all_linesinfo);
         if(states.find(isom) != states.end()) return true;
         else return false;
     #else
@@ -405,11 +404,11 @@ bool PNS::has_board(const Board& board){
         else if(states.find(reversed) != states.end()) return true;
         else return false;
     #endif
-}
+}*/
 
 void PNS::add_board(const Board& board, PNS::PNSNode* node){
     #if ISOM
-        std::vector<int> isom = isom_machine.get_canonical_graph(board, heuristic.all_linesinfo);
+        std::vector<uint64_t> isom = isom_machine.get_canonical_graph(board, heuristic.all_linesinfo);
         assert(states.find(isom) == states.end());
         states[isom] = node;
     #else
@@ -420,9 +419,14 @@ void PNS::add_board(const Board& board, PNS::PNSNode* node){
 
 PNS::PNSNode* PNS::get_states(const Board& board){
     #if ISOM
-        std::vector<int> isom = isom_machine.get_canonical_graph(board, heuristic.all_linesinfo);
-        assert(states.find(isom) != states.end());
-        return states[isom];
+        std::vector<uint64_t> isom = isom_machine.get_canonical_graph(board, heuristic.all_linesinfo);
+        //assert(states.find(isom) != states.end());
+        if(states.find(isom) != states.end()){
+            return states[isom];
+        }
+        else{
+            return nullptr;
+        }
     #else
         Board reversed(board);
         reversed.flip();
@@ -434,7 +438,7 @@ PNS::PNSNode* PNS::get_states(const Board& board){
             return states[reversed];
         }
         else{
-            assert(states.find(board) != states.end());
+            //assert(states.find(board) != states.end());
             return nullptr;
         }
     #endif
@@ -442,7 +446,7 @@ PNS::PNSNode* PNS::get_states(const Board& board){
 
 void PNS::delete_from_map(const Board& board){
     #if ISOM
-        std::vector<int> isom = isom_machine.get_canonical_graph(board, heuristic.all_linesinfo);
+        std::vector<uint64_t> isom = isom_machine.get_canonical_graph(board, heuristic.all_linesinfo);
         assert(states.find(isom) != states.end());
         states.erase(isom);
     #else
