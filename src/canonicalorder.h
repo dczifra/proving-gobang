@@ -20,6 +20,7 @@ public:
         options.getcanon = true;
         options.defaultptn = false;
     }
+
     ~CanonicalOrder(){
         delete[] g;
         delete[] cg;
@@ -40,7 +41,7 @@ public:
         int m = SETWORDSNEEDED(n);
         nauty_check(WORDSIZE,m,n,NAUTYVERSIONID);
 
-        std::cout<<n<<std::endl;
+        //std::cout<<n<< " "<<m<<std::endl;
         EMPTYGRAPH(g,m,n);
         if(b.node_type == OR){
             ADDONEEDGE(g,n-1,n-1,m);
@@ -54,7 +55,7 @@ public:
                 //display(line.line_board, true);
                 for(auto field : line.points){
                     if(b.is_valid(field)){
-                        printf("%d %d\n", nodes+line_ind, index[field]);
+                        //printf("%d %d\n", nodes+line_ind, index[field]);
                         ADDONEEDGE(g,nodes+line_ind,index[field],m);
                     }
                 }
@@ -74,7 +75,7 @@ public:
         densenauty(g,lab,ptn,orbits,&options,&stats,m,n,cg);
         //Traces(g,lab,ptn,orbits,&options,&stats,m,n,cg);
 
-        std::vector<setword> ret(cg,cg+m);
+        std::vector<setword> ret(cg,cg+m*n);
         //std::vector<setword> ret(m,0);
         //for(int i=0;i<m;i++) ret[i] = cg[i];
         if(labs != nullptr) for(int i=0;i<n;i++) labs[i] = lab[i];

@@ -31,23 +31,34 @@ void init_graph(){
 
     //options.writeautoms = TRUE;
     options.getcanon = TRUE;
+    options.defaultptn = TRUE;
 
-    n = 5;
+    n = 6;
     m = SETWORDSNEEDED(n);
     nauty_check(WORDSIZE,m,n,NAUTYVERSIONID);
+    for(int i=0;i<n;i++){
+        lab1[i] = i;
+        lab2[i] = i;
+        ptn1[i] = 1;
+        ptn2[i] = 1;
+    }
+    ptn1[n-1] = 0;
+    ptn2[n-1] = 0;
 
     // === G1 ===
     EMPTYGRAPH(g1,m,n);
-    ADDONEEDGE(g1,0,1,m);
-    ADDONEEDGE(g1,1,2,m);
+    ADDONEEDGE(g1,0,3,m);
+    ADDONEEDGE(g1,1,3,m);
+    ADDONEEDGE(g1,1,4,m);
+    ADDONEEDGE(g1,2,3,m);
+    ADDONEEDGE(g1,2,4,m);
 
     // === G2 ===
     EMPTYGRAPH(g2,m,n);
-    ADDONEEDGE(g2,1,2, m);
-    ADDONEEDGE(g2,2,0,m);
-
-    //n = 3;
-    //m = SETWORDSNEEDED(n);
+    ADDONEEDGE(g2,0,3, m);
+    ADDONEEDGE(g2,0,4,m);
+    ADDONEEDGE(g2,1,4,m);
+    ADDONEEDGE(g2,2,4,m);
 
     densenauty(g1,lab1,ptn1,orbits1,&options,&stats,m,n,cg1);
     densenauty(g2,lab2,ptn2,orbits2,&options,&stats,m,n,cg2);
@@ -57,12 +68,12 @@ void init_graph(){
     printf("\n");
 
     printf("Canonical labeling:\n");
-    for(int i=0;i<n;i++){
+    for(int i=0;i<m*n;i++){
         std::cout<<cg1[i]<<" ";
     }
     std::cout<<std::endl;
 
-    for(int i=0;i<n;i++){
+    for(int i=0;i<m*n;i++){
         std::cout<<cg2[i]<<" ";
     }
     std::cout<<std::endl;
@@ -143,12 +154,11 @@ int main(){
     printf("#  * MAXN: %d     #\n#  * MAXM: %d      #\n", MAXN, MAXM);
     std::cout<<"###################\n\n";
 
-    //init_graph();
+    init_graph();
 
     Board b;
     b.white = 8726315008;
     b.black = 1348403199;
-    convert_board(b);
     //convert_board(b);
 
     return 0;
