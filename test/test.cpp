@@ -6,7 +6,6 @@
 #include "board.h"
 #include "PNS.h"
 #include "artic_point.h"
-#include "PNS.h"
 // =================================================================
 //                     TEST THE BOARD's GOODNESS
 // =================================================================

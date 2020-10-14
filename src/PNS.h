@@ -46,6 +46,10 @@ public:
         void set_delta_th(unsigned int val){ type == OR ? dn_th = val : pn_th=val;}
     };
 
+    PNS(){
+      component_cut.resize((int)ACTION_SIZE, std::vector<int>((int)ACTION_SIZE, 0));
+    }
+
     ~PNS(){free_states();}
     void PN_search(PNSNode* node, bool fast_eval);
     void DFPN_search(PNSNode* node);
@@ -53,7 +57,7 @@ public:
     void init_DFPN_search(PNSNode* node);
 
     PNSNode* create_and_eval_node(Board& board, int base_depth, bool eval, bool search_in_states);
-    void evalueate_node_with_PNS(PNSNode* node, bool log = false, bool fast_eval = false);
+    void evaluate_node_with_PNS(PNSNode* node, bool log = false, bool fast_eval = false);
     PNSNode* evaluate_components(Board& base_board, const int base_depth);
 
     Board extend(PNSNode* node, unsigned int action, bool fast_eval);
@@ -90,6 +94,27 @@ public:
         if(end) std::cout<<std::endl;
     }
 
+    void component_stats() {
+      std::cout<< "COMPONENT CUT"<<std::endl;
+      for (int depth=1; depth <= ACTION_SIZE; depth++) {
+        int cnt = 0;
+        int gainsum = 0;
+        std::cout<<"Depth "<< depth <<": ";
+        for (int j=0; j < ACTION_SIZE - depth; j++) {
+          int freq = component_cut[ACTION_SIZE-depth][j];
+          cnt += freq;
+          gainsum += freq * j;
+          std::cout<< freq << " ";
+        }
+        if (cnt > 0) {
+            std::cout<<"---> "<< (float) gainsum / (float) cnt << std::endl;
+          }
+        else {
+            std::cout<<"---> "<< 0 << std::endl;
+        }
+      }
+    }
+    
     // === MAP ===
     //bool has_board(const Board& board);
     void add_board(const Board& board, PNSNode* node);
@@ -106,4 +131,6 @@ private :
     #else
     std::unordered_map<Board, PNSNode*, Board_Hash> states;
     #endif
+
+    std::vector<std::vector<int>> component_cut;
 };

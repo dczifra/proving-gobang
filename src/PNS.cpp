@@ -8,6 +8,7 @@
 
 #include <unistd.h>
 
+// ZSOLT action unused, heur_val unused
 PNS::PNSNode::PNSNode(const Board& b, unsigned int d, int action, int heur_val, Heuristic& h):children(), board(b), depth(d){
     type = b.node_type;
     unsigned int sum = 0;
@@ -72,6 +73,7 @@ unsigned int PNS::get_min_children(PNS::PNSNode* node, const ProofType type, boo
     else return min;
 }
 
+// ZSOLT: this is not used anywhere
 unsigned int PNS::get_min_delta_index(PNS::PNSNode* node, int& second_ind) const{
     unsigned int first_min = UINT_MAX;
     unsigned int second_min = UINT_MAX;
@@ -129,7 +131,7 @@ bool PNS::game_ended(const Board& b, int action){
     return false;
 }
 
-inline void PNS::simplify_board(Board& next_state, const unsigned int action, int depth){
+void PNS::simplify_board(Board& next_state, const unsigned int action, int depth){
     if(next_state.node_type == OR){ // Last move: black
 
         next_state.remove_lines_with_two_ondegree(heuristic.all_linesinfo);
@@ -143,8 +145,8 @@ inline void PNS::simplify_board(Board& next_state, const unsigned int action, in
 
 PNS::PNSNode* PNS::create_and_eval_node(Board& board, int base_depth, bool eval, bool search = false){
     PNSNode* node;
-    Board flipped(board);
-    flipped.flip();
+    Board flipped(board); // ZSOLT: unused
+    flipped.flip(); // ZSOLT: unused
 
     node = get_states(board);
     if(node != nullptr){
@@ -155,7 +157,7 @@ PNS::PNSNode* PNS::create_and_eval_node(Board& board, int base_depth, bool eval,
         add_board(board, node);
     }
 
-    if(eval) evalueate_node_with_PNS(node, false, false);
+    if(eval) evaluate_node_with_PNS(node, false, false);
     return node;
 }
 
@@ -219,7 +221,7 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
     }
 }
 
-void PNS::evalueate_node_with_PNS(PNSNode* node, bool log, bool fast_eval){
+void PNS::evaluate_node_with_PNS(PNSNode* node, bool log, bool fast_eval){
     int i=0;
     while(node->pn*node->dn != 0){
         PN_search(node, fast_eval);
@@ -233,11 +235,11 @@ void PNS::evalueate_node_with_PNS(PNSNode* node, bool log, bool fast_eval){
 Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
     Board next_state(node->board, action, get_player(node->type));
 
-    simplify_board(next_state, action, node->depth);
-    //simplify_board(next_state, action, node->depth);
+    // ZSOLT: action, depth not used
+    // simplify_board(next_state, action, node->depth);
 
     int last_act = action;
-    while(!game_ended(next_state, last_act)){
+    while(!game_ended(next_state, last_act)){ // ZSOLT: last_act argument not used
         int temp_act = next_state.one_way(get_all_lines());
         if(temp_act > -1){
             last_act = temp_act;
@@ -245,7 +247,7 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
         }
         else break;
     }
-    simplify_board(next_state, action, node->depth);
+    // simplify_board(next_state, action, node->depth); // ZSOLT: action, depth not used
 
     PNSNode* child = get_states(next_state);
     if(child != nullptr){
@@ -256,17 +258,26 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
     else{
         assert(node->children[action] == nullptr);
 
+        // monitor search space reduction due to the compontents
+        int moves_before = __builtin_popcountll(next_state.get_valids());
+
+        
         // 2-connected componets, if not ended
-        if(!fast_eval && next_state.node_type == OR && !game_ended(next_state, last_act)){
+        if(!fast_eval && next_state.node_type == OR && !game_ended(next_state, last_act)){ // ZSOLT: last_act argument not used
             node->children[action] = evaluate_components(next_state, node->depth+1);
         }
+ 
         else{
             node->children[action] = new PNS::PNSNode(next_state, node->depth+1, last_act, -1, heuristic);
             add_board(next_state, node->children[action]);
             if(!fast_eval && __builtin_popcountll(next_state.get_valids()) < EVAL_TRESHOLD){
-                evalueate_node_with_PNS(node->children[action], false, true);
+                evaluate_node_with_PNS(node->children[action], false, true);
             }
         }
+
+        int moves_after = __builtin_popcountll(node->children[action]->board.get_valids());
+        component_cut[moves_before][moves_before - moves_after] += 1;
+
 
         return node->children[action]->board;
     }
