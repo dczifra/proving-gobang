@@ -236,7 +236,7 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
     Board next_state(node->board, action, get_player(node->type));
 
     // ZSOLT: action, depth not used
-    // simplify_board(next_state, action, node->depth);
+    simplify_board(next_state, action, node->depth);
 
     int last_act = action;
     while(!game_ended(next_state, last_act)){ // ZSOLT: last_act argument not used
@@ -244,10 +244,11 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
         if(temp_act > -1){
             last_act = temp_act;
             next_state.move(last_act, next_state.node_type== OR ? 1 : -1);
+            simplify_board(next_state, action, node->depth); // ZSOLT: action, depth not used
         }
         else break;
     }
-    // simplify_board(next_state, action, node->depth); // ZSOLT: action, depth not used
+    
 
     PNSNode* child = get_states(next_state);
     if(child != nullptr){
@@ -263,14 +264,16 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
 
         
         // 2-connected componets, if not ended
-        if(!fast_eval && next_state.node_type == OR && !game_ended(next_state, last_act)){ // ZSOLT: last_act argument not used
+        // ZSOLT: last_act argument not used
+        int valid_moves = __builtin_popcountll(next_state.get_valids());
+        if(!fast_eval && next_state.node_type == OR && !game_ended(next_state, last_act)){ 
             node->children[action] = evaluate_components(next_state, node->depth+1);
         }
  
         else{
             node->children[action] = new PNS::PNSNode(next_state, node->depth+1, last_act, -1, heuristic);
             add_board(next_state, node->children[action]);
-            if(!fast_eval && __builtin_popcountll(next_state.get_valids()) < EVAL_TRESHOLD){
+            if(!fast_eval && valid_moves < EVAL_TRESHOLD){
                 evaluate_node_with_PNS(node->children[action], false, true);
             }
         }
