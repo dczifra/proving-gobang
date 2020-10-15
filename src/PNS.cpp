@@ -248,6 +248,7 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
         else break;
     }
     // simplify_board(next_state, action, node->depth); // ZSOLT: action, depth not used
+    if(next_state.node_type == OR) next_state.remove_dead_fields_all(heuristic.all_linesinfo);
 
     PNSNode* child = get_states(next_state);
     if(child != nullptr){
