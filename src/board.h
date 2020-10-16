@@ -173,6 +173,7 @@ struct Board{
     }
 
     bool heuristic_stop(const std::vector<Line_info>& all_lines) const;
+    double heuristic_value(const std::vector<Line_info>& all_lines) const;
     int one_way(const std::vector<Line_info>& all_lines) const;
     void flip();
 

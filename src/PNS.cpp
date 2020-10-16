@@ -209,8 +209,8 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
             #endif
 
             // TODO: Improve...
-            bool eval_big = __builtin_popcountll(big_board.get_valids()) < EVAL_TRESHOLD;
-            PNSNode* big_comp = create_and_eval_node(big_board, base_depth, eval_big);
+            //bool eval_big = __builtin_popcountll(big_board.get_valids()) < EVAL_TRESHOLD;
+            PNSNode* big_comp = create_and_eval_node(big_board, base_depth, false);
             return big_comp;
         }
     }
@@ -248,8 +248,6 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
         }
         else break;
     }
-    // simplify_board(next_state, action, node->depth); // ZSOLT: action, depth not used
-    if(next_state.node_type == OR) next_state.remove_dead_fields_all(heuristic.all_linesinfo);
 
     PNSNode* child = get_states(next_state);
     if(child != nullptr){

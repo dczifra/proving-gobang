@@ -51,6 +51,24 @@ bool Board::heuristic_stop(const std::vector<Line_info> &all_lines) const
     return true;
 }
 
+double Board::heuristic_value(const std::vector<Line_info> &all_lines) const
+{
+    double sum = 0;
+    for (auto line : all_lines)
+    {
+        bool is_free = !(line.line_board & black);
+        if (!is_free)
+            continue;
+        else
+        {
+            int emptynum = line.size - __builtin_popcountll(line.line_board & white);
+            sum += std::pow(2.0, -emptynum);
+        }
+    }
+
+    return sum;
+}
+
 int Board::one_way(const std::vector<Line_info> &all_lines) const
 {
     std::vector<bool> two_line(ACTION_SIZE, 0);
