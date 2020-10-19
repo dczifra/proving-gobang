@@ -35,8 +35,7 @@ void Play::read_solution(std::string filename){
 
     std::string s;
     while(std::getline (file, s)){
-        //std::cout<<s<<std::endl;
-        unsigned int pn, dn;
+        var pn, dn;
         Board b;
 
         std::stringstream sstream(s);
@@ -80,15 +79,12 @@ int Play::move_human(){
     }
     
     board.move(act, human_player);
-    //tree.simplify_board(board, act, -1);
 
     return act;
 }
 
 void Play::build_node(Board b){
     PNS new_tree;
-
-    //assert(tree.states.find(b) != tree.states.end());
 
     for(int i=0;i<ACTION_SIZE;i++){
         //display(state.first, true);
@@ -103,7 +99,7 @@ void Play::build_node(Board b){
 }
 
 void Play::play_with_solution2(){
-    int act;
+    int act = -1;
 
     while(!tree.game_ended(board, act)){
         std::vector<int> color;
@@ -118,8 +114,8 @@ void Play::play_with_solution2(){
         }
         else{
             // === Find the next child in Solution Tree ===
-            if(board.node_type == OR) act = tree.get_min_children(tree.get_states(board), PN, true);
-            else act = tree.get_min_children(tree.get_states(board), DN, true);
+            if(board.node_type == OR) act = tree.get_min_children_index(tree.get_states(board), PN);
+            else act = tree.get_min_children_index(tree.get_states(board), DN);
 
             if(act == ACTION_SIZE or act == -1){
                 printf("Not found next step %d\n", act);
@@ -132,7 +128,7 @@ void Play::play_with_solution2(){
         color.push_back(act);
 
         player = get_player(board.node_type);
-        printf("Action: %d pn: %d\n", act, tree.get_states(board)->pn);
+        printf("Action: %d pn: %d\n", act, (int)tree.get_states(board)->pn);
         display(board, true, color);
         std::cout<<board.white<<" "<<board.black<<std::endl;
     }

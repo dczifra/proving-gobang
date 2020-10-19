@@ -9,31 +9,29 @@
 #include <unistd.h>
 
 // ZSOLT action unused, heur_val unused
-PNS::PNSNode::PNSNode(const Board& b, unsigned int d, int action, int heur_val, Heuristic& h):children(), board(b), depth(d){
+PNS::PNSNode::PNSNode(const Board& b, unsigned int d, int action, double heur_val, Heuristic& h):children(), board(b), depth(d){
     type = b.node_type;
-    unsigned int sum = 0;
+    unsigned int child_num = 0;
     for(int i=0;i<ACTION_SIZE;i++){
-        if(b.is_valid(i)) ++sum;
+        if(b.is_valid(i)) ++child_num;
     }
 
     if(b.white_win(h.all_linesinfo)){
     //if((b.node_type == AND) && action > -1 && b.white_win(h.linesinfo_per_field[action])){
         pn = 0;
-        dn = UINT_MAX;
+        dn = var_MAX;
     }
     else if((b.node_type == AND) && b.heuristic_stop(h.all_linesinfo)){
-        pn = UINT_MAX;
+        pn = var_MAX;
         dn = 0;
     }
     // === Init proof and disploof number ===
-    else if(sum == 0){ // Game is over, black wins
-        pn = UINT_MAX;
+    else if(child_num == 0){ // Game is over, black wins
+        pn = var_MAX;
         dn = 0;
     }
     else{
-        pn = (type==OR ? 1:sum);
-        //dn = (type==AND ? heur_val:sum);
-        dn = (type==AND ? 1:sum);
+        init_pn_dn(child_num, heur_val);
 
         pn_th = pn;
         dn_th = dn;
@@ -42,7 +40,17 @@ PNS::PNSNode::PNSNode(const Board& b, unsigned int d, int action, int heur_val, 
     parent_num = 1;
 }
 
-inline unsigned int get_child_value(PNS::PNSNode* child_node, const ProofType type){
+void inline PNS::PNSNode::init_pn_dn(int child_num, double heur_val){
+    #if HEURISTIC
+        pn = (type==OR ? 1:child_num);
+        dn = (type==AND ? 1:child_num);
+    #else
+        pn = (type==OR ? 1:child_num);
+        dn = (type==AND ? 1:child_num);
+    #endif
+}
+
+inline var get_child_value(PNS::PNSNode* child_node, const ProofType type){
     if(child_node == nullptr){
         return 1; // Improvement: Initialization policy
     }
@@ -54,14 +62,14 @@ inline unsigned int get_child_value(PNS::PNSNode* child_node, const ProofType ty
     }
 }
 
-unsigned int PNS::get_min_children(PNS::PNSNode* node, const ProofType type, bool index = false) const{
-    unsigned int min = UINT_MAX;
+unsigned int PNS::get_min_children_index(PNS::PNSNode* node, const ProofType type) const{
+    var min = var_MAX;
     unsigned int min_ind = -1;
 
     for(int i=0;i<ACTION_SIZE;i++){
         if(!node->board.is_valid(i)) continue;
 
-        unsigned int child = get_child_value(node->children[i], type);
+        var child = get_child_value(node->children[i], type);
 
         if(child < min ){
             min = child;
@@ -69,14 +77,28 @@ unsigned int PNS::get_min_children(PNS::PNSNode* node, const ProofType type, boo
         }
     }
     
-    if(index) return min_ind;
-    else return min;
+    return min_ind;
+}
+
+var PNS::get_min_children(PNS::PNSNode* node, const ProofType type) const{
+    var min = var_MAX;
+
+    for(int i=0;i<ACTION_SIZE;i++){
+        if(!node->board.is_valid(i)) continue;
+
+        var child = get_child_value(node->children[i], type);
+
+        if(child < min ){
+            min = child;
+        }
+    }
+    return min;
 }
 
 // ZSOLT: this is not used anywhere
-unsigned int PNS::get_min_delta_index(PNS::PNSNode* node, int& second_ind) const{
-    unsigned int first_min = UINT_MAX;
-    unsigned int second_min = UINT_MAX;
+var PNS::get_min_delta_index(PNS::PNSNode* node, int& second_ind) const{
+    var first_min = var_MAX;
+    var second_min = var_MAX;
 
     unsigned int first_ind = -1;
     second_ind = -1;
@@ -84,7 +106,7 @@ unsigned int PNS::get_min_delta_index(PNS::PNSNode* node, int& second_ind) const
     for(int i=0;i<ACTION_SIZE;i++){
         if(!node->board.is_valid(i)) continue;
         // === take care of initialization ===
-        unsigned int child = node->children[i] == nullptr ? 1ULL: node->children[i]->delta();
+        var child = node->children[i] == nullptr ? 1ULL: node->children[i]->delta();
 
         if(child < second_min ){
             if(child < first_min){
@@ -103,15 +125,15 @@ unsigned int PNS::get_min_delta_index(PNS::PNSNode* node, int& second_ind) const
     return first_ind;
 }
 
-unsigned int PNS::get_sum_children(PNS::PNSNode* node, const ProofType type) const{
-    unsigned int sum = 0;
+var PNS::get_sum_children(PNS::PNSNode* node, const ProofType type) const{
+    var sum = 0;
 
     for(int i=0;i<ACTION_SIZE;i++){
         if(!node->board.is_valid(i)) continue;
         
-        unsigned int child = get_child_value(node->children[i], type);
+        var child = get_child_value(node->children[i], type);
 
-        if(child == UINT_MAX) return UINT_MAX;
+        if(child == var_MAX) return var_MAX;
         sum += child;
     }
     return sum;
@@ -145,8 +167,6 @@ void PNS::simplify_board(Board& next_state, const unsigned int action, int depth
 
 PNS::PNSNode* PNS::create_and_eval_node(Board& board, int base_depth, bool eval, bool search = false){
     PNSNode* node;
-    Board flipped(board); // ZSOLT: unused
-    flipped.flip(); // ZSOLT: unused
 
     node = get_states(board);
     if(node != nullptr){
@@ -296,8 +316,8 @@ void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
     if(node->pn == 0 || node->dn == 0) return;
 
     if(node->type == OR){ // === OR  node ===
-        unsigned int min_ind = get_min_children(node, PN, true);
-        if(min_ind == (-1)) 0; // Disproof found
+        unsigned int min_ind = get_min_children_index(node, PN);
+        if(min_ind == (UINT_MAX)) 0; // Disproof found
         else if(node->children[min_ind] == nullptr) extend(node, min_ind, fast_eval);
         else PN_search(node->children[min_ind], fast_eval);
         // === Update PN and DN in node ===
@@ -305,8 +325,8 @@ void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
         node->dn = get_sum_children(node, DN);
     }
     else{                 // === AND node ===
-        unsigned int min_ind = get_min_children(node, DN, true);
-        if(min_ind == (-1)) 0; // Proof found
+        unsigned int min_ind = get_min_children_index(node, DN);
+        if(min_ind == (UINT_MAX)) 0; // Proof found
         else if(node->children[min_ind] == nullptr) extend(node, min_ind, fast_eval);
         else PN_search(node->children[min_ind], fast_eval);
         // === Update PN and DN in node ===
@@ -358,7 +378,7 @@ void PNS::delete_node(PNS::PNSNode* node){
         ((node->type == AND) && (node->dn==0)) ){
         
         ProofType proof_type = (node->pn == 0 ? PN:DN);
-        unsigned int min_ind = get_min_children(node, proof_type, true);
+        unsigned int min_ind = get_min_children_index(node, proof_type);
 
         assert(min_ind !=-1);
         // === Delete all children, except min_ind
@@ -384,7 +404,7 @@ void PNS::log_solution_min(PNS::PNSNode* node, std::ofstream& file, std::set<Boa
         if( ((node->type == OR) && (node->pn == 0)) ||
             ((node->type == AND) && (node->dn==0)) ){
             ProofType proof_type = (node->pn == 0 ? PN:DN);
-            unsigned int min_ind = get_min_children(node, proof_type, true);
+            unsigned int min_ind = get_min_children_index(node, proof_type);
             if (min_ind == UINT_MAX) return;
             else log_solution_min(node->children[min_ind], file, logged);
         }

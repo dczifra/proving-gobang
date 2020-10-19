@@ -179,7 +179,6 @@ struct Board{
 
     // === Policy ===
     std::array<float, ACTION_SIZE> heuristic_mtx(const std::vector<Line_info>& lines) const;
-    double heuristic_val(const std::vector<Line_info>& lines) const;
     // ==============================================
     //               SPLIT TO COMPONENTS
     // ==============================================

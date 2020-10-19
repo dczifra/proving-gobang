@@ -7,12 +7,12 @@
 #include <numeric>
 #include <iomanip>
 #include <iostream>
-
+#include <cfloat>
 // ============================================
 //                BOARD INFOS
 // ============================================
 #define ROW 4
-#define COL 8
+#define COL 10
 #define LINEINROW 7
 #define LAYERNUM 7
 
@@ -25,6 +25,15 @@
 #define EVAL_TRESHOLD 12
 #define TALKY false
 #define ISOM true
+#define HEURISTIC false
+
+#if HEURISTIC
+    #define var double
+    #define var_MAX DBL_MAX
+#else
+    #define var unsigned int
+    #define var_MAX UINT_MAX
+#endif
 
 unsigned long long set_full_board();
 

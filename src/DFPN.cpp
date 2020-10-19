@@ -6,8 +6,8 @@
 void PNS::init_DFPN_search(PNSNode* node){
     add_board(node->board, node);
 
-    node->set_theta_th(UINT_MAX);
-    node->set_delta_th(UINT_MAX);
+    node->set_theta_th(var_MAX);
+    node->set_delta_th(var_MAX);
 }
 
 void f(){
@@ -34,7 +34,7 @@ void PNS::DFPN_search(PNSNode* node){
                 DFPN_search(node->children[min_ind]);
             }
             // === Update PN and DN in node ===
-            node->pn = get_min_children(node, PN, false);
+            node->pn = get_min_children(node, PN);
             node->dn = get_sum_children(node, DN);
             if(min_ind == (-1)) break;
         }
@@ -47,7 +47,7 @@ void PNS::DFPN_search(PNSNode* node){
             }
             // === Update PN and DN in node ===
             node->pn = get_sum_children(node, PN);
-            node->dn = get_min_children(node, DN, false);
+            node->dn = get_min_children(node, DN);
             if(min_ind == (-1)) break;
         }
 
@@ -79,11 +79,11 @@ unsigned int PNS::update_threshhold(PNSNode* node){
         //node->set_theta_th(n_c->delta_th());
     }
     else{
-        unsigned int pn_second = node->children[second_ind]->delta();
-        node->children[min_ind]->set_delta_th(std::min(node->theta_th(), pn_second == (-1)? pn_second:pn_second +1));
+        var pn_second = node->children[second_ind]->delta();
+        node->children[min_ind]->set_delta_th(std::min(node->theta_th(), pn_second == (var_MAX)? pn_second:pn_second +1));
     }
 
-    unsigned int new_theta_th = node->theta_th()-node->theta()+n_c->theta();
+    var new_theta_th = node->theta_th()-node->theta()+n_c->theta();
     node->children[min_ind]->set_theta_th(new_theta_th);
     return min_ind;
 }

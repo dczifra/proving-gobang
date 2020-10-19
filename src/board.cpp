@@ -160,23 +160,6 @@ std::array<float, ACTION_SIZE> Board::heuristic_mtx(const std::vector<Line_info>
     return mtx;
 }
 
-double Board::heuristic_val(const std::vector<Line_info> &lines) const
-{
-    double sum = 0.0;
-    for (auto line : lines)
-    {
-        bool is_free = !(line.line_board & black);
-        if (!is_free)
-            continue;
-        else
-        {
-            int emptynum = line.size - __builtin_popcountll(line.line_board & white);
-            sum += std::pow(2.0, -emptynum);
-        }
-    }
-    return sum;
-}
-
 // ==============================================
 //                 REMOVE DEAD 2 LINE
 // ==============================================
