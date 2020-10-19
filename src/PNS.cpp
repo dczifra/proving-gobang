@@ -295,6 +295,9 @@ void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
 
     if(node->pn == 0 || node->dn == 0) return;
 
+    unsigned int last_pn = node->pn;
+    unsigned int last_dn = node->dn;
+
     if(node->type == OR){ // === OR  node ===
         unsigned int min_ind = get_min_children(node, PN, true);
         if(min_ind == (-1)) 0; // Disproof found
@@ -318,6 +321,10 @@ void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
     if(node->pn == 0 || node->dn == 0){
         delete_node(node);
     }
+    //else if( ((node->type == OR) && (node->pn <= last_pn)) ||
+    //        ((node->type == AND) && (node->dn <= last_dn)) ){
+    //    PN_search(node, fast_eval);
+    //}
 }
 
 void PNS::delete_children(PNS::PNSNode* node){
