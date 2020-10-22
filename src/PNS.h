@@ -21,7 +21,7 @@ public:
         PNSNode(const Board& b, unsigned int d, int action, double heur_val, Heuristic& h);
 
         // === DATA ===
-        PNSNode* children[ACTION_SIZE];
+        std::vector<PNSNode*> children;
         const Board board;
 
         var pn = 1;
@@ -29,12 +29,17 @@ public:
         var pn_th = 1;
         var dn_th = 1;
 
+      bool extended = false;
+      double heuristic_value = -1;
+      unsigned int child_num;
+      
+
         unsigned int parent_num = 1;
         unsigned int depth = 0;
         NodeType type;
 
         // === FUNCTIONS ===
-        void init_pn_dn(int child_num, double heur_val);
+        void init_pn_dn(double heur_val);
         inline var theta(){ return (type == OR ? pn : dn);}
         inline var delta(){ return (type == OR ? dn : pn);}
         void set_theta(var val){ type == OR ? pn = val : dn=val;}
@@ -61,20 +66,22 @@ public:
     void evaluate_node_with_PNS(PNSNode* node, bool log = false, bool fast_eval = false);
     PNSNode* evaluate_components(Board& base_board, const int base_depth);
 
-    Board extend(PNSNode* node, unsigned int action, bool fast_eval);
+    void extend_all(PNSNode* node, bool fast_eval);
+    Board extend(PNSNode* node, unsigned int action, unsigned int slot, bool fast_eval);
     void delete_all(PNSNode* node);
     void delete_node(PNSNode* node);
     void delete_children(PNS::PNSNode* node);
     unsigned int get_min_children_index(PNSNode* node, const ProofType type) const;
     var get_min_children(PNSNode* node, const ProofType type) const;
     var get_sum_children(PNSNode* node, const ProofType type) const;
+    void update_node(PNSNode* node);
 
     // === Helper Functions ===
     void log_solution_min(PNSNode* node, std::ofstream& file, std::set<Board>& logged);
     void read_solution(std::string filename);
     void free_states();
-    void simplify_board(Board& next_state, const unsigned int action, int depth);
-    bool game_ended(const Board& b, int action);
+    void simplify_board(Board& next_state);
+    bool game_ended(const Board& b);
     
 
     // === DFPN Helper ===

@@ -86,11 +86,13 @@ int Play::move_human(){
 void Play::build_node(Board b){
     PNS new_tree;
 
+    int slot = 0;
     for(int i=0;i<ACTION_SIZE;i++){
         //display(state.first, true);
         if(!b.is_valid(i)) continue;
         
-        Board next = new_tree.extend(tree.get_states(b), i, false);
+        Board next = new_tree.extend(tree.get_states(b), i, slot, false);
+        slot++;
         PNS::PNSNode* child = tree.get_states(next);
         if(child != nullptr){
             tree.get_states(b)->children[i] = child;
@@ -101,7 +103,7 @@ void Play::build_node(Board b){
 void Play::play_with_solution2(){
     int act = -1;
 
-    while(!tree.game_ended(board, act)){
+    while(!tree.game_ended(board)){
         std::vector<int> color;
         act = -1;
         build_node(board);

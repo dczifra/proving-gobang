@@ -12,7 +12,7 @@
 //                BOARD INFOS
 // ============================================
 #define ROW 4
-#define COL 10
+#define COL 9
 #define LINEINROW 7
 #define LAYERNUM 7
 
@@ -24,8 +24,8 @@
 
 #define EVAL_TRESHOLD 12
 #define TALKY false
-#define ISOM true
-#define HEURISTIC false
+#define ISOM false
+#define HEURISTIC true
 
 #if HEURISTIC
     #define var double
