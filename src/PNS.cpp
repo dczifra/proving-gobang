@@ -452,24 +452,25 @@ void PNS::delete_all(PNS::PNSNode* node){
 
   //We only keep a single child that proves the given node
 void PNS::delete_node(PNS::PNSNode* node){
-  // std::cout<<node->type<<" "<<node->pn<<" "<<node->dn<<std::endl;
-  // display(node->board, true);
-  // assert(((node->type == OR) && (node->pn == 0)) || ((node->type == AND) && (node->dn==0)));
-  assert((node->pn == 0) || (node->dn==0));
-  assert(node != nullptr);
-      
-  ProofType proof_type = (node->pn == 0 ? PN:DN);
-  unsigned int min_ind = get_min_children_index(node, proof_type);
-  if (min_ind == -1) return;
-
-  // === Delete all children, except min_ind
-  for(int i=0;i<node->child_num;i++){
-    if(min_ind == i) continue;
-
-    delete_all(node->children[i]);
-    node->children[i]=nullptr;
-    // std::cout<<"www "<<i<<std::endl;
-  }
+    // === In this case, we need max 1 branch ===
+    // === DONT DELTE THIS IF ===
+    if( ((node->type == OR) && (node->pn == 0)) ||
+        ((node->type == AND) && (node->dn==0)) ){
+        
+        ProofType proof_type = (node->pn == 0 ? PN:DN);
+        unsigned int min_ind = get_min_children_index(node, proof_type);
+    
+        assert(min_ind !=-1);
+        // === Delete all children, except min_ind
+        for(int i=0;i<node->children.size();i++){
+            if( (node->children[i]==nullptr) || (min_ind == i)) continue;
+            else{
+                delete_all(node->children[i]);
+                node->children[i]=nullptr;
+            }
+        }
+    }
+    return;
 }
 
 

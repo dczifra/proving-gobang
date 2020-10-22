@@ -92,12 +92,24 @@ void Play::build_node(Board b){
         if(!b.is_valid(i)) continue;
         
         Board next = new_tree.extend(tree.get_states(b), i, slot, false);
-        slot++;
         PNS::PNSNode* child = tree.get_states(next);
         if(child != nullptr){
-            tree.get_states(b)->children[i] = child;
+            tree.get_states(b)->children[slot] = child;
+        }
+        slot++;
+    }
+}
+
+int get_index(int act, Board board){
+    std::vector<int> indexes(ACTION_SIZE, -1);
+    int slot =0;
+    for(int i=0;i<ACTION_SIZE;i++){
+        if(board.is_valid(i)){
+            indexes[i]=slot;
+            slot++;
         }
     }
+    return indexes[act];
 }
 
 void Play::play_with_solution2(){
@@ -112,7 +124,7 @@ void Play::play_with_solution2(){
             int row, col;
             std::cin>>row>>col;
             act = col*ROW+row;
-            board = tree.get_states(board)->children[act]->board;
+            board = tree.get_states(board)->children[get_index(act, board)]->board;
         }
         else{
             // === Find the next child in Solution Tree ===
