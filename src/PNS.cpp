@@ -8,8 +8,7 @@
 
 #include <unistd.h>
 
-// ZSOLT action unused, heur_val unused
-PNS::PNSNode::PNSNode(const Board& b, unsigned int d, int action, double heur_val, Heuristic& h):children(), board(b), depth(d){
+PNS::PNSNode::PNSNode(const Board& b, unsigned int d, Heuristic& h):children(), board(b), depth(d){
     type = b.node_type;
     child_num = 0;
     for(int i=0;i<ACTION_SIZE;i++){
@@ -17,9 +16,9 @@ PNS::PNSNode::PNSNode(const Board& b, unsigned int d, int action, double heur_va
     }
 
     children.resize(child_num);
-
+    heuristic_value = board.heuristic_value(h.all_linesinfo);
+    
     if(b.white_win(h.all_linesinfo)){
-    //if((b.node_type == AND) && action > -1 && b.white_win(h.linesinfo_per_field[action])){
         pn = 0;
         dn = var_MAX;
     }
@@ -33,20 +32,24 @@ PNS::PNSNode::PNSNode(const Board& b, unsigned int d, int action, double heur_va
         dn = 0;
     }
     else{
-        init_pn_dn(heur_val);
+        init_pn_dn();
 
         pn_th = pn;
         dn_th = dn;
     }
 
     parent_num = 1;
-    heuristic_value = b.heuristic_value(h.all_linesinfo);
 }
 
-void inline PNS::PNSNode::init_pn_dn(double heur_val){
+void inline PNS::PNSNode::init_pn_dn(){
     #if HEURISTIC
-  pn = 1/(1+exp(3*heuristic_value-2));
-  dn = 1/(1+exp(-3*heuristic_value-2));
+  // double apn = 1/(1+exp(3*heuristic_value-2));
+  // double adn = 1/(1+exp(-3*heuristic_value-2));
+  int valid_moves = __builtin_popcountll(board.get_valids());
+  double apn = std::pow(100, valid_moves / heuristic_value);
+  double adn = std::pow(100, heuristic_value);
+  pn = apn;
+  dn = adn;
     #else
         pn = (type==OR ? 1:child_num);
         dn = (type==AND ? 1:child_num);
@@ -146,7 +149,6 @@ var PNS::get_sum_children(PNS::PNSNode* node, const ProofType type) const{
 
 bool PNS::game_ended(const Board& b){
     if(b.white_win(heuristic.all_linesinfo)){
-    //if((b.node_type == AND) && action > -1 && b.white_win(heuristic.linesinfo_per_field[action])){
         return true;
     }
     else if((b.node_type == AND) && b.heuristic_stop(heuristic.all_linesinfo)){
@@ -174,7 +176,7 @@ PNS::PNSNode* PNS::create_and_eval_node(Board& board, int base_depth, bool eval,
         node -> parent_num += 1;
     }
     else{
-        node = new PNS::PNSNode(board, base_depth, -1, -1, heuristic);
+        node = new PNS::PNSNode(board, base_depth, heuristic);
         add_board(board, node);
     }
 
@@ -241,7 +243,7 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
         }
     }
     else{
-        PNSNode* node = new PNSNode(base_board, base_depth, -1, -1, heuristic);
+        PNSNode* node = new PNSNode(base_board, base_depth, heuristic);
         add_board(base_board, node);
         return node;
     }
@@ -261,42 +263,52 @@ void PNS::evaluate_node_with_PNS(PNSNode* node, bool log, bool fast_eval){
 
 void PNS::extend_all(PNS::PNSNode* node, bool fast_eval){
   // std::cout<<"extend_all"<<std::endl;
-  if(node->pn == 0 || node->dn == 0) return;
-  // double heur_min = DBL_MAX;
+  if(node == nullptr) std::cout<<"died in extend_all"<<std::endl;
+  if((node->pn == 0) || (node->dn == 0) || node->extended) return;
   int slot = 0;
   for(int i=0;i<ACTION_SIZE;i++){
-    if(node->board.is_valid(i)){
+ if(node->board.is_valid(i)){
       extend(node, i, slot, fast_eval);
-      // if(node->type == node->children[slot]->type){
+      // if(node->children[slot]->type == OR){
       //   extend_all(node->children[slot], fast_eval);
-      // }
-      // else{
-      //   heur_min = std::min(heur_min, node->children[slot]->heuristic_value); // TODO
       // }
       slot++;
     }
   }
-  assert(slot == node->child_num);
+  node->extended = true;
 
-// #if HEURISTIC
-//   for(int i=0;i<node->child_num;i++){
-//     PNSNode* current_child = node->children[i];
+  // std::cout<<"extended"<<std::endl;
+  // display_node(node);
+
+#if HEURISTIC
+  // default DN is not useful in OR nodes, so we update them
+  // if(node->type == AND){
+  //   double heur_parent = node->heuristic_value;
+  //   double heur_min = DBL_MAX;
+  //   for(int i=0;i<node->child_num;i++){
+  //     if(node->children[i]->type == OR){
+  //       heur_min = std::min(heur_min, node->children[i]->heuristic_value);
+  //     }
+  //   }
+  //   for(int i=0;i<node->child_num;i++){
+  //     PNSNode* current_child = node->children[i];
+  //     if(current_child->type == OR){
+  //       current_child->dn = std::pow(100, heur_parent - heur_min + current_child->heuristic_value);
+  //     }
+  //   }
+  // }
     
-//     if ((current_child->pn == 0) || (current_child->dn ==0) || current_child->extended) continue;
-    
-//     if(node->type == OR){
-//       int valid_moves = __builtin_popcountll(current_child->board.get_valids());
-//       current_child->pn = valid_moves * std::pow(100, 1 / current_child->heuristic_value);
-//     }
-//     else{
-//       double heur_parent = node->heuristic_value;
-//       current_child->dn = std::pow(100, heur_parent - heur_min + current_child->heuristic_value);
-//     }
-//   }
-// #endif
+    // if ((current_child->pn == 0) || (current_child->dn ==0) || current_child->extended) continue;  
+    // if(node->type == OR){
+    //   int valid_moves = __builtin_popcountll(current_child->board.get_valids());
+    //   current_child->pn = valid_moves * std::pow(100, 1 / current_child->heuristic_value);
+    // }
+
+#endif
 
   update_node(node);
-  node->extended = true;
+  // std::cout<<"updated"<<std::endl;
+  // display_node(node);
 
 }
 
@@ -304,11 +316,9 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, unsigned int slot, bo
     Board next_state(node->board, action, get_player(node->type));
 
     simplify_board(next_state);
-    int last_act = action;
     while(!game_ended(next_state)){
       int temp_act = next_state.one_way(get_all_lines());
       if(temp_act > -1){
-        last_act = temp_act;
         next_state.move(temp_act, next_state.node_type== OR ? 1 : -1);
         simplify_board(next_state);
       }
@@ -328,14 +338,13 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, unsigned int slot, bo
         // monitor search space reduction due to the components
         int moves_before = __builtin_popcountll(next_state.get_valids());
 
-        // 2-connected componets, if not ended
-        // TODO components temporarily disabled
+        // 2-connected components, if not ended
         int valid_moves = __builtin_popcountll(next_state.get_valids());
-        if(false && !fast_eval && next_state.node_type == OR && !game_ended(next_state)){ 
+        if(!fast_eval && next_state.node_type == OR && !game_ended(next_state)){ 
             node->children[slot] = evaluate_components(next_state, node->depth+1);
         } 
         else{
-            node->children[slot] = new PNS::PNSNode(next_state, node->depth+1, last_act, -1, heuristic);
+            node->children[slot] = new PNS::PNSNode(next_state, node->depth+1, heuristic);
             add_board(next_state, node->children[slot]);
             if(!fast_eval && valid_moves < EVAL_TRESHOLD){
                 evaluate_node_with_PNS(node->children[slot], false, true);
@@ -355,7 +364,7 @@ void PNS::init_PN_search(PNS::PNSNode* node){
 
 void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
     assert(node != nullptr);
-    // display(node->board, true);
+    // display_node(node);
 
     if(node->pn == 0 || node->dn == 0) return;
 
@@ -451,8 +460,7 @@ void PNS::delete_node(PNS::PNSNode* node){
       
   ProofType proof_type = (node->pn == 0 ? PN:DN);
   unsigned int min_ind = get_min_children_index(node, proof_type);
-  
-  assert(min_ind !=-1);
+  if (min_ind == -1) return;
 
   // === Delete all children, except min_ind
   for(int i=0;i<node->child_num;i++){
@@ -556,4 +564,23 @@ void PNS::delete_from_map(const Board& board){
         assert(states.find(board) != states.end());
         states.erase(board);
     #endif
+}
+
+void PNS::display_node(PNSNode* node){
+  display(node->board, true);
+  std::cout<<std::endl;
+  std::cout<<"Node type: "<<node->type<<" "<<node->pn<<" - "<<node->dn<<std::endl;
+  if(!node->extended){
+    std::cout<<"   leaf"<<std::endl;
+  }
+  else{
+    for(int i=0;i<node->child_num;i++){
+      if (node->children[i] == nullptr) {
+        std::cout<<"Child: "<<i<<" nullptr"<<std::endl;
+      }
+      else{
+        std::cout<<"Child: "<<i<< " dn: "<<node->children[i]->dn<< " pn: "<<node->children[i]->pn<< " extended: "<<node->children[i]->extended<<" heur val: "<<node->children[i]->heuristic_value<<std::endl;
+      }
+    }
+  }
 }

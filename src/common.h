@@ -24,8 +24,8 @@
 
 #define EVAL_TRESHOLD 12
 #define TALKY false
-#define ISOM false
-#define HEURISTIC true
+#define ISOM true
+#define HEURISTIC false
 
 #if HEURISTIC
     #define var double

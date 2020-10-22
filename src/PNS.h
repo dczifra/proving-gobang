@@ -18,7 +18,7 @@ public:
     friend class Play;
     friend class CanonicalOrder;
     struct PNSNode{
-        PNSNode(const Board& b, unsigned int d, int action, double heur_val, Heuristic& h);
+      PNSNode(const Board& b, unsigned int d, Heuristic& h);
 
         // === DATA ===
         std::vector<PNSNode*> children;
@@ -30,7 +30,7 @@ public:
         var dn_th = 1;
 
       bool extended = false;
-      double heuristic_value = -1;
+      double heuristic_value;
       unsigned int child_num;
       
 
@@ -39,7 +39,7 @@ public:
         NodeType type;
 
         // === FUNCTIONS ===
-        void init_pn_dn(double heur_val);
+        void init_pn_dn();
         inline var theta(){ return (type == OR ? pn : dn);}
         inline var delta(){ return (type == OR ? dn : pn);}
         void set_theta(var val){ type == OR ? pn = val : dn=val;}
@@ -82,6 +82,7 @@ public:
     void free_states();
     void simplify_board(Board& next_state);
     bool game_ended(const Board& b);
+    void display_node(PNSNode* node);
     
 
     // === DFPN Helper ===

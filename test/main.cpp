@@ -52,7 +52,8 @@ void PNS_test(Args& args){
     Play::choose_problem(b,player, args.disproof);
 
     PNS tree;
-    PNS::PNSNode* node = new PNS::PNSNode(b, 0, -1, -1, PNS::heuristic);
+    PNS::PNSNode* node = new PNS::PNSNode(b, 0, PNS::heuristic);
+
     tree.init_PN_search(node);
 
     tree.evaluate_node_with_PNS(node, args.log, false);
@@ -65,7 +66,7 @@ void PNS_test(Args& args){
 
     tree.delete_all(node);
     tree.stats(nullptr, true);
-    tree.component_stats();
+    // tree.component_stats();
 }
 
 void DFPNS_test(Args& args){
@@ -74,7 +75,7 @@ void DFPNS_test(Args& args){
     Play::choose_problem(b,player, args.disproof);
 
     PNS tree;
-    PNS::PNSNode* node = new PNS::PNSNode(b, 0, -1, -1, PNS::heuristic);
+    PNS::PNSNode* node = new PNS::PNSNode(b, 0, PNS::heuristic);
     tree.init_DFPN_search(node);
     
     unsigned int i = 0;
