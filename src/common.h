@@ -12,7 +12,7 @@
 //                BOARD INFOS
 // ============================================
 #define ROW 4
-#define COL 8
+#define COL 11
 #define LINEINROW 7
 #define LAYERNUM 7
 
@@ -22,9 +22,9 @@
 #define INNER_LINE  true
 #define DIFFERENT_CORNER  false
 
-#define EVAL_TRESHOLD 12
+#define EVAL_TRESHOLD 0
 #define TALKY false
-#define ISOM true
+#define ISOM false
 
 unsigned long long set_full_board();
 

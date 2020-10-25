@@ -65,7 +65,7 @@ void PNS_test(Args& args){
 
     tree.delete_all(node);
     tree.stats(nullptr, true);
-    tree.component_stats();
+    //tree.component_stats();
 }
 
 void DFPNS_test(Args& args){

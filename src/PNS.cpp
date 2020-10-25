@@ -16,6 +16,8 @@ PNS::PNSNode::PNSNode(const Board& b, unsigned int d, int action, int heur_val, 
         if(b.is_valid(i)) ++sum;
     }
 
+    children.resize(sum);
+
     if(b.white_win(h.all_linesinfo)){
     //if((b.node_type == AND) && action > -1 && b.white_win(h.linesinfo_per_field[action])){
         pn = 0;
@@ -58,9 +60,7 @@ unsigned int PNS::get_min_children(PNS::PNSNode* node, const ProofType type, boo
     unsigned int min = UINT_MAX;
     unsigned int min_ind = -1;
 
-    for(int i=0;i<ACTION_SIZE;i++){
-        if(!node->board.is_valid(i)) continue;
-
+    for(int i=0;i<node->children.size();i++){
         unsigned int child = get_child_value(node->children[i], type);
 
         if(child < min ){
@@ -106,9 +106,7 @@ unsigned int PNS::get_min_delta_index(PNS::PNSNode* node, int& second_ind) const
 unsigned int PNS::get_sum_children(PNS::PNSNode* node, const ProofType type) const{
     unsigned int sum = 0;
 
-    for(int i=0;i<ACTION_SIZE;i++){
-        if(!node->board.is_valid(i)) continue;
-        
+    for(int i=0;i<node->children.size();i++){
         unsigned int child = get_child_value(node->children[i], type);
 
         if(child == UINT_MAX) return UINT_MAX;
@@ -232,8 +230,8 @@ void PNS::evaluate_node_with_PNS(PNSNode* node, bool log, bool fast_eval){
     }
 }
 
-Board PNS::extend(PNS::PNSNode* node, unsigned int action, bool fast_eval){
-    Board next_state(node->board, action, get_player(node->type));
+Board PNS::extend(PNS::PNSNode* node, unsigned int action, int real_act, bool fast_eval){
+    Board next_state(node->board, real_act, get_player(node->type));
 
     // ZSOLT: action, depth not used
     simplify_board(next_state, action, node->depth);
@@ -289,42 +287,83 @@ void PNS::init_PN_search(PNS::PNSNode* node){
     add_board(node->board, node);
 }
 
-void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
-    //assert(!node->board.white_win(heuristic.all_linesinfo));
-    assert(node != nullptr);
-
-    if(node->pn == 0 || node->dn == 0) return;
-
-    unsigned int last_pn = node->pn;
-    unsigned int last_dn = node->dn;
-
+void PNS::update_pn_dn(PNS::PNSNode* node){
     if(node->type == OR){ // === OR  node ===
-        unsigned int min_ind = get_min_children(node, PN, true);
-        if(min_ind == (-1)) 0; // Disproof found
-        else if(node->children[min_ind] == nullptr) extend(node, min_ind, fast_eval);
-        else PN_search(node->children[min_ind], fast_eval);
         // === Update PN and DN in node ===
         node->pn = get_min_children(node, PN);
         node->dn = get_sum_children(node, DN);
     }
     else{                 // === AND node ===
-        unsigned int min_ind = get_min_children(node, DN, true);
-        if(min_ind == (-1)) 0; // Proof found
-        else if(node->children[min_ind] == nullptr) extend(node, min_ind, fast_eval);
-        else PN_search(node->children[min_ind], fast_eval);
         // === Update PN and DN in node ===
         node->pn = get_sum_children(node, PN);
         node->dn = get_min_children(node, DN);
     }
+}
 
-    // If PN or DN is 0, delete all unused descendents
-    if(node->pn == 0 || node->dn == 0){
-        delete_node(node);
+void PNS::extend_all(PNS::PNSNode* node, bool fast_eval){
+    int empty = 0;
+
+    for(int i=0;i<ACTION_SIZE;i++){
+        if(!node->board.is_valid(i)) continue;
+        extend(node, empty, i, fast_eval);
+        empty++;
     }
-    //else if( ((node->type == OR) && (node->pn <= last_pn)) ||
-    //        ((node->type == AND) && (node->dn <= last_dn)) ){
-    //    PN_search(node, fast_eval);
-    //}
+
+    update_pn_dn(node);
+    node->extended_children = true;
+}
+
+unsigned int get_real_act(const Board& b, int min_ind){
+    int sum = 0;
+    for(int i=0;i<ACTION_SIZE;i++){
+        if(!b.is_valid(i)) continue;
+        if(sum == min_ind) return i;
+        sum++;
+    }
+    return -1;
+}
+
+void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
+    #define EXTEND_ALL 0
+    #define SEARCH_UNTIL 1
+
+    assert(node != nullptr);
+
+    if(node->pn == 0 || node->dn == 0) return;
+    #if EXTEND_ALL
+    else if(!node->extended_children){
+        extend_all(node, fast_eval);
+        return;
+    }
+    #endif
+
+    unsigned int last_pn = node->pn;
+    unsigned int last_dn = node->dn;
+
+    bool keep_searching = true;
+    while(keep_searching){
+        unsigned int min_ind = get_min_children(node, node->type == OR?PN:DN, true);
+        unsigned int real_act = get_real_act(node->board, min_ind);
+        if(min_ind == (UINT_MAX)) 0; // Disproof found
+        else if(node->children[min_ind] == nullptr) extend(node, min_ind, real_act, fast_eval);
+        else PN_search(node->children[min_ind], fast_eval);
+
+        update_pn_dn(node);
+        // If PN or DN is 0, delete all unused descendents
+        if(node->pn == 0 || node->dn == 0){
+            delete_node(node);
+            keep_searching = false;
+            break;
+        }
+        else if((node->pn == last_pn) && (node->dn == last_dn)){
+            #if SEARCH_UNTIL
+            keep_searching = true;
+            #else
+            keep_searching = false;
+            #endif
+        }
+        else keep_searching = false;
+    }
 }
 
 void PNS::delete_children(PNS::PNSNode* node){
@@ -332,8 +371,8 @@ void PNS::delete_children(PNS::PNSNode* node){
         node->parent_num -= 1;
     }
     else{
-        for(int i=0;i<ACTION_SIZE;i++){
-            if((!node->board.is_valid(i)) || (node->children[i]==nullptr)) continue;
+        for(int i=0;i<node->children.size();i++){
+            if(node->children[i]==nullptr) continue;
             else{
                 delete_all(node->children[i]);
                 node->children[i]=nullptr;
@@ -347,8 +386,8 @@ void PNS::delete_all(PNS::PNSNode* node){
         node->parent_num -= 1;
     }
     else{
-        for(int i=0;i<ACTION_SIZE;i++){
-            if((!node->board.is_valid(i)) || (node->children[i]==nullptr)) continue;
+        for(int i=0;i<node->children.size();i++){
+            if(node->children[i]==nullptr) continue;
             else{
                 delete_all(node->children[i]);
                 node->children[i]=nullptr;
@@ -369,9 +408,8 @@ void PNS::delete_node(PNS::PNSNode* node){
 
         assert(min_ind !=-1);
         // === Delete all children, except min_ind
-        for(int i=0;i<ACTION_SIZE;i++){
-            if((!node->board.is_valid(i)) || (node->children[i]==nullptr) ||
-                (min_ind == i)) continue;
+        for(int i=0;i<node->children.size();i++){
+            if(node->children[i]==nullptr || (min_ind == i)) continue;
             else{
                 delete_all(node->children[i]);
                 node->children[i]=nullptr;
@@ -396,9 +434,7 @@ void PNS::log_solution_min(PNS::PNSNode* node, std::ofstream& file, std::set<Boa
             else log_solution_min(node->children[min_ind], file, logged);
         }
         else{
-            for(int i=0;i<ACTION_SIZE;i++){
-                if(!node->board.is_valid(i)) continue;
-
+            for(int i=0;i<node->children.size();i++){
                 log_solution_min(node->children[i], file, logged);
             }
         }

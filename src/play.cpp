@@ -94,7 +94,7 @@ void Play::build_node(Board b){
         //display(state.first, true);
         if(!b.is_valid(i)) continue;
         
-        Board next = new_tree.extend(tree.get_states(b), i, false);
+        Board next = new_tree.extend(tree.get_states(b), i, i, false);
         PNS::PNSNode* child = tree.get_states(next);
         if(child != nullptr){
             tree.get_states(b)->children[i] = child;

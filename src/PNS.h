@@ -21,7 +21,7 @@ public:
         PNSNode(const Board& b, unsigned int d, int action, int heur_val, Heuristic& h);
 
         // === DATA ===
-        PNSNode* children[ACTION_SIZE];
+        std::vector<PNSNode*> children;
         const Board board;
 
         unsigned int pn = 1;
@@ -32,6 +32,7 @@ public:
         unsigned int parent_num = 1;
         unsigned int depth = 0;
         NodeType type;
+        bool extended_children = false;
 
         // === FUNCTIONS ===
         inline unsigned int theta(){ return (type == OR ? pn : dn);}
@@ -60,7 +61,8 @@ public:
     void evaluate_node_with_PNS(PNSNode* node, bool log = false, bool fast_eval = false);
     PNSNode* evaluate_components(Board& base_board, const int base_depth);
 
-    Board extend(PNSNode* node, unsigned int action, bool fast_eval);
+    Board extend(PNSNode* node, unsigned int action, int real_act, bool fast_eval);
+    void extend_all(PNS::PNSNode* node, bool fast_eval);
     void delete_all(PNSNode* node);
     void delete_node(PNSNode* node);
     void delete_children(PNS::PNSNode* node);
@@ -73,6 +75,7 @@ public:
     void free_states();
     void simplify_board(Board& next_state, const unsigned int action, int depth);
     bool game_ended(const Board& b, int action);
+    void update_pn_dn(PNS::PNSNode* node);
     
 
     // === DFPN Helper ===
