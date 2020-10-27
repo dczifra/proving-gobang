@@ -53,6 +53,7 @@ void PNS_test(Args& args){
 
     PNS tree;
     PNS::PNSNode* node = new PNS::PNSNode(b, 0, PNS::heuristic);
+    std::cout<<"Root node heuristic value: "<<node->heuristic_value<<std::endl;
 
     tree.init_PN_search(node);
 

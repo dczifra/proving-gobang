@@ -22,10 +22,10 @@
 #define INNER_LINE  true
 #define DIFFERENT_CORNER  false
 
-#define EVAL_TRESHOLD 12
+#define EVAL_TRESHOLD 5
 #define TALKY false
-#define ISOM true
-#define HEURISTIC false
+#define ISOM false
+#define HEURISTIC true
 
 #if HEURISTIC
     #define var double

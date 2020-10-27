@@ -42,18 +42,19 @@ PNS::PNSNode::PNSNode(const Board& b, unsigned int d, Heuristic& h):children(), 
 }
 
 void inline PNS::PNSNode::init_pn_dn(){
-    #if HEURISTIC
-  // double apn = 1/(1+exp(3*heuristic_value-2));
-  // double adn = 1/(1+exp(-3*heuristic_value-2));
-  int valid_moves = __builtin_popcountll(board.get_valids());
-  double apn = std::pow(100, valid_moves / heuristic_value);
-  double adn = std::pow(100, heuristic_value);
-  pn = apn;
-  dn = adn;
-    #else
-        pn = (type==OR ? 1:child_num);
-        dn = (type==AND ? 1:child_num);
-    #endif
+#if HEURISTIC
+    // pn = 1/(1+exp(3*heuristic_value-2));
+    // int valid_moves = __builtin_popcountll(board.get_valids());
+    // pn = std::pow(100, valid_moves / heuristic_value);
+    pn = (type==OR ? 1:child_num);
+
+    // dn = 1/(1+exp(-3*heuristic_value-2));
+    dn = std::pow(200, heuristic_value);
+    // dn = (type==AND ? 1:child_num);
+#else
+    pn = (type==OR ? 1:child_num);
+    dn = (type==AND ? 1:child_num);
+#endif
 }
 
 inline var get_child_value(PNS::PNSNode* child_node, const ProofType type){
@@ -262,54 +263,58 @@ void PNS::evaluate_node_with_PNS(PNSNode* node, bool log, bool fast_eval){
 }
 
 void PNS::extend_all(PNS::PNSNode* node, bool fast_eval){
-  // std::cout<<"extend_all"<<std::endl;
-  if(node == nullptr) std::cout<<"died in extend_all"<<std::endl;
-  if((node->pn == 0) || (node->dn == 0) || node->extended) return;
-  int slot = 0;
-  for(int i=0;i<ACTION_SIZE;i++){
- if(node->board.is_valid(i)){
-      extend(node, i, slot, fast_eval);
-      // if(node->children[slot]->type == OR){
-      //   extend_all(node->children[slot], fast_eval);
-      // }
-      slot++;
+    // std::cout<<"extend_all"<<std::endl;
+    if(node == nullptr) std::cout<<"died in extend_all"<<std::endl;
+    if((node->pn == 0) || (node->dn == 0) || node->extended) return;
+    int slot = 0;
+    for(int i=0;i<ACTION_SIZE;i++){
+        if(node->board.is_valid(i)){
+            extend(node, i, slot, fast_eval);
+            // if(node->children[slot]->type == OR){
+            //   extend_all(node->children[slot], fast_eval);
+            // }
+            if ((node->type == OR) and (node->children[slot]->pn==0) or (node->type == AND) and (node->children[slot]->dn==0)) break;
+            slot++;
+        }
     }
-  }
-  node->extended = true;
+    node->extended = true;
 
-  // std::cout<<"extended"<<std::endl;
-  // display_node(node);
+    // std::cout<<"extended"<<std::endl;
+    // display_node(node);
 
 #if HEURISTIC
-  // default DN is not useful in OR nodes, so we update them
-  // if(node->type == AND){
-  //   double heur_parent = node->heuristic_value;
-  //   double heur_min = DBL_MAX;
-  //   for(int i=0;i<node->child_num;i++){
-  //     if(node->children[i]->type == OR){
-  //       heur_min = std::min(heur_min, node->children[i]->heuristic_value);
-  //     }
-  //   }
-  //   for(int i=0;i<node->child_num;i++){
-  //     PNSNode* current_child = node->children[i];
-  //     if(current_child->type == OR){
-  //       current_child->dn = std::pow(100, heur_parent - heur_min + current_child->heuristic_value);
-  //     }
-  //   }
-  // }
+    // default DN is not useful in OR nodes, so we update them
+    if(node->type == AND){
+        double heur_parent = node->heuristic_value;
+        double heur_min = DBL_MAX;
+        for(int i=0;i<node->child_num;i++){
+            if(node->children[i] == nullptr) continue;
+            if(node->children[i]->type == OR){
+                heur_min = std::min(heur_min, node->children[i]->heuristic_value);
+            }
+        }
+        PNSNode* current_child;
+        for(int i=0;i<node->child_num;i++){
+            if(node->children[i] == nullptr) continue;
+            current_child = node->children[i];
+            if(current_child->type == OR and current_child->dn != 0 and current_child->pn != 0){
+                current_child->dn = std::pow(200, heur_parent - heur_min + current_child->heuristic_value);
+            }
+        }
+    }
     
     // if ((current_child->pn == 0) || (current_child->dn ==0) || current_child->extended) continue;  
     // if(node->type == OR){
     //   int valid_moves = __builtin_popcountll(current_child->board.get_valids());
     //   current_child->pn = valid_moves * std::pow(100, 1 / current_child->heuristic_value);
     // }
-
+    
 #endif
 
-  update_node(node);
-  // std::cout<<"updated"<<std::endl;
-  // display_node(node);
-
+    update_node(node);
+    // std::cout<<"updated"<<std::endl;
+    // display_node(node);
+    
 }
 
 Board PNS::extend(PNS::PNSNode* node, unsigned int action, unsigned int slot, bool fast_eval){
@@ -339,14 +344,13 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, unsigned int slot, bo
         int moves_before = __builtin_popcountll(next_state.get_valids());
 
         // 2-connected components, if not ended
-        int valid_moves = __builtin_popcountll(next_state.get_valids());
         if(!fast_eval && next_state.node_type == OR && !game_ended(next_state)){ 
             node->children[slot] = evaluate_components(next_state, node->depth+1);
         } 
         else{
             node->children[slot] = new PNS::PNSNode(next_state, node->depth+1, heuristic);
             add_board(next_state, node->children[slot]);
-            if(!fast_eval && valid_moves < EVAL_TRESHOLD){
+            if(!fast_eval && __builtin_popcountll(next_state.get_valids()) < EVAL_TRESHOLD){
                 evaluate_node_with_PNS(node->children[slot], false, true);
             }
         }
