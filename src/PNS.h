@@ -53,6 +53,7 @@ public:
 
     ~PNS(){free_states();}
     void PN_search(PNSNode* node, bool fast_eval);
+    void PN_search_simple(PNS::PNSNode* node, bool fast_eval);
     void DFPN_search(PNSNode* node);
     void init_PN_search(PNSNode* node);
     void init_DFPN_search(PNSNode* node);
@@ -62,6 +63,7 @@ public:
     PNSNode* evaluate_components(Board& base_board, const int base_depth);
 
     Board extend(PNSNode* node, unsigned int action, int real_act, bool fast_eval);
+    Board extend_simple(PNS::PNSNode* node, unsigned int action, int real_act, bool fast_eval);
     void extend_all(PNS::PNSNode* node, bool fast_eval);
     void delete_all(PNSNode* node);
     void delete_node(PNSNode* node);

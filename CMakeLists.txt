@@ -14,18 +14,19 @@ add_library(nauty ${NAUTY_FILES})
 #message("${FILES}")
 include_directories(src)
 
-set(CMAKE_CXX_FLAGS "-O3")
+set(CMAKE_CXX_FLAGS "-g")
 add_executable(AMOBA test/main.cpp)
+#set_target_properties(AMOBA PROPERTIES COMPILE_FLAGS "-O3")
 
 add_executable(AMOBA_DEBUG test/main.cpp)
 #set_target_properties(AMOBA_DEBUG PROPERTIES COMPILE_FLAGS "-Wall -Wno-long-long -pedantic")
-set_target_properties(AMOBA_DEBUG PROPERTIES COMPILE_FLAGS "-g")
+#set_target_properties(AMOBA_DEBUG PROPERTIES COMPILE_FLAGS "-g")
 
 add_executable(TEST test/test.cpp)
-set_target_properties(TEST PROPERTIES COMPILE_FLAGS "-g")
+#set_target_properties(TEST PROPERTIES COMPILE_FLAGS "-g")
 
 add_executable(NAUTY test/nauty.cpp)
-set_target_properties(NAUTY PROPERTIES COMPILE_FLAGS "-g")
+#set_target_properties(NAUTY PROPERTIES COMPILE_FLAGS "-g")
 
 file(COPY ${CMAKE_BINARY_DIR}/../test/measure.sh  ${CMAKE_BINARY_DIR}/../test/PLAY
   DESTINATION ${CMAKE_BINARY_DIR}

@@ -230,6 +230,38 @@ void PNS::evaluate_node_with_PNS(PNSNode* node, bool log, bool fast_eval){
     }
 }
 
+Board PNS::extend_simple(PNS::PNSNode* node, unsigned int action, int real_act, bool fast_eval){
+    Board next_state(node->board, real_act, get_player(node->type));
+
+    // ZSOLT: action, depth not used
+    simplify_board(next_state, action, node->depth);
+
+    int last_act = action;
+    while(!game_ended(next_state, last_act)){ // ZSOLT: last_act argument not used
+        int temp_act = next_state.one_way(get_all_lines());
+        if(temp_act > -1){
+            last_act = temp_act;
+            next_state.move(last_act, next_state.node_type== OR ? 1 : -1);
+            simplify_board(next_state, action, node->depth); // ZSOLT: action, depth not used
+        }
+        else break;
+    }
+
+    PNSNode* child = get_states(next_state);
+    if(child != nullptr){
+        node->children[action] = child;
+        node->children[action] -> parent_num += 1;
+        return next_state;
+    }
+    else{
+        assert(node->children[action] == nullptr);
+
+        node->children[action] = new PNS::PNSNode(next_state, node->depth+1, last_act, -1, heuristic);
+        add_board(next_state, node->children[action]);
+        return node->children[action]->board;
+    }
+}
+
 Board PNS::extend(PNS::PNSNode* node, unsigned int action, int real_act, bool fast_eval){
     Board next_state(node->board, real_act, get_player(node->type));
 
@@ -305,12 +337,26 @@ void PNS::extend_all(PNS::PNSNode* node, bool fast_eval){
 
     for(int i=0;i<ACTION_SIZE;i++){
         if(!node->board.is_valid(i)) continue;
-        extend(node, empty, i, fast_eval);
+        extend_simple(node, empty, i, fast_eval);
         empty++;
     }
-
     update_pn_dn(node);
     node->extended_children = true;
+
+    int N = 100;
+    for(int i=0;i<N;i++){
+        PN_search_simple(node, fast_eval);
+        if(node->pn*node->dn == 0) break;
+    }
+
+    int index = 0;
+    for(auto child: node->children){
+        for(int i=0;i<child->children.size();i++){
+            if(child->children[i] != nullptr) delete_all(child->children[i]);
+        }
+        child->extended_children = false;
+        index++;
+    }
 }
 
 unsigned int get_real_act(const Board& b, int min_ind){
@@ -324,7 +370,7 @@ unsigned int get_real_act(const Board& b, int min_ind){
 }
 
 void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
-    #define EXTEND_ALL 0
+    #define EXTEND_ALL 1
     #define SEARCH_UNTIL 1
 
     assert(node != nullptr);
@@ -363,6 +409,24 @@ void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
             #endif
         }
         else keep_searching = false;
+    }
+}
+
+void PNS::PN_search_simple(PNS::PNSNode* node, bool fast_eval){
+    assert(node != nullptr);
+
+    if(node->pn == 0 || node->dn == 0) return;
+
+    unsigned int min_ind = get_min_children(node, node->type == OR?PN:DN, true);
+    unsigned int real_act = get_real_act(node->board, min_ind);
+    if(min_ind == (UINT_MAX)) 0; // Disproof found
+    else if(node->children[min_ind] == nullptr) extend_simple(node, min_ind, real_act, fast_eval);
+    else PN_search_simple(node->children[min_ind], fast_eval);
+
+    update_pn_dn(node);
+    // If PN or DN is 0, delete all unused descendents
+    if(node->pn == 0 || node->dn == 0){
+        delete_node(node);
     }
 }
 
