@@ -46,6 +46,7 @@ void inline PNS::PNSNode::init_pn_dn(){
     // pn = 1/(1+exp(3*heuristic_value-2));
     // int valid_moves = __builtin_popcountll(board.get_valids());
     // pn = std::pow(100, valid_moves / heuristic_value);
+    // pn = std::pow(100, 1/heuristic_value) * std::pow(16, valid_moves);
     pn = (type==OR ? 1:child_num);
 
     // dn = 1/(1+exp(-3*heuristic_value-2));
@@ -130,16 +131,10 @@ var PNS::get_min_delta_index(PNS::PNSNode* node, int& second_ind) const{
 }
 
 var PNS::get_sum_children(PNS::PNSNode* node, const ProofType type) const{
-  // var current_value = get_child_value(node, type);
   var sum = 0;
 
   for(int i=0;i<node->child_num;i++){
     if (node->children[i] == nullptr) continue;
-
-    // #if HEURISTIC
-    // // only update current value if all children are extended
-    // if(!node->children[i]->extended) return current_value;
-    // #endif
     
     var child = get_child_value(node->children[i], type);
     if(child == var_MAX) return var_MAX;
@@ -162,10 +157,19 @@ bool PNS::game_ended(const Board& b){
 }
 
 void PNS::simplify_board(Board& next_state){
-    if(next_state.node_type == OR){ // Last move: black
-        next_state.remove_lines_with_two_ondegree(heuristic.all_linesinfo);
-        next_state.remove_2lines_all(heuristic.all_linesinfo);
-        next_state.remove_dead_fields_all(heuristic.all_linesinfo);
+    while(!game_ended(next_state)){
+        if(next_state.node_type == OR){ // Last move: black
+            next_state.remove_lines_with_two_ondegree(heuristic.all_linesinfo);
+            next_state.remove_2lines_all(heuristic.all_linesinfo);
+            next_state.remove_dead_fields_all(heuristic.all_linesinfo);
+        }
+        int temp_act = next_state.one_way(get_all_lines());
+        if(temp_act > -1){
+            next_state.move(temp_act, next_state.node_type== OR ? 1 : -1);
+        }
+        else{
+            break;
+        }
     }
 }
 
@@ -190,7 +194,7 @@ PNS::PNSNode* PNS::create_and_eval_node(Board& board, int base_depth, bool eval,
 PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
     assert(base_board.node_type == OR);
     bool delete_comps = true;
-
+    
     int artic_point;
     Board small_board, big_board;
     Artic_point comps(base_board, heuristic.all_linesinfo, heuristic.linesinfo_per_field);
@@ -198,6 +202,8 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
 
     if(artic_point > -1){
         // 1. Evalute smaller component without artic point
+        Board small_board_with_artic(small_board);        
+        simplify_board(small_board);
         PNSNode* small_comp = create_and_eval_node(small_board, base_depth, true);
         #if TALKY
             display(small_board, true);
@@ -218,8 +224,11 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
           }
 
             // 2. Evaluate small component with artic point
-            (small_board.white) |= ((1ULL)<<artic_point);
-            PNSNode* small_comp_mod = create_and_eval_node(small_board, base_depth, true);
+            // (small_board.white) |= ((1ULL)<<artic_point);
+            // PNSNode* small_comp_mod = create_and_eval_node(small_board, base_depth, true);
+            (small_board_with_artic.white) |= ((1ULL)<<artic_point);
+            simplify_board(small_board_with_artic);
+            PNSNode* small_comp_mod = create_and_eval_node(small_board_with_artic, base_depth, true);
             #if TALKY
                 display(small_board, true);
                 std::cout<<small_comp_mod->pn<<std::endl;
@@ -239,6 +248,7 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
 
             // TODO: Improve...
             //bool eval_big = __builtin_popcountll(big_board.get_valids()) < EVAL_TRESHOLD;
+            simplify_board(big_board);
             PNSNode* big_comp = create_and_eval_node(big_board, base_depth, false);
             return big_comp;
         }
@@ -279,9 +289,6 @@ void PNS::extend_all(PNS::PNSNode* node, bool fast_eval){
     }
     node->extended = true;
 
-    // std::cout<<"extended"<<std::endl;
-    // display_node(node);
-
 #if HEURISTIC
     // default DN is not useful in OR nodes, so we update them
     if(node->type == AND){
@@ -302,34 +309,16 @@ void PNS::extend_all(PNS::PNSNode* node, bool fast_eval){
             }
         }
     }
-    
-    // if ((current_child->pn == 0) || (current_child->dn ==0) || current_child->extended) continue;  
-    // if(node->type == OR){
-    //   int valid_moves = __builtin_popcountll(current_child->board.get_valids());
-    //   current_child->pn = valid_moves * std::pow(100, 1 / current_child->heuristic_value);
-    // }
-    
+        
 #endif
 
     update_node(node);
-    // std::cout<<"updated"<<std::endl;
-    // display_node(node);
-    
 }
 
 Board PNS::extend(PNS::PNSNode* node, unsigned int action, unsigned int slot, bool fast_eval){
     Board next_state(node->board, action, get_player(node->type));
 
     simplify_board(next_state);
-    while(!game_ended(next_state)){
-      int temp_act = next_state.one_way(get_all_lines());
-      if(temp_act > -1){
-        next_state.move(temp_act, next_state.node_type== OR ? 1 : -1);
-        simplify_board(next_state);
-      }
-      else break;
-    }
-
     
     PNSNode* child = get_states(next_state);
     if(child != nullptr){
@@ -340,11 +329,9 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, unsigned int slot, bo
     else{
         assert(node->children[slot] == nullptr);
 
-        // monitor search space reduction due to the components
-        int moves_before = __builtin_popcountll(next_state.get_valids());
-
         // 2-connected components, if not ended
-        if(!fast_eval && next_state.node_type == OR && !game_ended(next_state)){ 
+        int moves_before = __builtin_popcountll(next_state.get_valids());
+        if(!fast_eval && next_state.node_type == OR && !game_ended(next_state) && moves_before >= EVAL_TRESHOLD){ 
             node->children[slot] = evaluate_components(next_state, node->depth+1);
         } 
         else{
@@ -411,9 +398,6 @@ void PNS::update_node(PNS::PNSNode* node){
     node->pn = get_sum_children(node, PN);
     node->dn = get_min_children(node, DN);
   }
-  // std::cout<<"updating to:"<<node->pn<<" "<<node->dn<<std::endl;
-  // display(node->board, true);
-  // std::cout<<"node type: "<<node->type<<std::endl;
 }
   
 
