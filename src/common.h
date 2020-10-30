@@ -12,7 +12,7 @@
 //                BOARD INFOS
 // ============================================
 #define ROW 4
-#define COL 9
+#define COL 8
 #define LINEINROW 7
 #define LAYERNUM 7
 
@@ -21,6 +21,7 @@
 
 #define INNER_LINE  true
 #define DIFFERENT_CORNER  false
+#define ONLY_4 true
 
 #define EVAL_TRESHOLD 5
 #define TALKY false

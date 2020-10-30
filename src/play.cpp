@@ -45,18 +45,6 @@ void Play::read_solution(std::string filename){
             node->pn = pn;
             node->dn = dn;
             tree.add_board(b, node);
-
-            std::vector<uint64_t> isom = tree.isom_machine.get_canonical_graph(b, tree.heuristic.all_linesinfo);
-            if(isom_map.find(isom) == isom_map.end()){
-                isom_map[isom] = node;
-            }
-            else{
-                //printf("Origin %d\n", board.node_type);
-                //display(isom_map[isom]->board, true);
-                //printf("New: %d\n", b.node_type);
-                //display(b, true);
-                //tree.isom_machine.get_conversion(isom_map[isom]->board, b, tree.heuristic.all_linesinfo);
-            }
         }
         else{
             //printf("Duplicated state:\n");
