@@ -15,6 +15,7 @@
 #include "PNS.h"
 #include "play.h"
 #include "canonicalorder.h"
+#include "logger.h"
 
 struct Args{
     bool log = false;
@@ -62,7 +63,7 @@ void PNS_test(Args& args){
     
     std::ofstream logfile(args.get_filename());
     std::set<Board> logged;
-    tree.log_solution_min(node, logfile, logged);
+    PNS::logger->log_solution_min(node, logfile, logged);
     logfile.close();
 
     tree.delete_all(node);
@@ -72,6 +73,7 @@ void PNS_test(Args& args){
 
 Heuristic PNS::heuristic;
 CanonicalOrder PNS::isom_machine;
+Logger* PNS::logger;
 
 int main(int argc, char* argv[]){
     std::string spam = (COL > 9 ? "#" : "");
@@ -80,6 +82,8 @@ int main(int argc, char* argv[]){
     printf("#############%s\n", spam.c_str());
 
     Args args(argc, argv);
+    PNS::logger = new Logger();
+    PNS::logger->init(args.disproof);
 
     if(args.test){
         Play game(args.get_filename(), args.disproof);

@@ -5,6 +5,7 @@
 #include "assert.h"
 #include "common.h"
 #include "artic_point.h"
+#include "logger.h"
 
 #include <unistd.h>
 
@@ -66,7 +67,7 @@ inline var get_child_value(PNS::PNSNode* child_node, const ProofType type){
   }
 }
 
-unsigned int PNS::get_min_children_index(PNS::PNSNode* node, const ProofType type) const{
+unsigned int PNS::get_min_children_index(PNS::PNSNode* node, const ProofType type){
   var min = var_MAX;
   unsigned int min_ind = -1;
   
@@ -109,6 +110,11 @@ var PNS::get_sum_children(PNS::PNSNode* node, const ProofType type) const{
     sum += child;
   }
   return sum;
+}
+
+bool PNS::keep_only_one_child(PNS::PNSNode* node){
+    return ((node->type == OR) && (node->pn == 0)) ||
+        ((node->type == AND) && (node->dn==0));
 }
 
 bool PNS::game_ended(const Board& b){
@@ -303,10 +309,20 @@ void PNS::init_PN_search(PNS::PNSNode* node){
     add_board(node->board, node);
 }
 
+void PNS::log_node(PNS::PNSNode* node){
+    if(keep_only_one_child(node) && node->child_num > 0){
+        int ind = rand() % node->child_num;
+        if(node->children[ind] != nullptr && __builtin_popcountll(node->children[ind]->board.get_valids()) < ROW*COL/2){
+            evaluate_node_with_PNS(node->children[ind]);
+            logger->log(node->children[ind], heuristic);
+        }
+    }
+    logger->log(node, heuristic);
+}
+
 void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
     assert(node != nullptr);
     // display_node(node);
-
     if(node->pn == 0 || node->dn == 0) return;
 
     // if we are in a leaf, we extend it
@@ -314,11 +330,7 @@ void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
       extend_all(node, fast_eval);
     }
     else{
-      unsigned int min_ind;
-      if(node->type == OR) 
-        min_ind = get_min_children_index(node, PN);
-      else
-        min_ind = get_min_children_index(node, DN);
+      unsigned int min_ind = get_min_children_index(node, node->type == OR?PN:DN);
 
       // std::cout<<std::endl<<node->pn<<" - "<<node->dn<<std::endl;
       // std::cout<<node->child_num<<std::endl;
@@ -331,6 +343,9 @@ void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
 
     // If PN or DN is 0, delete all unused descendents
     if(node->pn == 0 || node->dn == 0){
+      #if LOG
+      log_node(node);
+      #endif
       delete_node(node);
     }
 }
@@ -382,8 +397,7 @@ void PNS::delete_all(PNS::PNSNode* node){
 void PNS::delete_node(PNS::PNSNode* node){
     // === In this case, we need max 1 branch ===
     // === DONT DELTE THIS IF ===
-    if( ((node->type == OR) && (node->pn == 0)) ||
-        ((node->type == AND) && (node->dn==0)) ){
+    if(keep_only_one_child(node)){
         
         ProofType proof_type = (node->pn == 0 ? PN:DN);
         unsigned int min_ind = get_min_children_index(node, proof_type);
@@ -399,30 +413,6 @@ void PNS::delete_node(PNS::PNSNode* node){
         }
     }
     return;
-}
-
-// ============================================
-//                LOG SOLUTION
-// ============================================
-void PNS::log_solution_min(PNS::PNSNode* node, std::ofstream& file, std::set<Board>& logged){
-  if(node == nullptr) return;
-  else if(logged.find(node->board) == logged.end()){
-    logged.insert(node->board);
-    file<<node->board.white<<" "<<node->board.black<<" "<<node->board.node_type<<" "<<node->pn<<" "<<node->dn<<std::endl;
-    
-    if( ((node->type == OR) && (node->pn == 0)) ||
-        ((node->type == AND) && (node->dn==0)) ){
-      ProofType proof_type = (node->pn == 0 ? PN:DN);
-      unsigned int min_ind = get_min_children_index(node, proof_type);
-      if (min_ind == UINT_MAX) return;
-      else log_solution_min(node->children[min_ind], file, logged);
-    }
-    else{
-      for(int i=0;i<node->child_num;i++){
-        log_solution_min(node->children[i], file, logged);
-      }
-    }
-  }
 }
 
 void PNS::free_states(){

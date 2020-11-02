@@ -1,5 +1,5 @@
 #include "PNS.h"
-
+#include "logger.h"
 #include "../nauty27r1/nauty.h"
 #include <iostream>
 
@@ -147,7 +147,7 @@ void convert_board(const Board& b){
 
 Heuristic PNS::heuristic;
 CanonicalOrder PNS::isom_machine;
-
+Logger* PNS::logger = new Logger();
 int main(){
     std::cout<<"###################\n";
     printf("# Nauty           #\n#  * Version: %d  #\n", 27);

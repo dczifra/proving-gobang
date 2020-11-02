@@ -13,10 +13,13 @@ enum ProofType: uint8_t {PN, DN};
 
 bool operator<(const Board& b1, const Board& b2);
 
+class Logger;
+
 class PNS{
 public:
     friend class Play;
     friend class CanonicalOrder;
+    friend class Logger;
     struct PNSNode{
         PNSNode(const Board& b, Heuristic& h);
 
@@ -57,18 +60,19 @@ public:
     void delete_all(PNSNode* node);
     void delete_node(PNSNode* node);
     void delete_children(PNS::PNSNode* node);
-    unsigned int get_min_children_index(PNSNode* node, const ProofType type) const;
+    static unsigned int get_min_children_index(PNSNode* node, const ProofType type);
     var get_min_children(PNSNode* node, const ProofType type) const;
     var get_sum_children(PNSNode* node, const ProofType type) const;
     void update_node(PNSNode* node);
 
     // === Helper Functions ===
-    void log_solution_min(PNSNode* node, std::ofstream& file, std::set<Board>& logged);
     void read_solution(std::string filename);
     void free_states();
     void simplify_board(Board& next_state);
     bool game_ended(const Board& b);
     void display_node(PNSNode* node);
+    void log_node(PNS::PNSNode* node);
+    static bool keep_only_one_child(PNSNode* node);
     
 
     // === DFPN Helper ===
@@ -94,6 +98,7 @@ public:
 
     static Heuristic heuristic;
     static CanonicalOrder isom_machine;
+    static Logger* logger;
 private :
     #if ISOM
     std::unordered_map<std::vector<uint64_t>, PNSNode*, Vector_Hash> states;

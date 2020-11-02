@@ -69,6 +69,23 @@ double Board::heuristic_value(const std::vector<Line_info> &all_lines) const
     return sum;
 }
 
+std::string Board::heuristic_layers(const std::vector<Line_info>& all_lines) const{
+    std::vector<int> layers(LAYERNUM+1, 0);
+    for (auto line : all_lines){
+        bool is_free = !(line.line_board & black);
+        if (!is_free)
+            continue;
+        else{
+            int emptynum = line.size - __builtin_popcountll(line.line_board & white);
+            layers[emptynum]+=1;
+        }
+    }
+
+    std::string ret = "";
+    for(int i=0;i<LAYERNUM;i++) ret += std::to_string(layers[i])+" ";
+    return ret;
+}
+
 int Board::one_way(const std::vector<Line_info> &all_lines) const
 {
     std::vector<bool> two_line(ACTION_SIZE, 0);

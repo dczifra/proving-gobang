@@ -6,6 +6,7 @@
 #include "board.h"
 #include "PNS.h"
 #include "artic_point.h"
+#include "logger.h"
 // =================================================================
 //                     TEST THE BOARD's GOODNESS
 // =================================================================
@@ -212,6 +213,7 @@ void canonical_order(){
 
 Heuristic PNS::heuristic;
 CanonicalOrder PNS::isom_machine;
+Logger* PNS::logger = new Logger();
 int main() {
     std::cout<<"### TEST ###"<<std::endl;
 
