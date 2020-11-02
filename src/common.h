@@ -21,10 +21,9 @@
 
 #define INNER_LINE  true
 #define DIFFERENT_CORNER  false
-#define ONLY_4 true
+#define ONLY_4 false
 
 #define EVAL_TRESHOLD 5
-#define TALKY false
 #define ISOM false
 #define HEURISTIC true
 
