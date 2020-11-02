@@ -18,7 +18,7 @@ public:
     friend class Play;
     friend class CanonicalOrder;
     struct PNSNode{
-      PNSNode(const Board& b, unsigned int d, Heuristic& h);
+        PNSNode(const Board& b, Heuristic& h);
 
         // === DATA ===
         std::vector<PNSNode*> children;
@@ -26,34 +26,20 @@ public:
 
         var pn = 1;
         var dn = 1;
-        var pn_th = 1;
-        var dn_th = 1;
 
-      bool extended = false;
-      float heuristic_value;
-      unsigned int child_num;
+        bool extended = false;
+        float heuristic_value;
+        unsigned int child_num;
       
-
         unsigned int parent_num = 1;
-        unsigned int depth = 0;
         NodeType type;
 
         // === FUNCTIONS ===
         void init_pn_dn();
-        inline var theta(){ return (type == OR ? pn : dn);}
-        inline var delta(){ return (type == OR ? dn : pn);}
-        void set_theta(var val){ type == OR ? pn = val : dn=val;}
-        void set_delta(var val){ type == OR ? dn = val : pn=val;}
-
-
-        inline var theta_th(){ return (type == OR ? pn_th : dn_th);}
-        inline var delta_th(){ return (type == OR ? dn_th : pn_th);}
-        void set_theta_th(var val){ type == OR ? pn_th = val : dn_th=val;}
-        void set_delta_th(var val){ type == OR ? dn_th = val : pn_th=val;}
     };
 
     PNS(){
-      component_cut.resize((int)ACTION_SIZE, std::vector<int>((int)ACTION_SIZE, 0));
+        component_cut.resize((int)ACTION_SIZE, std::vector<int>((int)ACTION_SIZE, 0));
     }
 
     ~PNS(){free_states();}
@@ -62,9 +48,9 @@ public:
     void init_PN_search(PNSNode* node);
     void init_DFPN_search(PNSNode* node);
 
-    PNSNode* create_and_eval_node(Board& board, int base_depth, bool eval, bool search_in_states);
+    PNSNode* create_and_eval_node(Board& board, bool eval, bool search_in_states);
     void evaluate_node_with_PNS(PNSNode* node, bool log = false, bool fast_eval = false);
-    PNSNode* evaluate_components(Board& base_board, const int base_depth);
+    PNSNode* evaluate_components(Board& base_board);
 
     void extend_all(PNSNode* node, bool fast_eval);
     Board extend(PNSNode* node, unsigned int action, unsigned int slot, bool fast_eval);
@@ -88,7 +74,6 @@ public:
     // === DFPN Helper ===
     unsigned int update_threshhold(PNSNode* node);
     var get_min_delta_index(PNSNode* node, int& second) const;
-
     
     inline std::vector<Line_info> get_lines(unsigned int action) const {
         return heuristic.linesinfo_per_field[action];
@@ -98,32 +83,8 @@ public:
         return heuristic.all_linesinfo;
     }
 
-    void stats(PNSNode* node, bool end = false){
-        if(node != nullptr) std::cout<<"\rPN: "<<node->pn<<" DN: "<<node->dn<<" ";
-        std::cout<<"States size: "<<states.size()<<"        "<<std::flush;
-        if(end) std::cout<<std::endl;
-    }
-
-    void component_stats() {
-      std::cout<< "COMPONENT CUT"<<std::endl;
-      for (int depth=1; depth <= ACTION_SIZE; depth++) {
-        int cnt = 0;
-        int gainsum = 0;
-        std::cout<<"Depth "<< depth <<": ";
-        for (int j=0; j < ACTION_SIZE - depth; j++) {
-          int freq = component_cut[ACTION_SIZE-depth][j];
-          cnt += freq;
-          gainsum += freq * j;
-          std::cout<< freq << " ";
-        }
-        if (cnt > 0) {
-            std::cout<<"---> "<< (float) gainsum / (float) cnt << std::endl;
-          }
-        else {
-            std::cout<<"---> "<< 0 << std::endl;
-        }
-      }
-    }
+    void stats(PNSNode* node, bool end = false);
+    void component_stats();
     
     // === MAP ===
     //bool has_board(const Board& board);
@@ -134,9 +95,7 @@ public:
     static Heuristic heuristic;
     static CanonicalOrder isom_machine;
 private :
-    //std::map<Board, PNSNode*> states;
     #if ISOM
-    //std::map<std::vector<uint64_t>, PNSNode*> states;
     std::unordered_map<std::vector<uint64_t>, PNSNode*, Vector_Hash> states;
     #else
     std::unordered_map<Board, PNSNode*, Board_Hash> states;

@@ -129,12 +129,22 @@ void Heuristic::generate_compressed_lines(){
 void Heuristic::generate_lines(){
     for(int y=0;y<COL;y++){
         // === LINEINROW starting from y ===
-        bool big = (y+LINEINROW<COL && y>0) && INNER_LINE;
-        bool small = (y+half(LINEINROW)==COL || y==0);
+        #if ONLY_4
+            bool big = (y+4<COL && y>0);
+            bool small = (y+4==COL || y==0);
+        #else
+            bool big = (y+LINEINROW<COL && y>0) && INNER_LINE;
+            bool small = (y+half(LINEINROW)==COL || y==0);
+        #endif
+        
         if(small || big){
             for(int x = 0;x<ROW;x++){
                 Line l;
-                int length = small?half(LINEINROW):LINEINROW;
+                #if ONLY_4
+                    int length = 4;
+                #else
+                    int length = small?half(LINEINROW):LINEINROW;
+                #endif
                 for(int i=0;i<length;i++){
                     l.push_back({y+i,x});
                 }
@@ -164,6 +174,7 @@ void Heuristic::generate_lines(){
 
     // === Corners ===
     // ## 3 ## 
+    #if !ONLY_4
     lines.push_back({{2,0}, {1,1}, {0,2}});
     lines.push_back({{COL-3,0}, {COL-2,1}, {COL-1,2}});
     lines.push_back({{0,ROW-3}, {1,ROW-2}, {2,ROW-1}});
@@ -177,6 +188,7 @@ void Heuristic::generate_lines(){
     else{
         lines.push_back({{COL-1,2}, {COL-2,3}});
     }
+    #endif
 
     lines_per_action.resize(ROW*COL);
     for(int i=0;i<lines.size();i++){

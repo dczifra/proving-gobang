@@ -52,7 +52,7 @@ void PNS_test(Args& args){
     Play::choose_problem(b,player, args.disproof);
 
     PNS tree;
-    PNS::PNSNode* node = new PNS::PNSNode(b, 0, PNS::heuristic);
+    PNS::PNSNode* node = new PNS::PNSNode(b, PNS::heuristic);
     std::cout<<"Root node heuristic value: "<<node->heuristic_value<<std::endl;
 
     tree.init_PN_search(node);
@@ -68,27 +68,6 @@ void PNS_test(Args& args){
     tree.delete_all(node);
     tree.stats(nullptr, true);
     // tree.component_stats();
-}
-
-void DFPNS_test(Args& args){
-    Board b;
-    int player = 1;
-    Play::choose_problem(b,player, args.disproof);
-
-    PNS tree;
-    PNS::PNSNode* node = new PNS::PNSNode(b, 0, PNS::heuristic);
-    tree.init_DFPN_search(node);
-    
-    unsigned int i = 0;
-    while(1){
-        tree.DFPN_search(node);
-        if(i%10000 == 0 && args.log){
-            tree.stats(node);
-        }
-        if(node->pn*node->dn==0) break;
-        i++;
-    }
-    tree.stats(node);
 }
 
 Heuristic PNS::heuristic;

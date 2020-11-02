@@ -8,11 +8,11 @@
 
 #include <unistd.h>
 
-PNS::PNSNode::PNSNode(const Board& b, unsigned int d, Heuristic& h):children(), board(b), depth(d){
+PNS::PNSNode::PNSNode(const Board& b, Heuristic& h):children(), board(b){
     type = b.node_type;
     child_num = 0;
     for(int i=0;i<ACTION_SIZE;i++){
-      if(b.is_valid(i)) ++child_num;
+        if(b.is_valid(i)) ++child_num;
     }
 
     children.resize(child_num);
@@ -33,9 +33,6 @@ PNS::PNSNode::PNSNode(const Board& b, unsigned int d, Heuristic& h):children(), 
     }
     else{
         init_pn_dn();
-
-        pn_th = pn;
-        dn_th = dn;
     }
 
     parent_num = 1;
@@ -101,35 +98,6 @@ var PNS::get_min_children(PNS::PNSNode* node, const ProofType type) const{
   return min;
 }
 
-// TODO this might need to be refactored
-var PNS::get_min_delta_index(PNS::PNSNode* node, int& second_ind) const{
-    var first_min = var_MAX;
-    var second_min = var_MAX;
-
-    unsigned int first_ind = -1;
-    second_ind = -1;
-
-    for(int i=0;i<node->child_num;i++){
-        // === take care of initialization ===
-        var child = node->children[i] == nullptr ? 1ULL: node->children[i]->delta();
-
-        if(child < second_min ){
-            if(child < first_min){
-                second_min = first_min;
-                second_ind = first_ind;
-                
-                first_min = child;
-                first_ind = i;
-            }
-            else{
-                second_min = child;
-                second_ind = i;
-            }
-        }
-    }
-    return first_ind;
-}
-
 var PNS::get_sum_children(PNS::PNSNode* node, const ProofType type) const{
   var sum = 0;
 
@@ -173,7 +141,7 @@ void PNS::simplify_board(Board& next_state){
     }
 }
 
-PNS::PNSNode* PNS::create_and_eval_node(Board& board, int base_depth, bool eval, bool search = false){
+PNS::PNSNode* PNS::create_and_eval_node(Board& board, bool eval, bool search = false){
     PNSNode* node;
 
     node = get_states(board);
@@ -181,7 +149,7 @@ PNS::PNSNode* PNS::create_and_eval_node(Board& board, int base_depth, bool eval,
         node -> parent_num += 1;
     }
     else{
-        node = new PNS::PNSNode(board, base_depth, heuristic);
+        node = new PNS::PNSNode(board, heuristic);
         add_board(board, node);
     }
 
@@ -191,7 +159,7 @@ PNS::PNSNode* PNS::create_and_eval_node(Board& board, int base_depth, bool eval,
     return node;
 }
 
-PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
+PNS::PNSNode* PNS::evaluate_components(Board& base_board){
     assert(base_board.node_type == OR);
     bool delete_comps = true;
     
@@ -204,18 +172,9 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
         // 1. Evalute smaller component without artic point
         Board small_board_with_artic(small_board);        
         simplify_board(small_board);
-        PNSNode* small_comp = create_and_eval_node(small_board, base_depth, true);
-        #if TALKY
-            display(small_board, true);
-            std::cout<<small_comp->pn<<std::endl;
-        #endif
+        PNSNode* small_comp = create_and_eval_node(small_board, true);
 
         if(small_comp->pn == 0){
-            #if TALKY
-                std::cout<<"Small comp\n";
-                display(small_board, true);
-            #endif
-            //std::cout<<" "<<__builtin_popcountll(small_board.get_valids())<<std::endl;
             return small_comp;
         }
         else{
@@ -225,14 +184,10 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
 
             // 2. Evaluate small component with artic point
             // (small_board.white) |= ((1ULL)<<artic_point);
-            // PNSNode* small_comp_mod = create_and_eval_node(small_board, base_depth, true);
+            // PNSNode* small_comp_mod = create_and_eval_node(small_board, true);
             (small_board_with_artic.white) |= ((1ULL)<<artic_point);
             simplify_board(small_board_with_artic);
-            PNSNode* small_comp_mod = create_and_eval_node(small_board_with_artic, base_depth, true);
-            #if TALKY
-                display(small_board, true);
-                std::cout<<small_comp_mod->pn<<std::endl;
-            #endif
+            PNSNode* small_comp_mod = create_and_eval_node(small_board_with_artic, true);
 
             // 3-4. If Attacker wins: C* else C
             if(small_comp_mod->pn == 0){
@@ -241,20 +196,15 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
             if (delete_comps){
               delete_all(small_comp_mod);
             }
-            #if TALKY
-                std::cout<<"Big comp\n";
-                display(big_board, true);
-            #endif
 
             // TODO: Improve...
-            //bool eval_big = __builtin_popcountll(big_board.get_valids()) < EVAL_TRESHOLD;
             simplify_board(big_board);
-            PNSNode* big_comp = create_and_eval_node(big_board, base_depth, false);
+            PNSNode* big_comp = create_and_eval_node(big_board, false);
             return big_comp;
         }
     }
     else{
-        PNSNode* node = new PNSNode(base_board, base_depth, heuristic);
+        PNSNode* node = new PNSNode(base_board, heuristic);
         add_board(base_board, node);
         return node;
     }
@@ -332,12 +282,12 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, unsigned int slot, bo
         // 2-connected components, if not ended
         int moves_before = __builtin_popcountll(next_state.get_valids());
         if(!fast_eval && next_state.node_type == OR && !game_ended(next_state) && moves_before >= EVAL_TRESHOLD){ 
-            node->children[slot] = evaluate_components(next_state, node->depth+1);
+            node->children[slot] = evaluate_components(next_state);
         } 
         else{
-            node->children[slot] = new PNS::PNSNode(next_state, node->depth+1, heuristic);
+            node->children[slot] = new PNS::PNSNode(next_state, heuristic);
             add_board(next_state, node->children[slot]);
-            if(!fast_eval && __builtin_popcountll(next_state.get_valids()) < EVAL_TRESHOLD){
+            if(!fast_eval && moves_before < EVAL_TRESHOLD){
                 evaluate_node_with_PNS(node->children[slot], false, true);
             }
         }
@@ -399,20 +349,10 @@ void PNS::update_node(PNS::PNSNode* node){
     node->dn = get_min_children(node, DN);
   }
 }
-  
 
-// void PNS::delete_children(PNS::PNSNode* node){
-//     if( node->parent_num>1 ){
-//         node->parent_num -= 1;
-//     }
-//     else{
-//       for(int i=0;i<node->child_num;i++){
-//         delete_all(node->children[i]);
-//         node->children[i]=nullptr;
-//       }
-//     }
-// }
-
+// ============================================
+//             DELETE UNUSED NODES
+// ============================================
 void PNS::delete_all(PNS::PNSNode* node){
   // std::cout<<"beleptem"<<std::endl;
   if(node == nullptr) return;
@@ -461,9 +401,9 @@ void PNS::delete_node(PNS::PNSNode* node){
     return;
 }
 
-
-
-// === Helper Functions ===
+// ============================================
+//                LOG SOLUTION
+// ============================================
 void PNS::log_solution_min(PNS::PNSNode* node, std::ofstream& file, std::set<Board>& logged){
   if(node == nullptr) return;
   else if(logged.find(node->board) == logged.end()){
@@ -490,22 +430,10 @@ void PNS::free_states(){
         delete node_it.second;
     }
 }
-/*
-bool PNS::has_board(const Board& board){
-    #if ISOM
-        std::vector<uint64_t> isom = isom_machine.get_canonical_graph(board, heuristic.all_linesinfo);
-        if(states.find(isom) != states.end()) return true;
-        else return false;
-    #else
-        Board reversed(board);
-        reversed.flip();
 
-        if(states.find(board) != states.end()) return true;
-        else if(states.find(reversed) != states.end()) return true;
-        else return false;
-    #endif
-}*/
-
+// ============================================
+//                STOARING STATES
+// ============================================
 void PNS::add_board(const Board& board, PNS::PNSNode* node){
     #if ISOM
         std::vector<uint64_t> isom = isom_machine.get_canonical_graph(board, heuristic.all_linesinfo);
@@ -572,4 +500,34 @@ void PNS::display_node(PNSNode* node){
       }
     }
   }
+}
+
+// ============================================
+//                   STATS
+// ============================================
+void PNS::component_stats() {
+  std::cout<< "COMPONENT CUT"<<std::endl;
+  for (int depth=1; depth <= ACTION_SIZE; depth++) {
+    int cnt = 0;
+    int gainsum = 0;
+    std::cout<<"Depth "<< depth <<": ";
+    for (int j=0; j < ACTION_SIZE - depth; j++) {
+      int freq = component_cut[ACTION_SIZE-depth][j];
+      cnt += freq;
+      gainsum += freq * j;
+      std::cout<< freq << " ";
+    }
+    if (cnt > 0) {
+        std::cout<<"---> "<< (float) gainsum / (float) cnt << std::endl;
+      }
+    else {
+        std::cout<<"---> "<< 0 << std::endl;
+    }
+  }
+}
+
+void PNS::stats(PNSNode* node, bool end){
+    if(node != nullptr) std::cout<<"\rPN: "<<node->pn<<" DN: "<<node->dn<<" ";
+    std::cout<<"States size: "<<states.size()<<"        "<<std::flush;
+    if(end) std::cout<<std::endl;
 }

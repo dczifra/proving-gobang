@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/AMOBA_DEBUG",
-            "args": ["--disproof"],
+            "args": ["--test"],
             //"args": ["--test", "--disproof"],
             //"args": [],
             "stopAtEntry": false,
