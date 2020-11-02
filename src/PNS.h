@@ -31,9 +31,9 @@ public:
         var dn = 1;
 
         bool extended = false;
-        double heuristic_value;
+        float heuristic_value;
         unsigned int child_num;
-
+      
         unsigned int parent_num = 1;
         NodeType type;
 

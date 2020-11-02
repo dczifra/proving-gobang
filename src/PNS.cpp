@@ -44,11 +44,11 @@ void inline PNS::PNSNode::init_pn_dn(){
     // pn = 1/(1+exp(3*heuristic_value-2));
     // int valid_moves = __builtin_popcountll(board.get_valids());
     // pn = std::pow(100, valid_moves / heuristic_value);
-    // pn = std::pow(100, 1/heuristic_value) * std::pow(16, valid_moves);
+    // pn = std::pow(1, valid_moves - 15* heuristic_value);
     pn = (type==OR ? 1:child_num);
 
     // dn = 1/(1+exp(-3*heuristic_value-2));
-    dn = std::pow(200, heuristic_value);
+    dn = std::pow(1000, heuristic_value);
     // dn = (type==AND ? 1:child_num);
 #else
     pn = (type==OR ? 1:child_num);
@@ -248,8 +248,8 @@ void PNS::extend_all(PNS::PNSNode* node, bool fast_eval){
 #if HEURISTIC
     // default DN is not useful in OR nodes, so we update them
     if(node->type == AND){
-        double heur_parent = node->heuristic_value;
-        double heur_min = DBL_MAX;
+        float heur_parent = node->heuristic_value;
+        float heur_min = FLT_MAX;
         for(int i=0;i<node->child_num;i++){
             if(node->children[i] == nullptr) continue;
             if(node->children[i]->type == OR){
@@ -261,7 +261,7 @@ void PNS::extend_all(PNS::PNSNode* node, bool fast_eval){
             if(node->children[i] == nullptr) continue;
             current_child = node->children[i];
             if(current_child->type == OR and current_child->dn != 0 and current_child->pn != 0){
-                current_child->dn = std::pow(200, heur_parent - heur_min + current_child->heuristic_value);
+                current_child->dn = std::pow(1000, heur_parent - heur_min + current_child->heuristic_value);
             }
         }
     }
