@@ -4,6 +4,7 @@ void Logger::init(bool disproof){
     std::string folder = (disproof ? "../logs/disproof_" : "../logs/proof_");
     std::string filename =  std::to_string(ROW)+"x"+std::to_string(COL)+".csv";
     logstream.open(folder + filename);
+    logstream<<"white black current_player pn dn empty_cells potential l0 l1 l2 l3 l4 l5 l6 l7"<<std::endl;
 }
 
 void Logger::log(PNS::PNSNode* node, Heuristic& h){
@@ -16,7 +17,8 @@ void Logger::log(PNS::PNSNode* node, Heuristic& h){
 
     logstream<<node->board.white<<" "<<node->board.black<<" "<<node->board.node_type<<" ";
     logstream<<node->pn<<" "<<node->dn<<" ";
-    logstream<<node->board.heuristic_value(h.all_linesinfo)<<" ";
+    logstream<<__builtin_popcountll(node->board.get_valids())<<" ";
+    logstream<<node->heuristic_value<<" ";
     logstream<<node->board.heuristic_layers(h.all_linesinfo);
     logstream<<std::endl;
 }

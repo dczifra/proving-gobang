@@ -22,15 +22,15 @@
 #define INNER_LINE  true
 #define DIFFERENT_CORNER  false
 #define ONLY_4 false
-#define LOG false
+#define LOG true
 
 #define EVAL_TRESHOLD 5
 #define ISOM false
 #define HEURISTIC true
 
 #if HEURISTIC
-    #define var double
-    #define var_MAX DBL_MAX
+    #define var float
+    #define var_MAX FLT_MAX
 #else
     #define var unsigned int
     #define var_MAX UINT_MAX

@@ -82,7 +82,7 @@ std::string Board::heuristic_layers(const std::vector<Line_info>& all_lines) con
     }
 
     std::string ret = "";
-    for(int i=0;i<LAYERNUM;i++) ret += std::to_string(layers[i])+" ";
+    for(int i=0;i<LAYERNUM+1;i++) ret += std::to_string(layers[i])+" ";
     return ret;
 }
 
