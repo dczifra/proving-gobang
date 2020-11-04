@@ -310,7 +310,7 @@ void PNS::init_PN_search(PNS::PNSNode* node){
 }
 
 void PNS::log_node(PNS::PNSNode* node){
-    if(keep_only_one_child(node) && node->child_num > 0){
+    if(false && keep_only_one_child(node) && node->child_num > 0){
         int ind = rand() % node->child_num;
         if(node->children[ind] != nullptr && __builtin_popcountll(node->children[ind]->board.get_valids()) < ROW*COL*0.75){
             evaluate_node_with_PNS(node->children[ind]);
