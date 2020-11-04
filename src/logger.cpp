@@ -1,10 +1,11 @@
 #include "logger.h"
+#include "counter.h"
 
 void Logger::init(bool disproof){
     std::string folder = (disproof ? "../logs/disproof_" : "../logs/proof_");
     std::string filename =  std::to_string(ROW)+"x"+std::to_string(COL)+".csv";
     logstream.open(folder + filename);
-    logstream<<"white black current_player pn dn empty_cells potential l0 l1 l2 l3 l4 l5 l6 l7"<<std::endl;
+    logstream<<"white black current_player pn dn empty_cells potential node_count l0 l1 l2 l3 l4 l5 l6 l7"<<std::endl;
 }
 
 void Logger::log(PNS::PNSNode* node, Heuristic& h){
@@ -15,10 +16,13 @@ void Logger::log(PNS::PNSNode* node, Heuristic& h){
         logged_states[node->board] = true;
     }
 
+    Counter counter;
+
     logstream<<node->board.white<<" "<<node->board.black<<" "<<node->board.node_type<<" ";
     logstream<<node->pn<<" "<<node->dn<<" ";
     logstream<<__builtin_popcountll(node->board.get_valids())<<" ";
     logstream<<node->heuristic_value<<" ";
+    logstream<<counter.count_nodes(node)<<" ";
     logstream<<node->board.heuristic_layers(h.all_linesinfo);
     logstream<<std::endl;
 }

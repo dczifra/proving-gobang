@@ -7,6 +7,7 @@
 #include "artic_point.h"
 #include "logger.h"
 
+
 #include <unistd.h>
 
 PNS::PNSNode::PNSNode(const Board& b, Heuristic& h):children(), board(b){

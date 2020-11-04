@@ -73,7 +73,7 @@ public:
     void display_node(PNSNode* node);
     void log_node(PNS::PNSNode* node);
     static bool keep_only_one_child(PNSNode* node);
-    
+
 
     // === DFPN Helper ===
     unsigned int update_threshhold(PNSNode* node);
