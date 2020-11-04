@@ -344,10 +344,10 @@ void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
 
     // If PN or DN is 0, delete all unused descendents
     if(node->pn == 0 || node->dn == 0){
+      delete_node(node);
       #if LOG
       log_node(node);
       #endif
-      delete_node(node);
     }
 }
 
