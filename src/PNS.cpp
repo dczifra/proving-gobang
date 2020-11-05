@@ -310,7 +310,7 @@ void PNS::init_PN_search(PNS::PNSNode* node){
     add_board(node->board, node);
 }
 
-void PNS::log_node(PNS::PNSNode* node){
+void PNS::log_child(PNS::PNSNode* node){
     if(false && keep_only_one_child(node) && node->child_num > 0){
         int ind = rand() % node->child_num;
         if(node->children[ind] != nullptr && __builtin_popcountll(node->children[ind]->board.get_valids()) < ROW*COL*0.75){
@@ -318,7 +318,6 @@ void PNS::log_node(PNS::PNSNode* node){
             logger->log(node->children[ind], heuristic);
         }
     }
-    logger->log(node, heuristic);
 }
 
 void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
@@ -344,9 +343,12 @@ void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
 
     // If PN or DN is 0, delete all unused descendents
     if(node->pn == 0 || node->dn == 0){
+      #if LOG
+      log_child(node);
+      #endif
       delete_node(node);
       #if LOG
-      log_node(node);
+      logger->log(node, heuristic);
       #endif
     }
 }
