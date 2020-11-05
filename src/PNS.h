@@ -71,7 +71,7 @@ public:
     void simplify_board(Board& next_state);
     bool game_ended(const Board& b);
     void display_node(PNSNode* node);
-    void log_node(PNS::PNSNode* node);
+    void log_child(PNS::PNSNode* node);
     static bool keep_only_one_child(PNSNode* node);
 
 
