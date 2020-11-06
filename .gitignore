@@ -4,3 +4,4 @@ main
 nauty27r1
 *.png
 *~
+*.ipynb_checkpoints*
