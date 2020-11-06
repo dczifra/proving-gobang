@@ -30,6 +30,34 @@ bool operator<(const Board &b1, const Board &b2)
 //    return (b1.white<b2.white) || (b1.white == b2.white && b1.black<b2.black);
 //}
 
+board_int Board::get_valids_without_ondegree(const std::vector<Line_info> & all_lines) const{
+    std::vector<int> degree(ACTION_SIZE, 0);
+    // === Compute degree for all fields ===
+    for (auto line : all_lines){
+        bool is_free = !(line.line_board & black);
+        if (!is_free) continue;
+        else{
+            int emptynum = line.size - __builtin_popcountll(line.line_board & white);
+            for (int field : line.points){
+                // If the line lenght is one, that's still a valid move
+                if (emptynum == 1) degree[field] += 2;
+                else degree[field]++;
+            }
+        }
+    }
+    // === Delete all 1 degree field from valids ===
+    board_int valids = ~(white | black) & FULL_BOARD;
+    for(int i=0;i<ACTION_SIZE;i++){
+        if(white & (1ULL << i)) continue;
+        else if(degree[i] == 1){
+            valids = valids ^ ((1ULL) << i);
+        }
+    }
+
+    return valids;
+}
+
+
 bool Board::heuristic_stop(const std::vector<Line_info> &all_lines) const
 {
     double sum = 0;

@@ -46,15 +46,7 @@ struct Board{
         node_type = b.node_type;
         move(action, player);
     }
-/*
-    Board& operator=(const Board&& b){
-        white = b.white;
-        black = b.black;
-        //blocked_lines = b.blocked_lines;
-        node_type = b.node_type;
-        return *this;
-    }
-*/
+
     bool operator==(const Board& b) const{
         return (white == b.white) && (black == b.black) && node_type == b.node_type; 
     }
@@ -105,18 +97,6 @@ struct Board{
         assert(0);
     }
 
-    inline int random_action(){
-        board_int valids = get_valids();
-        int number_of_ones =__builtin_popcountll(valids);
-        return selectBit(valids, 1 + (rand() % number_of_ones))-1;
-    }
-
-    inline int take_random_action(int player){
-        int act = random_action();
-        move(act, player);
-        return act;
-    }
-
     inline bool is_valid(const int action) const{
         return !((white | black) & ((1ULL)<<action));
     }
@@ -125,8 +105,10 @@ struct Board{
         return ~(white | black) & FULL_BOARD;
     }
 
-    inline int get_valid_num() const{
-        return __builtin_popcountll(~(white | black) & FULL_BOARD);
+    board_int get_valids_without_ondegree(const std::vector<Line_info> & all_lines) const;
+
+    inline int get_valids_num() const{
+        return __builtin_popcountll(get_valids());
     }
 
     int get_active_line_num(const std::vector<Line_info> & lines) const{

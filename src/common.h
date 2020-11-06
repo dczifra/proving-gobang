@@ -22,7 +22,7 @@
 #define INNER_LINE  true
 #define DIFFERENT_CORNER  false
 #define ONLY_4 false
-#define LOG true
+#define LOG false
 
 #define EVAL_TRESHOLD 5
 #define ISOM false

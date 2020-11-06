@@ -20,7 +20,7 @@ void Logger::log(PNS::PNSNode* node, Heuristic& h){
 
     logstream<<node->board.white<<" "<<node->board.black<<" "<<node->board.node_type<<" ";
     logstream<<node->pn<<" "<<node->dn<<" ";
-    logstream<<__builtin_popcountll(node->board.get_valids())<<" ";
+    logstream<<node->board.get_valids_num()<<" ";
     logstream<<node->heuristic_value<<" ";
     logstream<<counter.count_nodes(node)<<" ";
     logstream<<node->board.heuristic_layers(h.all_linesinfo);

@@ -12,10 +12,7 @@
 
 PNS::PNSNode::PNSNode(const Board& b, Heuristic& h):children(), board(b){
     type = b.node_type;
-    child_num = 0;
-    for(int i=0;i<ACTION_SIZE;i++){
-        if(b.is_valid(i)) ++child_num;
-    }
+    child_num = __builtin_popcountll(b.get_valids_without_ondegree(h.all_linesinfo));
 
     children.resize(child_num);
     heuristic_value = board.heuristic_value(h.all_linesinfo);
@@ -43,7 +40,7 @@ PNS::PNSNode::PNSNode(const Board& b, Heuristic& h):children(), board(b){
 void inline PNS::PNSNode::init_pn_dn(){
 #if HEURISTIC
     // pn = 1/(1+exp(3*heuristic_value-2));
-    // int valid_moves = __builtin_popcountll(board.get_valids());
+    // int valid_moves = board.get_valids_num();
     // pn = std::pow(100, valid_moves / heuristic_value);
     // pn = std::pow(1, valid_moves - 15* heuristic_value);
     pn = (type==OR ? 1:child_num);
@@ -234,8 +231,10 @@ void PNS::extend_all(PNS::PNSNode* node, bool fast_eval){
     if(node == nullptr) std::cout<<"died in extend_all"<<std::endl;
     if((node->pn == 0) || (node->dn == 0) || node->extended) return;
     int slot = 0;
+
+    board_int valids = node->board.get_valids_without_ondegree(heuristic.all_linesinfo);
     for(int i=0;i<ACTION_SIZE;i++){
-        if(node->board.is_valid(i)){
+        if(valids & (1ULL << i)){
             extend(node, i, slot, fast_eval);
             // if(node->children[slot]->type == OR){
             //   extend_all(node->children[slot], fast_eval);
@@ -287,7 +286,7 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, unsigned int slot, bo
         assert(node->children[slot] == nullptr);
 
         // 2-connected components, if not ended
-        int moves_before = __builtin_popcountll(next_state.get_valids());
+        int moves_before = next_state.get_valids_num();
         if(!fast_eval && next_state.node_type == OR && !game_ended(next_state) && moves_before >= EVAL_TRESHOLD){ 
             node->children[slot] = evaluate_components(next_state);
         } 
@@ -298,7 +297,7 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, unsigned int slot, bo
                 evaluate_node_with_PNS(node->children[slot], false, true);
             }
         }
-        int moves_after = __builtin_popcountll(node->children[slot]->board.get_valids());
+        int moves_after = node->children[slot]->board.get_valids_num();
         
         component_cut[moves_before][moves_before - moves_after] += 1;
 
@@ -313,7 +312,7 @@ void PNS::init_PN_search(PNS::PNSNode* node){
 void PNS::log_child(PNS::PNSNode* node){
     if(false && keep_only_one_child(node) && node->child_num > 0){
         int ind = rand() % node->child_num;
-        if(node->children[ind] != nullptr && __builtin_popcountll(node->children[ind]->board.get_valids()) < ROW*COL*0.75){
+        if(node->children[ind] != nullptr && node->children[ind]->board.get_valids_num() < ROW*COL*0.75){
             evaluate_node_with_PNS(node->children[ind]);
             logger->log(node->children[ind], heuristic);
         }

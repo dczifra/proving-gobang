@@ -36,7 +36,7 @@ public:
         }
         
         // === Init empty graph ===
-        int nodes = b.get_valid_num();
+        int nodes = b.get_valids_num();
         int n = nodes+b.get_active_line_num(all_linesinfo) + 1;
         int m = SETWORDSNEEDED(n);
         nauty_check(WORDSIZE,m,n,NAUTYVERSIONID);
@@ -100,7 +100,7 @@ public:
         printf("Mapping\n");
 
         std::vector<uint64_t> map(MAXN, 0);
-        int n = b1.get_valid_num()+b1.get_active_line_num(all_linesinfo) + 1;
+        int n = b1.get_valids_num()+b1.get_active_line_num(all_linesinfo) + 1;
         for(int i=0;i<n;i++){
             //std::cout<<lab1[i]<<" "<<lab2[i]<<"\n";
             map[lab1[i]] = lab2[i];

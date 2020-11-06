@@ -3,7 +3,7 @@
 Artic_point::Artic_point(const Board& b, std::vector<Line_info>& all_linesinfo0,
     std::array<std::vector<Line_info>, ACTION_SIZE> &linesinfo, int no_lines) : board(b), all_linesinfo(all_linesinfo0), linesinfo_per_field(linesinfo)
 {
-    empty_nodes = __builtin_popcountll(board.get_valids());
+    empty_nodes = board.get_valids_num();
 
     parent.resize(ACTION_SIZE, -1);
     depth.resize(ACTION_SIZE, -1);

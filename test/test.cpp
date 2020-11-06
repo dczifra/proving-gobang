@@ -13,7 +13,7 @@
 int play(Board& b, int player, const Heuristic& heuristic){
     int act;
     while(1){
-        act = b.take_random_action(player);
+        //act = b.take_random_action(player);
         if(b.white_win(heuristic.linesinfo_per_field[act])){
             #if DEBUG
                 std::cout<<"\nWhite win";
@@ -69,7 +69,7 @@ void human_play(){
             b.move(act, player);
         }
         else{
-            act = b.take_random_action(player);
+            //act = b.take_random_action(player);
         }
         if(b.white_win(heuristic.linesinfo_per_field[act])){
             printf("White win\n");
@@ -211,6 +211,20 @@ void canonical_order(){
     tree.isom_machine.get_conversion(b1, b2, tree.heuristic.all_linesinfo);
 }
 
+void get_valids_test(){
+    PNS tree;
+    Board b1;
+    Heuristic h;
+    int player = 1;
+    std::vector<int> moves = {1,4, 2, 5, 3, 6};
+    for(auto m: moves){b1.move(m, player);player=-player;}
+
+    //b1.black |= (1ULL << )
+
+    board_int vals = b1.get_valids_without_ondegree(h.all_linesinfo);
+    display(vals, true);
+}
+
 Heuristic PNS::heuristic;
 CanonicalOrder PNS::isom_machine;
 Logger* PNS::logger = new Logger();
@@ -220,11 +234,12 @@ int main() {
     //test_components();
     //test_DFPN();
     //artic_point();
-    canonical_order();
+    //canonical_order();
     //canonical_order();
     //PNS::PNSNode* node = new PNS::PNSNode(b, tree.heuristic);
     //tree.evalueate_node_with_PNS(node, true, false);
     //tree.stats(node);
+    get_valids_test();
 
     return 0;
 }
