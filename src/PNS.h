@@ -15,6 +15,9 @@ bool operator<(const Board& b1, const Board& b2);
 
 class PNS{
 public:
+    float A = 10000000.0;
+    float B = 1500000.0;
+
     friend class Play;
     friend class CanonicalOrder;
     struct PNSNode{
@@ -54,6 +57,7 @@ public:
     ~PNS(){free_states();}
     void PN_search(PNSNode* node, bool fast_eval);
     void PN_search_simple(PNS::PNSNode* node, bool fast_eval);
+    void search_and_keep_one_layer(PNS::PNSNode* node, bool fast_eval);
     void DFPN_search(PNSNode* node);
     void init_PN_search(PNSNode* node);
     void init_DFPN_search(PNSNode* node);
@@ -131,7 +135,6 @@ public:
 private :
     //std::map<Board, PNSNode*> states;
     #if ISOM
-    //std::map<std::vector<uint64_t>, PNSNode*> states;
     std::unordered_map<std::vector<uint64_t>, PNSNode*, Vector_Hash> states;
     #else
     std::unordered_map<Board, PNSNode*, Board_Hash> states;

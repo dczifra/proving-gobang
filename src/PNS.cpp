@@ -6,6 +6,7 @@
 #include "common.h"
 #include "artic_point.h"
 
+#include <cmath>
 #include <unistd.h>
 
 // ZSOLT action unused, heur_val unused
@@ -171,17 +172,7 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
     if(artic_point > -1){
         // 1. Evalute smaller component without artic point
         PNSNode* small_comp = create_and_eval_node(small_board, base_depth, true);
-        #if TALKY
-            display(small_board, true);
-            std::cout<<small_comp->pn<<std::endl;
-        #endif
-
         if(small_comp->pn == 0){
-            #if TALKY
-                std::cout<<"Small comp\n";
-                display(small_board, true);
-            #endif
-            //std::cout<<" "<<__builtin_popcountll(small_board.get_valids())<<std::endl;
             return small_comp;
         }
         else{
@@ -190,21 +181,12 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board, const int base_depth){
             // 2. Evaluate small component with artic point
             (small_board.white) |= ((1ULL)<<artic_point);
             PNSNode* small_comp_mod = create_and_eval_node(small_board, base_depth, true);
-            #if TALKY
-                display(small_board, true);
-                std::cout<<small_comp_mod->pn<<std::endl;
-            #endif
 
             // 3-4. If Attacker wins: C* else C
             if(small_comp_mod->pn == 0){
                 big_board.white |= ((1ULL)<<artic_point);
             }
             if (delete_comps) delete_all(small_comp_mod);
-
-            #if TALKY
-                std::cout<<"Big comp\n";
-                display(big_board, true);
-            #endif
 
             // TODO: Improve...
             //bool eval_big = __builtin_popcountll(big_board.get_valids()) < EVAL_TRESHOLD;
@@ -256,7 +238,7 @@ Board PNS::extend_simple(PNS::PNSNode* node, unsigned int action, int real_act, 
     else{
         assert(node->children[action] == nullptr);
 
-        node->children[action] = new PNS::PNSNode(next_state, node->depth+1, last_act, -1, heuristic);
+        node->children[action] = new PNS::PNSNode(next_state, node->depth+1, -1, -1, heuristic);
         add_board(next_state, node->children[action]);
         return node->children[action]->board;
     }
@@ -298,9 +280,8 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, int real_act, bool fa
         if(!fast_eval && next_state.node_type == OR && !game_ended(next_state, last_act)){ 
             node->children[action] = evaluate_components(next_state, node->depth+1);
         }
- 
         else{
-            node->children[action] = new PNS::PNSNode(next_state, node->depth+1, last_act, -1, heuristic);
+            node->children[action] = new PNS::PNSNode(next_state, node->depth+1, -1, -1, heuristic);
             add_board(next_state, node->children[action]);
             if(!fast_eval && valid_moves < EVAL_TRESHOLD){
                 evaluate_node_with_PNS(node->children[action], false, true);
@@ -310,7 +291,9 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, int real_act, bool fa
         int moves_after = __builtin_popcountll(node->children[action]->board.get_valids());
         component_cut[moves_before][moves_before - moves_after] += 1;
 
-
+        if(node->children[action]->pn*node->children[action]->dn != 0){
+            search_and_keep_one_layer(node->children[action], fast_eval);
+        }
         return node->children[action]->board;
     }
 }
@@ -342,20 +325,26 @@ void PNS::extend_all(PNS::PNSNode* node, bool fast_eval){
     }
     update_pn_dn(node);
     node->extended_children = true;
+}
 
-    int N = 100;
-    for(int i=0;i<N;i++){
+void PNS::search_and_keep_one_layer(PNS::PNSNode* node, bool fast_eval){
+    unsigned int x = states.size();
+    float f = 1.0/(1+exp((A-x)/B));
+    int N = (int) (states.size()*f);
+    for(int i=0;i<10;i++){
         PN_search_simple(node, fast_eval);
-        if(node->pn*node->dn == 0) break;
+        if(node->pn*node->dn == 0){
+            break;
+        }
     }
 
-    int index = 0;
-    for(auto child: node->children){
-        for(int i=0;i<child->children.size();i++){
-            if(child->children[i] != nullptr) delete_all(child->children[i]);
+    if(node->pn*node->dn != 0){
+        for(auto child: node->children){
+            if(child == nullptr) continue;
+            for(int i=0;i<child->children.size();i++){
+                if(child->children[i] != nullptr) delete_all(child->children[i]);
+            }
         }
-        child->extended_children = false;
-        index++;
     }
 }
 
@@ -370,7 +359,7 @@ unsigned int get_real_act(const Board& b, int min_ind){
 }
 
 void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
-    #define EXTEND_ALL 1
+    #define EXTEND_ALL 0
     #define SEARCH_UNTIL 1
 
     assert(node != nullptr);
