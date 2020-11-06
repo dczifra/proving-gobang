@@ -309,7 +309,8 @@ void PNS::init_PN_search(PNS::PNSNode* node){
     add_board(node->board, node);
 }
 
-void PNS::log_child(PNS::PNSNode* node){
+void PNS::delete_and_log(PNS::PNSNode* node){
+    #if LOG
     if(false && keep_only_one_child(node) && node->child_num > 0){
         int ind = rand() % node->child_num;
         if(node->children[ind] != nullptr && node->children[ind]->board.get_valids_num() < ROW*COL*0.75){
@@ -317,6 +318,11 @@ void PNS::log_child(PNS::PNSNode* node){
             logger->log(node->children[ind], heuristic);
         }
     }
+    #endif
+    delete_node(node);
+    #if LOG
+    logger->log(node, heuristic);
+    #endif
 }
 
 void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
@@ -326,29 +332,31 @@ void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
 
     // if we are in a leaf, we extend it
     if(!node->extended){
-      extend_all(node, fast_eval);
+        extend_all(node, fast_eval);
     }
     else{
-      unsigned int min_ind = get_min_children_index(node, node->type == OR?PN:DN);
+        unsigned int last_pn = node->pn;
+        unsigned int last_dn = node->dn;
 
-      // std::cout<<std::endl<<node->pn<<" - "<<node->dn<<std::endl;
-      // std::cout<<node->child_num<<std::endl;
-      // std::cout<<"Step: "<<min_ind<<std::endl;
-      if (min_ind != -1){
-        PN_search(node->children[min_ind], fast_eval);
-      }
-      update_node(node);
-    }
+        bool keep_searching = true;
+        while(keep_searching){
+            unsigned int min_ind = get_min_children_index(node, node->type == OR?PN:DN);
+            if (min_ind != -1){
+                PN_search(node->children[min_ind], fast_eval);
+            }
+            update_node(node);
 
-    // If PN or DN is 0, delete all unused descendents
-    if(node->pn == 0 || node->dn == 0){
-      #if LOG
-      log_child(node);
-      #endif
-      delete_node(node);
-      #if LOG
-      logger->log(node, heuristic);
-      #endif
+            // If PN or DN is 0, delete all unused descendents
+            if(node->pn == 0 || node->dn == 0){
+                delete_and_log(node);
+                keep_searching = false;
+            }
+            else if((node->pn == last_pn) && (node->dn == last_dn)){
+                keep_searching = true;
+            }
+            else keep_searching = false;
+            break;
+        }
     }
 }
 
