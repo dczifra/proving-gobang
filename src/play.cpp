@@ -73,28 +73,30 @@ int Play::move_human(){
 
 void Play::build_node(Board b){
     PNS new_tree;
-
     int slot = 0;
+    
+    board_int valids = b.get_valids_without_ondegree(PNS::heuristic.all_linesinfo);
     for(int i=0;i<ACTION_SIZE;i++){
         //display(state.first, true);
-        if(!b.is_valid(i)) continue;
-        
-        Board next = new_tree.extend(tree.get_states(b), i, slot, false);
-        PNS::PNSNode* child = tree.get_states(next);
-        if(child != nullptr){
-            tree.get_states(b)->children[slot] = child;
-        }
-        slot++;
+        if(valids & (1ULL << i)){
+	    Board next = new_tree.extend(tree.get_states(b), i, slot, false);
+	    PNS::PNSNode* child = tree.get_states(next);
+	    if(child != nullptr){
+              tree.get_states(b)->children[slot] = child;
+	    }
+	    slot++;
+	}
     }
 }
 
 int get_index(int act, Board board){
     std::vector<int> indexes(ACTION_SIZE, -1);
     int slot =0;
+    board_int valids = board.get_valids_without_ondegree(PNS::heuristic.all_linesinfo);
     for(int i=0;i<ACTION_SIZE;i++){
-        if(board.is_valid(i)){
-            indexes[i]=slot;
-            slot++;
+        if(valids & (1ULL << i)){
+	    indexes[i]=slot;
+	    slot++;
         }
     }
     return indexes[act];
@@ -102,7 +104,6 @@ int get_index(int act, Board board){
 
 void Play::play_with_solution2(){
     int act = -1;
-
     while(!tree.game_ended(board)){
         std::vector<int> color;
         act = -1;
