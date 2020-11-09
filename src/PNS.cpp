@@ -6,7 +6,7 @@
 #include "common.h"
 #include "artic_point.h"
 #include "logger.h"
-
+#include "counter.h"
 
 #include <unistd.h>
 
@@ -90,7 +90,7 @@ unsigned int PNS::get_min_children_index(PNS::PNSNode* node, const ProofType typ
   return min_ind;
 }
 
-var PNS::get_min_children(PNS::PNSNode* node, const ProofType type) const{
+var PNS::get_min_children(PNS::PNSNode* node, const ProofType type) {
   var min = var_MAX;
   
   for(int i=0;i<node->child_num;i++){
@@ -104,7 +104,7 @@ var PNS::get_min_children(PNS::PNSNode* node, const ProofType type) const{
   return min;
 }
 
-var PNS::get_sum_children(PNS::PNSNode* node, const ProofType type) const{
+var PNS::get_sum_children(PNS::PNSNode* node, const ProofType type) {
   var sum = 0;
 
   for(int i=0;i<node->child_num;i++){
@@ -223,12 +223,21 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board){
 
 void PNS::evaluate_node_with_PNS(PNSNode* node, bool log, bool fast_eval){
     int i=0;
+    // int update_iteration = 1000;
     while(node->pn*node->dn != 0){
         PN_search(node, fast_eval);
 
         if(log && i%10000 == 0){
             stats(node);
         }
+        // if(i == update_iteration){
+        //     Counter counter;
+        //     int update_count = counter.update_tree(node);
+        //     update_iteration *= 2;
+        //     Counter counter2;
+        //     int node_count = counter2.count_nodes(node);
+        //     std::cout<<"Iteration "<<i<<", updated: "<<update_count<<"/"<<node_count<<std::endl;
+        // }
         ++i;
     }
 }
@@ -342,7 +351,6 @@ void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
     // if we are in a leaf, we extend it
     if(!node->extended){
         extend_all(node, fast_eval);
-	update_node(node);
     }
     else{
         unsigned int last_pn = node->pn;
