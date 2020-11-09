@@ -9,12 +9,10 @@
 #include <unordered_map>
 #include <set>
 
+class Logger;
 enum ProofType: uint8_t {PN, DN};
 
 bool operator<(const Board& b1, const Board& b2);
-
-class Logger;
-struct Args;
 
 class PNS{
 public:
@@ -42,7 +40,7 @@ public:
         void init_pn_dn();
     };
 
-    PNS(Args* inp_args){
+    PNS(Args* inp_args = nullptr){
         component_cut.resize((int)ACTION_SIZE, std::vector<int>((int)ACTION_SIZE, 0));
 	args = inp_args;
     }

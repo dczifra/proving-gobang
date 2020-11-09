@@ -16,40 +16,30 @@
 #include "play.h"
 #include "canonicalorder.h"
 #include "logger.h"
-
-struct Args{
-    bool log = false;
-    bool play = false;
-    bool test = false;
-    bool disproof = false;
-    bool PNS_square = false;
-    float A = 100000000.0;
-    float B = 15000000.0;
   
-    Args(int argc, char* argv[]){
-        int i=0;
-        while(i<argc){
-            if((std::string) argv[i] == "--log") log = true;
-            else if((std::string) argv[i] == "--play") play = true;
-            else if((std::string) argv[i] == "--test") test = true;
-            else if((std::string) argv[i] == "--disproof") disproof = true;
-	    else if((std::string) argv[i] == "--PNS2") PNS_square = true;
-            else if((std::string )argv[i] == "--help"){
-                std::cout<<"Help for AMOBA\nARGS:\n";
-                std::cout<<"--play: Play with tree\n";
-                std::cout<<"--log: log root PN and DN\n";
-                std::cout<<"--test: Tets mode, you can play the solution\n";
-            }
-            i++;
-        }
+Args::Args(int argc, char* argv[]){
+  int i=0;
+  while(i<argc){
+    if((std::string) argv[i] == "--log") log = true;
+    else if((std::string) argv[i] == "--play") play = true;
+    else if((std::string) argv[i] == "--test") test = true;
+    else if((std::string) argv[i] == "--disproof") disproof = true;
+    else if((std::string) argv[i] == "--PNS2") PNS_square = true;
+    else if((std::string )argv[i] == "--help"){
+      std::cout<<"Help for AMOBA\nARGS:\n";
+      std::cout<<"--play: Play with tree\n";
+      std::cout<<"--log: log root PN and DN\n";
+      std::cout<<"--test: Tets mode, you can play the solution\n";
     }
+    i++;
+  }
+}
 
-    std::string get_filename(){
-        std::string folder = (disproof ? "../data/disproof/" : "../data/proof/");
-        std::string filename =  std::to_string(ROW)+"x"+std::to_string(COL)+".csv";
-        return folder + filename;
-    }
-};
+std::string Args::get_filename(){
+  std::string folder = (disproof ? "../data/disproof/" : "../data/proof/");
+  std::string filename =  std::to_string(ROW)+"x"+std::to_string(COL)+".csv";
+  return folder + filename;
+}
 
 void PNS_test(Args& args){
     Board b;

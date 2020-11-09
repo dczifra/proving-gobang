@@ -45,7 +45,7 @@ const unsigned int MAX_ROUND = ROW*COL;
 const unsigned int FLIP_SIZE = BITSIZE-ACTION_SIZE;
 
 // ============================================
-//                DISPLAY
+//                  DISPLAY
 // ============================================
 template<class T>
 using mtx = std::array<std::array<T,ROW>, COL> ;
@@ -54,6 +54,21 @@ struct Board;
 void display(const Board board, bool end, std::vector<int> show = std::vector<int>());
 void display(const mtx<int>& board, bool end, std::vector<int> show);
 void display(const board_int board, bool end, std::vector<int> show = std::vector<int>());
+
+// ============================================
+//                   ARGS
+// ============================================
+struct Args{
+    bool log = false;
+    bool play = false;
+    bool test = false;
+    bool disproof = false;
+    bool PNS_square = false;
+    float A = 100000000.0;
+    float B = 15000000.0;
+    std::string get_filename();
+    Args(int argc, char* argv[]);
+};
 
 // ============================================
 //      Line infos (Shouldn't be in heuristic)
