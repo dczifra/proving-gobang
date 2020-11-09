@@ -15,8 +15,8 @@ bool operator<(const Board& b1, const Board& b2);
 
 class PNS{
 public:
-    float A = 10000000.0;
-    float B = 1500000.0;
+    float A = 100000000.0;
+    float B = 15000000.0;
 
     friend class Play;
     friend class CanonicalOrder;

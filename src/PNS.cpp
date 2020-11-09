@@ -331,18 +331,20 @@ void PNS::search_and_keep_one_layer(PNS::PNSNode* node, bool fast_eval){
     unsigned int x = states.size();
     float f = 1.0/(1+exp((A-x)/B));
     int N = (int) (states.size()*f);
-    for(int i=0;i<10;i++){
+
+    for(int i=0;i<N;i++){
         PN_search_simple(node, fast_eval);
         if(node->pn*node->dn == 0){
-            break;
+            return;
         }
     }
 
-    if(node->pn*node->dn != 0){
-        for(auto child: node->children){
-            if(child == nullptr) continue;
-            for(int i=0;i<child->children.size();i++){
-                if(child->children[i] != nullptr) delete_all(child->children[i]);
+    for(auto child: node->children){
+        if(child == nullptr) continue;
+        for(int i=0;i<child->children.size();i++){
+            if(child->children[i] != nullptr){
+                delete_all(child->children[i]);
+                child->children[i] = nullptr;
             }
         }
     }
@@ -359,7 +361,7 @@ unsigned int get_real_act(const Board& b, int min_ind){
 }
 
 void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
-    #define EXTEND_ALL 0
+    #define EXTEND_ALL 1
     #define SEARCH_UNTIL 1
 
     assert(node != nullptr);
