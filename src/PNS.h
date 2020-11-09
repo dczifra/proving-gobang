@@ -61,9 +61,9 @@ public:
     void delete_node(PNSNode* node);
     void delete_children(PNS::PNSNode* node);
     static unsigned int get_min_children_index(PNSNode* node, const ProofType type);
-    var get_min_children(PNSNode* node, const ProofType type) const;
-    var get_sum_children(PNSNode* node, const ProofType type) const;
-    void update_node(PNSNode* node);
+    static var get_min_children(PNSNode* node, const ProofType type);
+    static var get_sum_children(PNSNode* node, const ProofType type);
+    static void update_node(PNSNode* node);
 
     // === Helper Functions ===
     void read_solution(std::string filename);
