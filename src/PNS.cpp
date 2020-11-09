@@ -340,6 +340,7 @@ void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
     // if we are in a leaf, we extend it
     if(!node->extended){
         extend_all(node, fast_eval);
+	update_node(node);
     }
     else{
         unsigned int last_pn = node->pn;
@@ -353,17 +354,15 @@ void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
             }
             update_node(node);
 
-            // If PN or DN is 0, delete all unused descendents
-            if(node->pn == 0 || node->dn == 0){
-                delete_and_log(node);
-                keep_searching = false;
-            }
-            else if((node->pn == last_pn) && (node->dn == last_dn)){
+            if((node->pn == last_pn) && (node->dn == last_dn)){
                 keep_searching = true;
             }
             else keep_searching = false;
-            break;
         }
+    }
+    // If PN or DN is 0, delete all unused descendents
+    if(node->pn == 0 || node->dn == 0){
+        delete_and_log(node);
     }
 }
 
