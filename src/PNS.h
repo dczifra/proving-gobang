@@ -99,6 +99,9 @@ public:
     static Heuristic heuristic;
     static CanonicalOrder isom_machine;
     static Logger* logger;
+
+    int total_state_size = 0;
+
 private :
     #if ISOM
     std::unordered_map<std::vector<uint64_t>, PNSNode*, Vector_Hash> states;

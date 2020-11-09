@@ -69,6 +69,7 @@ void PNS_test(Args& args){
     tree.delete_all(node);
     tree.stats(nullptr, true);
     // tree.component_stats();
+    std::cout<<"Nodes visited during search: "<<tree.total_state_size<<std::endl;
 }
 
 Heuristic PNS::heuristic;

@@ -1,11 +1,14 @@
 #include "logger.h"
 #include "counter.h"
+#include "common.h"
 
 void Logger::init(bool disproof){
+    #if LOG
     std::string folder = (disproof ? "../logs/disproof_" : "../logs/proof_");
     std::string filename =  std::to_string(ROW)+"x"+std::to_string(COL)+".csv";
     logstream.open(folder + filename);
     logstream<<"white black current_player pn dn empty_cells potential node_count l0 l1 l2 l3 l4 l5 l6 l7"<<std::endl;
+    #endif
 }
 
 void Logger::log(PNS::PNSNode* node, Heuristic& h){

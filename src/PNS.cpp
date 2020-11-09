@@ -40,13 +40,20 @@ PNS::PNSNode::PNSNode(const Board& b, Heuristic& h):children(), board(b){
 void inline PNS::PNSNode::init_pn_dn(){
 #if HEURISTIC
     // pn = 1/(1+exp(3*heuristic_value-2));
-    // int valid_moves = board.get_valids_num();
+    int valid_moves = board.get_valids_num();
     // pn = std::pow(100, valid_moves / heuristic_value);
     // pn = std::pow(1, valid_moves - 15* heuristic_value);
-    pn = (type==OR ? 1:child_num);
+    // float log_odds = -4.34417309 - 11.84912459 * board.node_type - 1.03582291 * valid_moves + 20.28989217 *heuristic_value;
+    float log_odds = -4.63230495 - 9.67572108 * board.node_type - 0.87216265 * valid_moves + 17.23691808 *heuristic_value;
+    float prob = 1 / (1 + exp(-log_odds));
+    float penalty = (1-prob) * 10;
+    pn = (type==OR ? 1+penalty:child_num*(1+penalty));
+    // pn = (type==OR ? 1:child_num);
 
     // dn = 1/(1+exp(-3*heuristic_value-2));
     dn = std::pow(1000, heuristic_value);
+    // float penalty_black = prob * 10;
+    // dn = (type==AND ? 1+penalty_black:child_num*(1+penalty_black));
     // dn = (type==AND ? 1:child_num);
 #else
     pn = (type==OR ? 1:child_num);
@@ -379,34 +386,26 @@ void PNS::update_node(PNS::PNSNode* node){
 //             DELETE UNUSED NODES
 // ============================================
 void PNS::delete_all(PNS::PNSNode* node){
-  // std::cout<<"beleptem"<<std::endl;
   if(node == nullptr) return;
-  // std::cout<<"extended "<<node->extended<<std::endl;
-  // std::cout<<"parent_num "<<node->parent_num<<std::endl;
   if( node->parent_num > 1 ){
     node->parent_num -= 1;
   }
   else{
-    // display(node->board, true);
-    // std::cout<<"child_num "<<node->child_num<<std::endl;
-    // std::cout<<"numbers:"<<node->pn<<" "<<node->dn<<std::endl;
     for(int i=0;i<node->child_num;i++){
       //          std::cout<<"child "<<i<<std::endl;
       delete_all(node->children[i]);
       node->children[i]=nullptr;
     }
     
-    // std::cout<<"before delete_from_map"<<std::endl;
     delete_from_map(node->board);
     delete node;
   }
-  //std::cout<<"kileptem"<<std::endl;
 }
 
   //We only keep a single child that proves the given node
 void PNS::delete_node(PNS::PNSNode* node){
     // === In this case, we need max 1 branch ===
-    // === DONT DELTE THIS IF ===
+    // === DON'T DELETE THIS IF ===
     if(keep_only_one_child(node)){
         
         ProofType proof_type = (node->pn == 0 ? PN:DN);
@@ -432,7 +431,7 @@ void PNS::free_states(){
 }
 
 // ============================================
-//                STOARING STATES
+//                STORING STATES
 // ============================================
 void PNS::add_board(const Board& board, PNS::PNSNode* node){
     #if ISOM
@@ -443,6 +442,7 @@ void PNS::add_board(const Board& board, PNS::PNSNode* node){
         assert(states.find(board) == states.end());
         states[board] = node;
     #endif
+        total_state_size+=1;
 }
 
 PNS::PNSNode* PNS::get_states(const Board& board){
