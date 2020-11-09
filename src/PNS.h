@@ -14,6 +14,7 @@ enum ProofType: uint8_t {PN, DN};
 bool operator<(const Board& b1, const Board& b2);
 
 class Logger;
+struct Args;
 
 class PNS{
 public:
@@ -41,19 +42,23 @@ public:
         void init_pn_dn();
     };
 
-    PNS(){
+    PNS(Args* inp_args){
         component_cut.resize((int)ACTION_SIZE, std::vector<int>((int)ACTION_SIZE, 0));
+	args = inp_args;
     }
 
     ~PNS(){free_states();}
     void PN_search(PNSNode* node, bool fast_eval);
+    void PN_search_square(PNS::PNSNode* node, bool fast_eval);
     void DFPN_search(PNSNode* node);
     void init_PN_search(PNSNode* node);
     void init_DFPN_search(PNSNode* node);
 
-    PNSNode* create_and_eval_node(Board& board, bool eval, bool search_in_states);
-    void evaluate_node_with_PNS(PNSNode* node, bool log = false, bool fast_eval = false);
+    PNSNode* create_and_eval_node(Board& board, bool eval);
+    void evaluate_node_with_PNS(PNSNode* node, bool log, bool fast_eval);
+    void evaluate_node_with_PNS_square(PNSNode* node, bool log, bool fast_eval);
     PNSNode* evaluate_components(Board& base_board);
+    void search_and_keep_one_layer(PNSNode* node, bool fast_eval);
 
     void extend_all(PNSNode* node, bool fast_eval);
     Board extend(PNSNode* node, unsigned int action, unsigned int slot, bool fast_eval);
@@ -109,5 +114,6 @@ private :
     std::unordered_map<Board, PNSNode*, Board_Hash> states;
     #endif
 
+    Args* args;
     std::vector<std::vector<int>> component_cut;
 };

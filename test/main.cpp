@@ -22,7 +22,10 @@ struct Args{
     bool play = false;
     bool test = false;
     bool disproof = false;
-
+    bool PNS_square = false;
+    float A = 100000000.0;
+    float B = 15000000.0;
+  
     Args(int argc, char* argv[]){
         int i=0;
         while(i<argc){
@@ -30,6 +33,7 @@ struct Args{
             else if((std::string) argv[i] == "--play") play = true;
             else if((std::string) argv[i] == "--test") test = true;
             else if((std::string) argv[i] == "--disproof") disproof = true;
+	    else if((std::string) argv[i] == "--PNS2") PNS_square = true;
             else if((std::string )argv[i] == "--help"){
                 std::cout<<"Help for AMOBA\nARGS:\n";
                 std::cout<<"--play: Play with tree\n";
@@ -52,13 +56,18 @@ void PNS_test(Args& args){
     int player = 1;
     Play::choose_problem(b,player, args.disproof);
 
-    PNS tree;
+    PNS tree(&args);
     PNS::PNSNode* node = new PNS::PNSNode(b, PNS::heuristic);
     std::cout<<"Root node heuristic value: "<<node->heuristic_value<<std::endl;
 
     tree.init_PN_search(node);
 
-    tree.evaluate_node_with_PNS(node, args.log, false);
+    if(args.PNS_square){
+        tree.evaluate_node_with_PNS_square(node, args.log, false);
+    }
+    else{
+        tree.evaluate_node_with_PNS(node, args.log, false);
+    }
     tree.stats(node, true);
     
     std::ofstream logfile(args.get_filename());

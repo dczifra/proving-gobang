@@ -152,7 +152,7 @@ void PNS::simplify_board(Board& next_state){
     }
 }
 
-PNS::PNSNode* PNS::create_and_eval_node(Board& board, bool eval, bool search = false){
+PNS::PNSNode* PNS::create_and_eval_node(Board& board, bool eval){
     PNSNode* node;
 
     node = get_states(board);
@@ -165,7 +165,7 @@ PNS::PNSNode* PNS::create_and_eval_node(Board& board, bool eval, bool search = f
     }
 
     if(eval){
-      evaluate_node_with_PNS(node, false, false);
+        evaluate_node_with_PNS(node, false, false);
     }
     return node;
 }
@@ -246,7 +246,8 @@ void PNS::extend_all(PNS::PNSNode* node, bool fast_eval){
             // if(node->children[slot]->type == OR){
             //   extend_all(node->children[slot], fast_eval);
             // }
-            if ((node->type == OR) and (node->children[slot]->pn==0) or (node->type == AND) and (node->children[slot]->dn==0)) break;
+            if ((node->type == OR) and (node->children[slot]->pn==0) or
+		(node->type == AND) and (node->children[slot]->dn==0)) break;
             slot++;
         }
     }
@@ -278,7 +279,8 @@ void PNS::extend_all(PNS::PNSNode* node, bool fast_eval){
     update_node(node);
 }
 
-Board PNS::extend(PNS::PNSNode* node, unsigned int action, unsigned int slot, bool fast_eval){
+Board PNS::extend(PNS::PNSNode* node, unsigned int action, unsigned int slot,
+		  bool fast_eval){
     Board next_state(node->board, action, get_player(node->type));
 
     simplify_board(next_state);
