@@ -65,7 +65,7 @@ struct Args{
     bool disproof = false;
     bool PNS_square = false;
     float A = 100000000.0;
-    float B = 15000000.0;
+    float B = 150000000.0;
     std::string get_filename();
     Args(int argc, char* argv[]);
 };

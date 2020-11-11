@@ -33,6 +33,7 @@ void PNS::search_and_keep_one_layer(PNS::PNSNode* node, bool fast_eval){
                 child->children[i] = nullptr;
             }
         }
+	child->extended = false;
     }
 }
 
@@ -47,22 +48,11 @@ void PNS::PN_search_square(PNS::PNSNode* node, bool fast_eval){
 	search_and_keep_one_layer(node, fast_eval);
     }
     else{
-        unsigned int last_pn = node->pn;
-        unsigned int last_dn = node->dn;
-
-        bool keep_searching = true;
-        while(keep_searching){
-            unsigned int min_ind = get_min_children_index(node, node->type == OR?PN:DN);
-            if (min_ind != -1){
-	        PN_search(node->children[min_ind], fast_eval);
-            }
-            update_node(node);
-
-            if((node->pn == last_pn) && (node->dn == last_dn)){
-                keep_searching = true;
-            }
-            else keep_searching = false;
+        unsigned int min_ind = get_min_children_index(node, node->type == OR?PN:DN);
+        if (min_ind != -1){
+	    PN_search_square(node->children[min_ind], fast_eval);
         }
+        update_node(node);
     }
     // If PN or DN is 0, delete all unused descendents
     if(node->pn == 0 || node->dn == 0){

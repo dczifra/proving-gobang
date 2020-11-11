@@ -53,6 +53,7 @@ void PNS_test(Args& args){
     tree.init_PN_search(node);
 
     if(args.PNS_square){
+        std::cout<<"PNS2"<<std::endl;
         tree.evaluate_node_with_PNS_square(node, args.log, false);
     }
     else{
