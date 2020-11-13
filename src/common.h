@@ -60,6 +60,7 @@ void display(const board_int board, bool end, std::vector<int> show = std::vecto
 // ============================================
 struct Args{
     bool log = false;
+    bool talky = true;
     bool play = false;
     bool test = false;
     bool disproof = false;
