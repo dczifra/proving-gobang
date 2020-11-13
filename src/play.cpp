@@ -102,8 +102,19 @@ int get_index(int act, Board board){
     return indexes[act];
 }
 
+void print_diff(board_int act_board, board_int last_board){
+    for(int i=0;i<ACTION_SIZE;i++){
+        board_int field = 1ULL << i;
+        if((act_board & field ) && !(last_board & field)){
+            std::cout<<i<<" ";
+        }
+    }
+    std::cout<<std::endl;
+}
+
 void Play::play_with_solution2(){
     int act = -1;
+    Board last_board;
     while(!tree.game_ended(board)){
         std::vector<int> color;
         act = -1;
@@ -111,6 +122,7 @@ void Play::play_with_solution2(){
         // === Human player can choose ===
         if(player == human_player ){
             int row, col;
+            std::cout<<"[RES]\n";
             std::cin>>row>>col;
             act = col*ROW+row;
             board = tree.get_states(board)->children[get_index(act, board)]->board;
@@ -133,7 +145,10 @@ void Play::play_with_solution2(){
         player = get_player(board.node_type);
         printf("Action: %d pn: %d\n", act, (int)tree.get_states(board)->pn);
         display(board, true, color);
-        std::cout<<board.white<<" "<<board.black<<std::endl;
+        std::cout<<"[DIFF] "<<board.white<<" "<<board.black<<std::endl;
+        print_diff(board.white, last_board.white);
+        print_diff(board.black, last_board.black);
+        last_board = board;
     }
-    std::cout<<"END\n";
+    std::cout<<"[END]\n";
 }
