@@ -4,7 +4,7 @@
 #include<sstream>
 #include<fstream>
 
-Play::Play(std::string filename, bool disproof){
+Play::Play(std::string filename, bool disproof, bool talky):talky(talky){
     player = 1;
     choose_problem(board, player, disproof);
 
@@ -50,8 +50,6 @@ void Play::read_solution(std::string filename){
             //printf("Duplicated state:\n");
             //display(b, true);
         }
-
-
     }
 }
 
@@ -65,9 +63,7 @@ int Play::move_human(){
         std::cin>>row>>col;
         act = col*ROW+row;
     }
-    
     board.move(act, human_player);
-
     return act;
 }
 
@@ -77,15 +73,14 @@ void Play::build_node(Board b){
     
     board_int valids = b.get_valids_without_ondegree(PNS::heuristic.all_linesinfo);
     for(int i=0;i<ACTION_SIZE;i++){
-        //display(state.first, true);
         if(valids & (1ULL << i)){
-	  Board next = new_tree.extend(tree.get_states(b), i, slot, false);
-	    PNS::PNSNode* child = tree.get_states(next);
-	    if(child != nullptr){
-              tree.get_states(b)->children[slot] = child;
-	    }
-	    slot++;
-	}
+            Board next = new_tree.extend(tree.get_states(b), i, slot, false);
+            PNS::PNSNode* child = tree.get_states(next);
+            if(child != nullptr){
+                tree.get_states(b)->children[slot] = child;
+            }
+            slot++;
+        }
     }
 }
 
@@ -143,8 +138,10 @@ void Play::play_with_solution2(){
         color.push_back(act);
 
         player = get_player(board.node_type);
-        printf("Action: %d pn: %d\n", act, (int)tree.get_states(board)->pn);
-        display(board, true, color);
+        if(talky){
+            printf("Action: %d pn: %d\n", act, (int)tree.get_states(board)->pn);
+            display(board, true, color);
+        }
         std::cout<<"[DIFF] "<<board.white<<" "<<board.black<<std::endl;
         print_diff(board.white, last_board.white);
         print_diff(board.black, last_board.black);

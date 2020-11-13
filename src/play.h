@@ -10,7 +10,7 @@ struct Args;
 
 class Play{
 public:
-    Play(std::string filename, bool disproof);
+    Play(std::string filename, bool disproof, bool talky);
     void play_with_solution();
     void play_with_solution2();
 
@@ -30,4 +30,6 @@ private:
     Board board;
     int human_player, player;
     std::map<std::vector<uint64_t>, PNS::PNSNode*> isom_map;
+
+    bool talky;
 };

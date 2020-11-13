@@ -22,6 +22,7 @@ Args::Args(int argc, char* argv[]){
   while(i<argc){
     if((std::string) argv[i] == "--log") log = true;
     else if((std::string) argv[i] == "--play") play = true;
+    else if((std::string) argv[i] == "--quiet") talky = false;
     else if((std::string) argv[i] == "--test") test = true;
     else if((std::string) argv[i] == "--disproof") disproof = true;
     else if((std::string) argv[i] == "--PNS2") PNS_square = true;
@@ -87,7 +88,7 @@ int main(int argc, char* argv[]){
     PNS::logger->init(args.disproof);
 
     if(args.test){
-        Play game(args.get_filename(), args.disproof);
+        Play game(args.get_filename(), args.disproof, args.talky);
         game.play_with_solution2();
     }
     else{
