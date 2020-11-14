@@ -5,3 +5,7 @@ nauty27r1
 *.png
 *~
 *.ipynb_checkpoints*
+app/prooving-gobang
+app/data
+app/bins
+app/.git

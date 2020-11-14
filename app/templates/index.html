@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Tic Tac Toe</title>
+    <link rel="stylesheet" type= "text/css" href="{{ url_for('static', filename='styles/style.css') }}">
+</head>
+<body>
+    <section>
+        <h1 class="game--title">Tic Tac Toe</h1>
+        <label for="board_size">Choose Board size:</label>
+        <select id="board_size" onchange="create_board(this.value)">
+            <option value="" selected disabled>Choose here</option>
+            <option value="4x5">4x5</option>
+            <option value="4x6">4x6</option>
+            <option value="4x7">4x7</option>
+            <option value="4x8">4x8</option>
+            <option value="4x9">4x9</option>
+            <option value="4x10">4x10</option>
+            <option value="4x11">4x11</option>
+            <option value="4x12">4x12</option>
+            <option value="4x13">4x13</option>
+            <option value="4x14">4x14</option>
+        </select>
+        <button class="game--restart">Restart Game</button>
+        <button id="back_button" class="navigator"><</button>
+        <button id="forward_button" class="navigator">></button>
+
+        <div class="game--container" id="board"></div>
+
+        <h2 class="game--status"></h2>
+
+        <p id="switch1">Attacker sign: O</p> 
+        <p id="switch2">Defender sign: X</p>
+        <button class="switch_players">Switch</button>
+        <h1 id="last_warning"></h1>
+
+        <h1 class="game--title">Game Rules</h1>
+        <p>There are l lines in the NxM board. The players are putting figures one in each turn to the board.
+            If the attacker can fill a line with his/her figures, he/she wins.
+            On the other hand, if he cannot in the end, the defender wins.</p>
+        </div>
+    </section>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="{{ url_for("static", filename="jquery.js") }}">\x3C/script>"')</script>
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+    <script src="{{ url_for('static', filename='socket.js') }}"></script>
+</body>
+</html>
