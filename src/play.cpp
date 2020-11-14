@@ -107,6 +107,13 @@ void print_diff(board_int act_board, board_int last_board){
     std::cout<<std::endl;
 }
 
+void print_board(board_int board){
+    for(int i=0;i<ACTION_SIZE;i++){
+        if(board & (1ULL << i)) std::cout<<i<<" ";
+    }
+    std::cout<<std::endl;
+}
+
 void Play::play_with_solution2(){
     int act = -1;
     Board last_board;
@@ -143,8 +150,9 @@ void Play::play_with_solution2(){
             display(board, true, color);
         }
         std::cout<<"[DIFF] "<<board.white<<" "<<board.black<<std::endl;
-        print_diff(board.white, last_board.white);
-        print_diff(board.black, last_board.black);
+        //print_diff(board.white, last_board.white);print_diff(board.black, last_board.black);
+        print_board(board.white);
+        print_board(board.black);
         last_board = board;
     }
     std::cout<<"[END]\n";
