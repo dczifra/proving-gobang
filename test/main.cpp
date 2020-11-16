@@ -18,28 +18,28 @@
 #include "logger.h"
   
 Args::Args(int argc, char* argv[]){
-  int i=0;
-  while(i<argc){
-    if((std::string) argv[i] == "--log") log = true;
-    else if((std::string) argv[i] == "--play") play = true;
-    else if((std::string) argv[i] == "--quiet") talky = false;
-    else if((std::string) argv[i] == "--test") test = true;
-    else if((std::string) argv[i] == "--disproof") disproof = true;
-    else if((std::string) argv[i] == "--PNS2") PNS_square = true;
-    else if((std::string )argv[i] == "--help"){
-      std::cout<<"Help for AMOBA\nARGS:\n";
-      std::cout<<"--play: Play with tree\n";
-      std::cout<<"--log: log root PN and DN\n";
-      std::cout<<"--test: Tets mode, you can play the solution\n";
+    int i=0;
+    while(i<argc){
+        if((std::string) argv[i] == "--log") log = true;
+        else if((std::string) argv[i] == "--play") play = true;
+        else if((std::string) argv[i] == "--quiet") talky = false;
+        else if((std::string) argv[i] == "--test") test = true;
+        else if((std::string) argv[i] == "--disproof") disproof = true;
+        else if((std::string) argv[i] == "--PNS2") PNS_square = true;
+        else if((std::string )argv[i] == "--help"){
+            std::cout<<"Help for AMOBA\nARGS:\n";
+            std::cout<<"--play: Play with tree\n";
+            std::cout<<"--log: log root PN and DN\n";
+            std::cout<<"--test: Tets mode, you can play the solution\n";
+        }
+        i++;
     }
-    i++;
-  }
 }
 
 std::string Args::get_filename(){
-  std::string folder = (disproof ? "../data/disproof/" : "../data/proof/");
-  std::string filename =  std::to_string(ROW)+"x"+std::to_string(COL)+".csv";
-  return folder + filename;
+    std::string folder = (disproof ? "../data/disproof/" : "../data/proof/");
+    std::string filename =  std::to_string(ROW)+"x"+std::to_string(COL)+".csv";
+    return folder + filename;
 }
 
 void PNS_test(Args& args){
@@ -82,6 +82,7 @@ int main(int argc, char* argv[]){
     printf("#############%s\n",spam.c_str());
     printf("# Board %dx%d #\n", ROW, COL);
     printf("#############%s\n", spam.c_str());
+    for(auto line : PNS::heuristic.all_linesinfo) display(line.line_board, true);
 
     Args args(argc, argv);
     PNS::logger = new Logger();

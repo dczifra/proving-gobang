@@ -105,7 +105,7 @@ void Heuristic::generate_compressed_lines(){
         board_int board = 0;
         for(auto field: lines[i]){
             int y = field.first, x = field.second;
-            board_int action= y*ROW+x;
+            board_int action = y*ROW+x;
             board |= (1ULL<<action);
         }
         all_linesinfo[i].line_board = board;
@@ -126,30 +126,32 @@ void Heuristic::generate_compressed_lines(){
     }
 }
 
+Line create_horizontal_line(int x, int y, int length){
+    Line l;
+    for(int i=0;i<length;i++){
+        l.push_back({y+i,x});
+    }
+    return l;
+}
+
 void Heuristic::generate_lines(){
+    int inner = ONLY_4 ? 4 : LINEINROW;
     for(int y=0;y<COL;y++){
         // === LINEINROW starting from y ===
-        #if ONLY_4
-            bool big = (y+4<COL && y>0);
-            bool small = (y+4==COL || y==0);
-        #else
-            bool big = (y+LINEINROW<COL && y>0) && INNER_LINE;
-            bool small = (y+half(LINEINROW)==COL || y==0);
-        #endif
-        
-        if(small || big){
-            for(int x = 0;x<ROW;x++){
-                Line l;
-                #if ONLY_4
-                    int length = 4;
-                #else
-                    int length = small?half(LINEINROW):LINEINROW;
-                #endif
-                for(int i=0;i<length;i++){
-                    l.push_back({y+i,x});
-                }
-                lines.push_back(l);
+        for(int x = 0;x<ROW;x++){
+            int big, small,length;
+            //if(y == 0 || y+7 == COL) length = 7;
+            if(y == 0 || y+4 == COL) length = 4;
+            else if(y+inner<COL && y>0 && INNER_LINE){
+                length = 7;
             }
+            else continue;
+
+            Line l;
+            for(int i=0;i<length;i++){
+                l.push_back({y+i,x});
+            }
+            lines.push_back(l);
         }
 
         // === Diagonals ===
