@@ -6,6 +6,7 @@ let gameActive = true;
 
 var row=0;
 var col=0;
+var socket = null;
 all_boards = {"white": [], "black": []};
 var players = [["white", "O"], ["black", "X"]];
 var act_board_index = -1;
@@ -19,7 +20,6 @@ function handleCellClick(clickedCellEvent) {
     console.log("Clicked "+clickedCell.getAttribute('row')+" "+clickedCell.getAttribute('col'));
 
     // === Send move and wait for response ===
-    var socket = io(namespace);
     socket.emit("move", {"row":clickedCell.getAttribute('row'), 
                          "col":clickedCell.getAttribute('col')});
     socket.on('update_nodes', handleMove);
@@ -71,9 +71,10 @@ function handleRestartGame() {
     document.querySelectorAll('.cell')
                .forEach(cell => cell.innerHTML = "");
     
-    var socket = io('/test');
-    socket.emit("build", {"COL":col});
-    socket.on('update_nodes', handleMove);
+    if(col > 0){
+        socket.emit("build", {"COL":col});
+        socket.on('update_nodes', handleMove);
+    }
 }
 
 function create_board(limits){
@@ -81,9 +82,11 @@ function create_board(limits){
     row = parseInt(mylist[0]);
     col = parseInt(mylist[1]);
 
-    var socket = io('/test');
+    if(socket != null) socket.close();
+    socket = io('/test');
     socket.emit("build", {"COL":col});
     socket.on('update_nodes', handleMove);
+    handleRestartGame();
 
     var board = document.getElementById("board");
     board.style.setProperty("--col", col);
@@ -140,7 +143,7 @@ document.querySelector('.switch_players').addEventListener('click', function(){
         warning_div.innerHTML = "";
         warning_div.style.height = "400px";
         warning_div.style.width = "600px";
-        warning_div.style.backgroundImage = "url('https://lh3.googleusercontent.com/proxy/IDU2nYcnETUCY276aipoJyOTiOtlSzG93MUceBpL6YgntctCQaYOJkKZKYmijcMt5S1SVYrPhzosDwQrBIDZdxXN4IWUazVEgehrwYRTJif7Neb0C2AxN_BbXRfYVo5a1r_KbypD7u54THl1tXryow8xlD-whAih6zk')"; 
+        warning_div.style.backgroundImage = "url(./static/images/background.jpg)"; 
         warning_div.style.backgroundSize = "600px 400px";
     }
     switch_counter += 1;

@@ -9,7 +9,6 @@ from flask import Flask
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, async_mode=None, ping_interval=3000, ping_timeout=6000)
-
 #@app.route('/')
 #def hello_world():
 #    return 'Hello, World!'
@@ -44,44 +43,50 @@ def test_connect():
 
 @socketio.on('disconnect', namespace='/test')
 def test_disconnect():
-    if request.sid in boardList:
-        del boardList[request.sid]
+    if request.sid in processes:
+        del processes[request.sid]
     print('Client disconnected', request.sid)
-    print(len(boardList), ' clients left')
+    print(len(processes), ' clients left')
 
 @socketio.on('my_event', namespace='/test')
 def test_message(message):
-    print("Hello", message['data'])
+    session_id = request.sid
+    print("Hello", message['data'], session_id)
     session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': message['data'], 'count': session['receive_count']})
+    secret_key = request.sid
 
+    emit('my_response', 
+         {'data': message['data'], 'count': session['receive_count']},
+         room=session_id)
+    
 # ==============================================
 #    Build and communication with AMOBA kernel
 # ==============================================
 from subprocess import Popen, PIPE, STDOUT
-p = None
+processes = {}
 @socketio.on('build', namespace='/test')
 def build(message):
-    global p
-    print("Build")
+    session_id = request.sid
+    print("Build", session_id)
     os.system("pwd")
     os.system("ls")
     p = Popen(['./bins/AMOBA_4x{}'.format(message["COL"]), '--test', "--quiet"],
             stdout=PIPE, stdin=PIPE, stderr=PIPE, encoding='utf8', bufsize=1, universal_newlines=True)
-    os.system("ls")
-    os.system("pwd")
+    processes[request.sid] = p
 
     # === Get current board with no action ===
     move({"row":"-1", "col":"-1"})
 
 @socketio.on('move', namespace='/test')
 def move(message):
+    p = processes[request.sid]
+
     if(message["row"] != "-1"):
         print("Move {} {}".format(message["row"], message["col"]))
         p.stdin.write("{} {}\n".format(message["row"], message["col"]))
     else:
         print("Init move")
+    
     
     moves = {"white":[], "black":[]}
     line = ""
@@ -100,7 +105,7 @@ def move(message):
             end = "true"
             break
     
-    print("Sending moves: ", json.dumps(moves))
+    #print("Sending moves: ", json.dumps(moves))
     emit('update_nodes',{'data': json.dumps(moves), "end":end})
 
 if __name__ == '__main__':

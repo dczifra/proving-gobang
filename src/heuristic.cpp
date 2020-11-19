@@ -1,6 +1,8 @@
 #include "heuristic.h"
 #include "common.h"
 
+#include <algorithm>
+
 template<class T>
 void make_zero(mtx<T>& data){
     for(int j=0;j<COL;j++){
@@ -95,7 +97,6 @@ std::vector<T> Heuristic::get_flat_layers(mtx<int>& board){
 
 int half(const int& a){ return (a%2 == 0) ? a/2 : (a+1)/2;}
 
-
 void Heuristic::generate_compressed_lines(){
     //std::cout<<lines.size()<<std::endl;
 
@@ -134,14 +135,47 @@ Line create_horizontal_line(int x, int y, int length){
     return l;
 }
 
+std::vector<board_int> get_comp_lines(std::vector<Line>& lines){
+    std::vector<board_int> comp_lines(lines.size());
+    for(int i=0;i<lines.size();i++){
+        // === Do the compressed board ===
+        board_int board = 0;
+        for(auto field: lines[i]){
+            int y = field.first, x = field.second;
+            board_int action = y*ROW+x;
+            board |= (1ULL<<action);
+        }
+        comp_lines[i] = board;
+    }
+    return comp_lines;
+}
+
+bool is_duplicate(board_int board1, board_int board2){
+    // stronger line should come first !!!
+    board_int intersection = (board1 & board2);
+    if(intersection == board1 || intersection == board2) return true;
+    return false;
+}
+
 void Heuristic::generate_lines(){
+    // === Extras ===
+    /*
+    if(COL >= 9){
+    lines.push_back({{2,0}, {1,1}});
+    lines.push_back({{7,0}, {8,1}});
+    lines.push_back({{COL-2,2}, {COL-3,3}});
+    lines.push_back({{COL-9,2}, {COL-8,3}});
+    }*/
+
     int inner = ONLY_4 ? 4 : LINEINROW;
     for(int y=0;y<COL;y++){
         // === LINEINROW starting from y ===
         for(int x = 0;x<ROW;x++){
             int big, small,length;
-            //if(y == 0 || y+7 == COL) length = 7;
-            if(y == 0 || y+4 == COL) length = 4;
+            if(x == 0 && (y == 0 || y+4 == COL)) length = 4;
+            else if(x == 1 && (y == 0 || y+4 == COL)) length = 4;
+            else if(x == 2 && (y == 0 || y+4 == COL)) length = 4;
+            else if(x == 3 && (y == 0 || y+4 == COL)) length = 4;
             else if(y+inner<COL && y>0 && INNER_LINE){
                 length = 7;
             }
@@ -192,15 +226,18 @@ void Heuristic::generate_lines(){
     }
     #endif
 
-    lines_per_action.resize(ROW*COL);
-    for(int i=0;i<lines.size();i++){
-        for(int j=0;j<lines[i].size();j++){
-            int y = lines[i][j].first, x = lines[i][j].second;
-            //std::cout<<"("<<y<<","<<x<<") ";
-            lines_per_field[y][x].push_back(lines[i]);
-            lines_per_action[y*ROW+x].push_back(lines[i]);
+    std::vector<board_int> comp_lines = get_comp_lines(lines);
+    std::vector<int> duplicates;
+    for(int i=0;i<comp_lines.size();i++){
+        for(int j=i+1;j<lines.size();j++){
+            if(is_duplicate(comp_lines[i], comp_lines[j])){
+                duplicates.push_back(j);
+            }
         }
-        //std::cout<<std::endl;
+    }
+    std::sort(duplicates.begin(), duplicates.end());
+    for(int i=0;i<duplicates.size();i++){
+        lines.erase(lines.begin()+duplicates[duplicates.size()-1-i]);
     }
 }
 

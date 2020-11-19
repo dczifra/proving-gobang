@@ -6,7 +6,7 @@ void PNS::evaluate_node_with_PNS_square(PNSNode* node, bool log, bool fast_eval)
     while(node->pn*node->dn != 0){
         PN_search_square(node, fast_eval);
 
-        if(log && i%10000 == 0){
+        if(log && i%100 == 0){
             stats(node);
         }
         ++i;
@@ -45,7 +45,7 @@ void PNS::PN_search_square(PNS::PNSNode* node, bool fast_eval){
     // if we are in a leaf, we extend it
     if(!node->extended){
         extend_all(node, fast_eval);
-	search_and_keep_one_layer(node, fast_eval);
+	    search_and_keep_one_layer(node, fast_eval);
     }
     else{
         unsigned int min_ind = get_min_children_index(node, node->type == OR?PN:DN);

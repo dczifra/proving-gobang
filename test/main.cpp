@@ -82,7 +82,7 @@ int main(int argc, char* argv[]){
     printf("#############%s\n",spam.c_str());
     printf("# Board %dx%d #\n", ROW, COL);
     printf("#############%s\n", spam.c_str());
-    for(auto line : PNS::heuristic.all_linesinfo) display(line.line_board, true);
+    //for(auto line : PNS::heuristic.all_linesinfo) display(line.line_board, true);
 
     Args args(argc, argv);
     PNS::logger = new Logger();

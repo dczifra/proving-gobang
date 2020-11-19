@@ -525,7 +525,10 @@ void PNS::component_stats() {
 }
 
 void PNS::stats(PNSNode* node, bool end){
+    unsigned int x = states.size();
+    float f = 1.0/(1+exp((args->A-x)/args->B));
+    int N = (int) (states.size()*f);
     if(node != nullptr) std::cout<<"\rPN: "<<node->pn<<" DN: "<<node->dn<<" ";
-    std::cout<<"States size: "<<states.size()<<"        "<<std::flush;
+    std::cout<<"States size: "<<states.size()<<" "<<N<<"        "<<std::flush;
     if(end) std::cout<<std::endl;
 }
