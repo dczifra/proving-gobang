@@ -36,3 +36,18 @@ p{
     text-align: center;
     background-color: rgb(236, 243, 134);
 }
+
+#linesCanvas {
+    position: absolute;
+    padding: 60px;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    border: 2px solid #428bca;
+    z-index: 100;
+}
+#containerCanvas {
+    position: relative;
+    top: 0;
+    left: 0;
+    margin: 20px;
+}

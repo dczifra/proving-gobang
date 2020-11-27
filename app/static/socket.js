@@ -21,12 +21,16 @@ $(document).ready(function() {
     });
 
     socket.on('disconnect', function() {
-        console.log("Disconnect")
+        console.log("Disconnect");
     });
 
     socket.on('simple', function(){
         console.log("Simple received 2");
     })
+
+    socket.on('my_response', function(data) {
+        console.log("Tick "+data["count"]);
+    });
 
     // $('form#emit').submit(function(event) {
     //     socket.emit('my_event', {data: $('#emit_data').val()});

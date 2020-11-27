@@ -30,9 +30,9 @@ def background_thread():
     while True:
         socketio.sleep(10)
         count += 1
-        #socketio.emit('my_response',
-        #              {'data': 'Server generated event', 'count': count},
-        #              namespace='/test')
+        socketio.emit('my_response',
+                      {'data': 'Server generated event', 'count': count},
+                      namespace='/test')
 
 @socketio.on('connect', namespace='/test')
 def test_connect():
@@ -68,8 +68,8 @@ processes = {}
 def build(message):
     session_id = request.sid
     print("Build", session_id)
-    os.system("pwd")
-    os.system("ls")
+    #os.system("pwd")
+    #os.system("ls")
     p = Popen(['./bins/AMOBA_4x{}'.format(message["COL"]), '--test', "--quiet"],
             stdout=PIPE, stdin=PIPE, stderr=PIPE, encoding='utf8', bufsize=1, universal_newlines=True)
     processes[request.sid] = p

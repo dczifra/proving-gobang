@@ -43,6 +43,35 @@
             If the attacker can fill a line with his/her figures, he/she wins.
             On the other hand, if he cannot in the end, the defender wins.</p>
         </div>
+
+        <p>The lines are costruated such that there is no 7-line in the space, that doesn't contain one of the l lines.
+            This results that if the Defender can cover all the l lines in each ROWxCOL board,
+            he/she covers all the 7-line in the space too.
+        </p>
+
+        <p>Here are the lines:
+            1. All 4 line from the side.
+            2. All inner 7 line.
+            3. All 2 and 3 line, which is shown in the below canvas.</p>
+        <label for="board_size">Choose Board size:</label>
+        <select id="show_lines" onchange="create_empty_board(this.value)">
+            <option value="" selected disabled>Choose here</option>
+            <option value="4x5">4x5</option>
+            <option value="4x6">4x6</option>
+            <option value="4x7">4x7</option>
+            <option value="4x8">4x8</option>
+            <option value="4x9">4x9</option>
+            <option value="4x10">4x10</option>
+            <option value="4x11">4x11</option>
+            <option value="4x12">4x12</option>
+            <option value="4x13">4x13</option>
+            <option value="4x14">4x14</option>
+        </select>
+        <div id = "containerCanvas">
+            <canvas id="linesCanvas" width="2000" height="1000" style="border:0px solid #000000;">
+            </canvas> 
+        </div>
+
     </section>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
