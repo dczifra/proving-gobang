@@ -64,6 +64,7 @@ struct Args{
     bool play = false;
     bool test = false;
     bool disproof = false;
+    bool show_lines = false;
     bool PNS_square = false;
     float A = 200000000000.0;
     float B = 15000000000.0;

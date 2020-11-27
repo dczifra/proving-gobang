@@ -17,6 +17,9 @@ PNS::PNSNode::PNSNode(const Board& b, Heuristic& h):children(), board(b){
     children.resize(child_num);
     heuristic_value = board.heuristic_value(h.all_linesinfo);
     
+    int valid_moves = board.get_valids_num();
+    float log_odds = -4.63230495 - 9.67572108 * board.node_type - 0.87216265 * valid_moves + 17.23691808 *heuristic_value;
+    float prob = 1 / (1 + exp(-log_odds));
     if(b.white_win(h.all_linesinfo)){
         pn = 0;
         dn = var_MAX;
@@ -30,6 +33,10 @@ PNS::PNSNode::PNSNode(const Board& b, Heuristic& h):children(), board(b){
         pn = var_MAX;
         dn = 0;
     }
+    //else if(prob<0.1){
+    //    pn = var_MAX;
+    //    dn = 0;
+    //}
     else{
         init_pn_dn();
     }

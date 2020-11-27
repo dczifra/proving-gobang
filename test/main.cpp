@@ -25,6 +25,7 @@ Args::Args(int argc, char* argv[]){
         else if((std::string) argv[i] == "--quiet") talky = false;
         else if((std::string) argv[i] == "--test") test = true;
         else if((std::string) argv[i] == "--disproof") disproof = true;
+        else if((std::string) argv[i] == "--lines") show_lines = true;
         else if((std::string) argv[i] == "--PNS2") PNS_square = true;
         else if((std::string )argv[i] == "--help"){
             std::cout<<"Help for AMOBA\nARGS:\n";
@@ -46,6 +47,7 @@ void PNS_test(Args& args){
     Board b;
     int player = 1;
     Play::choose_problem(b,player, args.disproof);
+    display(b, true);
 
     PNS tree(&args);
     PNS::PNSNode* node = new PNS::PNSNode(b, PNS::heuristic);
@@ -78,13 +80,13 @@ CanonicalOrder PNS::isom_machine;
 Logger* PNS::logger;
 
 int main(int argc, char* argv[]){
+    Args args(argc, argv);
     std::string spam = (COL > 9 ? "#" : "");
     printf("#############%s\n",spam.c_str());
     printf("# Board %dx%d #\n", ROW, COL);
     printf("#############%s\n", spam.c_str());
-    //for(auto line : PNS::heuristic.all_linesinfo) display(line.line_board, true);
-
-    Args args(argc, argv);
+    if(args.show_lines) for(auto line : PNS::heuristic.all_linesinfo) display(line.line_board, true);
+    
     PNS::logger = new Logger();
     PNS::logger->init(args.disproof);
 

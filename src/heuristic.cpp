@@ -157,25 +157,70 @@ bool is_duplicate(board_int board1, board_int board2){
     return false;
 }
 
+void classic_2corners(std::vector<Line>& lines){
+    // O X O O X O
+    // X O O O O X
+    // O O O O O O
+    // O O O O O O
+    
+    // ## 2 ##
+    lines.push_back({{1,0}, {0,1}});
+    if(!DIFFERENT_CORNER){
+        lines.push_back({{COL-2,0}, {COL-1,1}});
+    }
+    else{
+        lines.push_back({{COL-1,2}, {COL-2,3}});
+    }
+}
+
+void replace_2lines_with_inner2lines(std::vector<Line>& lines){
+    // O O X O O O O O X O O 
+    // O X O O O O O O O X O
+    // O X O O O O O O O X O
+    // O O X O O O O O X O O
+    if(COL >= 9){
+        lines.push_back({{2,0}, {1,1}});
+        lines.push_back({{7,0}, {8,1}});
+        lines.push_back({{COL-2,2}, {COL-3,3}});
+        lines.push_back({{COL-9,2}, {COL-8,3}});
+    }
+}
+
+void many_threelines(std::vector<Line>& lines){
+    // === LEFT CORNER ===
+    lines.push_back({{0,0}, {1,1}, {2,2}});
+    lines.push_back({{1,0}, {2,1}, {3,2}});
+    lines.push_back({{2,0}, {3,1}, {4,2}});
+
+    lines.push_back({{0,3}, {1,2}, {2,1}});
+    lines.push_back({{1,3}, {2,2}, {3,1}});
+    lines.push_back({{2,3}, {3,2}, {4,1}});
+
+    // === RIGHT CORNER ===
+    lines.push_back({{COL-5,1}, {COL-4,2}, {COL-3,3}});
+    lines.push_back({{COL-4,1}, {COL-3,2}, {COL-2,3}});
+    lines.push_back({{COL-3,1}, {COL-2,2}, {COL-1,3}});
+
+    lines.push_back({{COL-3,2}, {COL-2,1}, {COL-1,0}});
+    lines.push_back({{COL-4,2}, {COL-3,1}, {COL-2,0}});
+    lines.push_back({{COL-5,2}, {COL-4,1}, {COL-3,0}});
+}
+
 void Heuristic::generate_lines(){
     // === Extras ===
-    /*
-    if(COL >= 9){
-    lines.push_back({{2,0}, {1,1}});
-    lines.push_back({{7,0}, {8,1}});
-    lines.push_back({{COL-2,2}, {COL-3,3}});
-    lines.push_back({{COL-9,2}, {COL-8,3}});
-    }*/
+    classic_2corners(lines);
+    //replace_2lines_with_inner2lines(lines);
+    //many_threelines(lines);
 
     int inner = ONLY_4 ? 4 : LINEINROW;
     for(int y=0;y<COL;y++){
         // === LINEINROW starting from y ===
         for(int x = 0;x<ROW;x++){
             int big, small,length;
-            if(x == 0 && (y == 0 || y+4 == COL)) length = 4;
-            else if(x == 1 && (y == 0 || y+4 == COL)) length = 4;
-            else if(x == 2 && (y == 0 || y+4 == COL)) length = 4;
-            else if(x == 3 && (y == 0 || y+4 == COL)) length = 4;
+            if(x == 0 && (y == 0 || y+5 == COL)) length = 5;
+            else if(x == 1 && (y == 0 || y+7 == COL)) length = 7;
+            else if(x == 2 && (y == 0 || y+7 == COL)) length = 7;
+            else if(x == 3 && (y == 0 || y+5 == COL)) length = 5;
             else if(y+inner<COL && y>0 && INNER_LINE){
                 length = 7;
             }
@@ -210,22 +255,14 @@ void Heuristic::generate_lines(){
 
     // === Corners ===
     // ## 3 ## 
-    #if !ONLY_4
-    lines.push_back({{2,0}, {1,1}, {0,2}});
-    lines.push_back({{COL-3,0}, {COL-2,1}, {COL-1,2}});
-    lines.push_back({{0,ROW-3}, {1,ROW-2}, {2,ROW-1}});
-    lines.push_back({{COL-1,ROW-3}, {COL-2,ROW-2}, {COL-3,ROW-1}});
-
-    // ## 2 ##
-    lines.push_back({{1,0}, {0,1}});
-    if(!DIFFERENT_CORNER){
-        lines.push_back({{COL-2,0}, {COL-1,1}});
+    if(!ONLY_4){
+        lines.push_back({{2,0}, {1,1}, {0,2}});
+        lines.push_back({{COL-3,0}, {COL-2,1}, {COL-1,2}});
+        lines.push_back({{0,ROW-3}, {1,ROW-2}, {2,ROW-1}});
+        lines.push_back({{COL-1,ROW-3}, {COL-2,ROW-2}, {COL-3,ROW-1}});
     }
-    else{
-        lines.push_back({{COL-1,2}, {COL-2,3}});
-    }
-    #endif
 
+    // === Remove duplicated lines ===
     std::vector<board_int> comp_lines = get_comp_lines(lines);
     std::vector<int> duplicates;
     for(int i=0;i<comp_lines.size();i++){

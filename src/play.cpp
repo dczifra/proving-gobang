@@ -19,7 +19,8 @@ Play::Play(std::string filename, bool disproof, bool talky):talky(talky){
 
 NodeType Play::choose_problem(Board& board, int& player, bool disproof){
     if(disproof) board.move({0,1, ROW*COL-1}, player);
-    //board.move({0,1,23}, player);
+    //board.move({1,4}, player);
+    //board.move({1,4, 5, 2, ROW*COL-3, ROW*COL-8, ROW*COL-7, ROW*COL-2,}, player);
 
     return (player==1?OR:AND);
 }
