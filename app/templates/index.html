@@ -1,82 +1,48 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Tic Tac Toe</title>
-    <link rel="stylesheet" type= "text/css" href="{{ url_for('static', filename='styles/style.css') }}">
-</head>
-<body>
-    <section>
-        <h1 class="game--title">Tic Tac Toe</h1>
-        <label for="board_size">Choose Board size:</label>
-        <select id="board_size" onchange="create_board(this.value)">
-            <option value="" selected disabled>Choose here</option>
-            <option value="4x5">4x5</option>
-            <option value="4x6">4x6</option>
-            <option value="4x7">4x7</option>
-            <option value="4x8">4x8</option>
-            <option value="4x9">4x9</option>
-            <option value="4x10">4x10</option>
-            <option value="4x11">4x11</option>
-            <option value="4x12">4x12</option>
-            <option value="4x13">4x13</option>
-            <option value="4x14">4x14</option>
-        </select>
-        <button class="game--restart">Restart Game</button>
-        <button id="back_button" class="navigator"><</button>
-        <button id="forward_button" class="navigator">></button>
+{% extends "layout.html" %}
+{% block title%}
+<title>Gobang | Home</title>
+{% endblock %}
 
-        <div class="game--container" id="board"></div>
+{% block content %}
+<div class = "home">
+    <h1>Project description</h1>
+    <p>There are many variant of the k-in-a-row board game.
+        Many of them are solved:
+        <ul>
+            <li>3-in-a-row on 3x3 board ==> draw (also known as Tic Tac Toe)</li>
+            <li>4-in-a-row (and below) on infinite board ==> attacher win</li>
+            <li>5-in-a-row on the 19x19 board ==> attacker win</li>
+            <li>8-in-a-row (and above) on infinite board ==> defender win</li>
+        </ul>
+        There are many which are open now.
+    </p>
+    <p>
+        A very interesting question is for the k-in-a-row games on infinite board,
+        for which <math>k</math> the attacker has no winner strategy anymore.
+        (Take care, a winner strategy on a finite board is not neccessarily a win strategy on infinite board).
+        We know, that this <math>k</math> is below 8, and we conjecture, that it is even less than 7.
+        This project's goal is to give a defender draw strategy for this case.
+    </p>
 
-        <h2 class="game--status"></h2>
+    <h1>Concept</h1>
+    <p>
+        Our startegy is to reduce the problem to a finite board.
+        We are looking for a special type of defender strategy: the defender is splitting the space into parts,
+        and it moves only in that part of the space, where the attacker moves.
+        In each part of the space the defeneder defines additional lines to the original 7-lines, 
+        such that if the defender can cover all lines, it can cover all 7-lines in the original infinite board.
+        For more information for this additional rules please visit the <a href="rules">Rules</a> page.
+    </p>
 
-        <p id="switch1">Attacker sign: O</p> 
-        <p id="switch2">Defender sign: X</p>
-        <button class="switch_players">Switch</button>
-        <h1 id="last_warning"></h1>
+    <h1>Source code</h1>
+    <p>
+        Please visit our <a href="https://github.com/doma945/prooving-gobang">github</a> page.
+    </p>
 
-        <h1 class="game--title">Game Rules</h1>
-        <p>There are l lines in the NxM board. The players are putting figures one in each turn to the board.
-            If the attacker can fill a line with his/her figures, he/she wins.
-            On the other hand, if he cannot in the end, the defender wins.</p>
-        </div>
-
-        <p>The lines are costruated such that there is no 7-line in the space, that doesn't contain one of the l lines.
-            This results that if the Defender can cover all the l lines in each ROWxCOL board,
-            he/she covers all the 7-line in the space too.
-        </p>
-
-        <p>Here are the lines:
-            1. All 4 line from the side.
-            2. All inner 7 line.
-            3. All 2 and 3 line, which is shown in the below canvas.</p>
-        <label for="board_size">Choose Board size:</label>
-        <select id="show_lines" onchange="create_empty_board(this.value)">
-            <option value="" selected disabled>Choose here</option>
-            <option value="4x5">4x5</option>
-            <option value="4x6">4x6</option>
-            <option value="4x7">4x7</option>
-            <option value="4x8">4x8</option>
-            <option value="4x9">4x9</option>
-            <option value="4x10">4x10</option>
-            <option value="4x11">4x11</option>
-            <option value="4x12">4x12</option>
-            <option value="4x13">4x13</option>
-            <option value="4x14">4x14</option>
-        </select>
-        <div id = "containerCanvas">
-            <canvas id="linesCanvas" width="2000" height="1000" style="border:0px solid #000000;">
-            </canvas> 
-        </div>
-
-    </section>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script>window.jQuery || document.write('<script src="{{ url_for("static", filename="jquery.js") }}">\x3C/script>"')</script>
-    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
-    <script src="{{ url_for('static', filename='socket.js') }}"></script>
-</body>
-</html>
+    <h1>Results</h1>
+    <ul>
+        <li>4xk (k<=14) with "Csóka 1.0" rules ==> attacker win (<a href="play">play</a>)</li>
+        <li>4x15, 4x16 with "Csóka 1.0" rules ==> attacker win (99%)</li>
+    </ul>
+</div>
+{% endblock %}

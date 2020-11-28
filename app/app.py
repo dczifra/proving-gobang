@@ -17,6 +17,17 @@ socketio = SocketIO(app, async_mode=None, ping_interval=3000, ping_timeout=6000)
 def index():
     return render_template('index.html', async_mode=socketio.async_mode)
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/rules')
+def rules():
+    return render_template('rules.html')
+
+@app.route('/play')
+def play():
+    return render_template('play.html')
 # =================================
 #    Socket communication example
 # =================================
