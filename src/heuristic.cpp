@@ -206,45 +206,35 @@ void many_threelines(std::vector<Line>& lines){
     lines.push_back({{COL-5,2}, {COL-4,1}, {COL-3,0}});
 }
 
-void Heuristic::generate_lines(){
-    // === Extras ===
-    classic_2corners(lines);
-    //replace_2lines_with_inner2lines(lines);
-    //many_threelines(lines);
-
-    int inner = ONLY_4 ? 4 : LINEINROW;
-    for(int y=0;y<COL;y++){
+void add_horizontal_lines(std::vector<Line>& lines, std::vector<int> rows,
+                            std::pair<int,int> cols, int length){
+    for(int y=cols.first;y<=cols.second;y++){
         // === LINEINROW starting from y ===
-        for(int x = 0;x<ROW;x++){
-            int big, small,length;
-            if(x == 0 && (y == 0 || y+5 == COL)) length = 5;
-            else if(x == 1 && (y == 0 || y+7 == COL)) length = 7;
-            else if(x == 2 && (y == 0 || y+7 == COL)) length = 7;
-            else if(x == 3 && (y == 0 || y+5 == COL)) length = 5;
-            else if(y+inner<COL && y>0 && INNER_LINE){
-                length = 7;
-            }
-            else continue;
-
+        for(int x: rows){
             Line l;
             for(int i=0;i<length;i++){
                 l.push_back({y+i,x});
             }
             lines.push_back(l);
         }
+    }
+}
 
-        // === Diagonals ===
-        if(y<=COL-ROW || y>=ROW-1){
-            Line l1;
-            Line l2;
-            for(int x = 0;x<ROW;x++){
-                if(y<=COL-ROW) l1.push_back({y+x,x});
-                if(y>=ROW-1) l2.push_back({y-x,x});
-            }
-            if(y<=COL-ROW) lines.push_back(l1);
-            if(y>=ROW-1) lines.push_back(l2);
+void add_diagonal_lines(std::vector<Line>& lines, std::pair<int,int> cols){
+    for(int y = cols.first; y<=cols.second; y++){
+        Line l1;
+        Line l2;
+        for(int x = 0;x<ROW;x++){
+            if(y<=COL-ROW) l1.push_back({y+x,x});
+            if(y>=ROW-1) l2.push_back({y-x,x});
         }
+        if(y<=COL-ROW) lines.push_back(l1);
+        if(y>=ROW-1) lines.push_back(l2);
+    }
+}
 
+void add_vertical_lines(std::vector<Line>& lines, std::pair<int,int> cols){
+    for(int y = cols.first; y<=cols.second; y++){
         // === Full columns ===
         Line l;
         for(int x = 0;x<ROW;x++){
@@ -252,16 +242,9 @@ void Heuristic::generate_lines(){
         }
         lines.push_back(l);
     }
+}
 
-    // === Corners ===
-    // ## 3 ## 
-    if(!ONLY_4){
-        lines.push_back({{2,0}, {1,1}, {0,2}});
-        lines.push_back({{COL-3,0}, {COL-2,1}, {COL-1,2}});
-        lines.push_back({{0,ROW-3}, {1,ROW-2}, {2,ROW-1}});
-        lines.push_back({{COL-1,ROW-3}, {COL-2,ROW-2}, {COL-3,ROW-1}});
-    }
-
+void remove_duplicates(std::vector<Line>& lines){
     // === Remove duplicated lines ===
     std::vector<board_int> comp_lines = get_comp_lines(lines);
     std::vector<int> duplicates;
@@ -278,6 +261,76 @@ void Heuristic::generate_lines(){
     }
 }
 
+void classical_board(std::vector<Line>& lines){
+    // === Extras ===
+    classic_2corners(lines);
+    //replace_2lines_with_inner2lines(lines);
+    //many_threelines(lines);
+
+    // === INNER LINES ===
+    add_horizontal_lines(lines, {0,1,2,3}, {1,COL-8}, 7);
+    // === SIDE LINES ===
+    int length = 4;
+    add_horizontal_lines(lines, {1}, {0,0}, length);
+    add_horizontal_lines(lines, {1}, {COL-length, COL-length}, length);
+    add_horizontal_lines(lines, {0,2,3}, {0,0}, 4);
+    add_horizontal_lines(lines, {0,2,3}, {COL-4, COL-4}, 4);
+    // === DIAGONAL LINES ===
+    add_diagonal_lines(lines, {0, COL-1});
+    // === VERTICAL LINES ===
+    add_vertical_lines(lines, {0, COL-1});
+
+    // === Corners ===
+    // ## 3 ## 
+    if(!ONLY_4){
+        lines.push_back({{2,0}, {1,1}, {0,2}});
+        lines.push_back({{COL-3,0}, {COL-2,1}, {COL-1,2}});
+        lines.push_back({{0,ROW-3}, {1,ROW-2}, {2,ROW-1}});
+        lines.push_back({{COL-1,ROW-3}, {COL-2,ROW-2}, {COL-3,ROW-1}});
+    }
+
+    remove_duplicates(lines);
+}
+
+void zsolts_board(std::vector<Line>& lines){
+    // === Extras ===
+    lines.push_back({{1,0},{0, 1}, {COL-1, 0}});
+    lines.push_back({{1,3},{0, 2}, {COL-1, 3}});
+    //lines.push_back({{COL-1, 0}, {COL-1, 3}});
+
+    lines.push_back({{COL-3, 0}, {COL-2, 1}, {COL-1, 1}});
+    lines.push_back({{COL-3, 3}, {COL-2, 2}, {COL-1, 2}});
+    //lines.push_back({{COL-1, 1}, {COL-1, 2}});
+
+    // === Corners ===
+    // ## 3 ## 
+    if(!ONLY_4){
+        lines.push_back({{2,0}, {1,1}, {0,2}});
+        lines.push_back({{COL-4,0}, {COL-3,1}, {COL-2,2}});
+        lines.push_back({{0,ROW-3}, {1,ROW-2}, {2,ROW-1}});
+        lines.push_back({{COL-2,ROW-3}, {COL-3,ROW-2}, {COL-4,ROW-1}});
+    }
+
+    // === INNER LINES ===
+    add_horizontal_lines(lines, {0,1,2,3}, {1,COL-9}, 7);
+    // === SIDE LINES ===
+    int length = 4;
+    add_horizontal_lines(lines, {1}, {0,0}, length);
+    add_horizontal_lines(lines, {1}, {COL-length-1, COL-length-1}, length);
+    add_horizontal_lines(lines, {0,2,3}, {0,0}, 4);
+    add_horizontal_lines(lines, {0,2,3}, {COL-4-1, COL-4-1}, 4);
+    // === DIAGONAL LINES ===
+    add_diagonal_lines(lines, {0, COL-2});
+    // === VERTICAL LINES ===
+    add_vertical_lines(lines, {0, COL-2});
+
+    remove_duplicates(lines);
+}
+
+void Heuristic::generate_lines(){
+    classical_board(lines);
+    //zsolts_board(lines);
+}
 
 
 

@@ -28,9 +28,9 @@ public:
 
     std::vector<setword> get_canonical_graph(const Board& b, const std::vector<Line_info>& all_linesinfo, int* labs=NULL){
         // === Set new indexes for every empty field ===
-        int index[ROW*COL];
+        int index[ACTION_SIZE];
         int sum = 0;
-        for(int i=0;i<ROW*COL;i++){
+        for(int i=0;i<ACTION_SIZE;i++){
             if(b.is_valid(i)) index[i] = (sum++);
             else index[i]=-1;
         }

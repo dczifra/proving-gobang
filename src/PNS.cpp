@@ -338,7 +338,7 @@ void PNS::delete_and_log(PNS::PNSNode* node){
     #if LOG
     if(false && keep_only_one_child(node) && node->child_num > 0){
         int ind = rand() % node->child_num;
-        if(node->children[ind] != nullptr && node->children[ind]->board.get_valids_num() < ROW*COL*0.75){
+        if(node->children[ind] != nullptr && node->children[ind]->board.get_valids_num() < ACTION_SIZE*0.75){
             evaluate_node_with_PNS(node->children[ind]);
             logger->log(node->children[ind], heuristic);
         }
@@ -461,15 +461,15 @@ PNS::PNSNode* PNS::get_states(const Board& board){
             return nullptr;
         }
     #else
-        Board reversed(board);
-        reversed.flip();
+        //Board reversed(board);
+        //reversed.flip();
 
         if(states.find(board) != states.end()){
             return states[board];
         }
-        else if(states.find(reversed) != states.end()){
-            return states[reversed];
-        }
+        //else if(states.find(reversed) != states.end()){
+        //    return states[reversed];
+        //}
         else{
             //assert(states.find(board) != states.end());
             return nullptr;

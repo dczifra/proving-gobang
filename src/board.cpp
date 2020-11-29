@@ -609,25 +609,6 @@ void Board::remove_small_components(const std::vector<Line_info> &all_lines)
             black |= ((1ULL) << i);
         }
     }
-
-    if (0)
-    {
-        // === Print Comp ===
-        for (int i = 0; i < ROW; i++)
-        {
-            for (int j = 0; j < COL; j++)
-            {
-                std::cout << node_component[j * ROW + i] << " ";
-            }
-            std::cout << std::endl;
-        }
-
-        for (auto comp_size : component_sum)
-        {
-            std::cout << comp_size << " ";
-        }
-        std::cout << std::endl;
-    }
 }
 
 // =======================================

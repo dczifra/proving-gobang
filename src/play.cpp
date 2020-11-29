@@ -12,15 +12,21 @@ Play::Play(std::string filename, bool disproof, bool talky):talky(talky){
     read_solution(filename);
     printf("Proof/disproof tree size: %zu\n", tree.states.size());
     printf("Isommap size: %zu\n", isom_map.size());
-    human_player = (tree.get_states(board)->pn == 0 ? -1:1);
+    if(board.node_type == OR){
+        human_player = (tree.get_states(board)->pn == 0 ? -1:1);
+    }
+    else{
+        human_player = (tree.get_states(board)->pn == 0 ? 1:-1);
+    }
 
     //build_tree();
 }
 
 NodeType Play::choose_problem(Board& board, int& player, bool disproof){
-    if(disproof) board.move({0,1, ROW*COL-1}, player);
-    //board.move({1,4}, player);
+    if(disproof) board.move({0,1, ACTION_SIZE-1}, player);
+    //board.move({1}, player);
     //board.move({1,4, 5, 2, ROW*COL-3, ROW*COL-8, ROW*COL-7, ROW*COL-2,}, player);
+    //board.move({1,5, ROW*COL-7, ROW*COL-11}, player);
 
     return (player==1?OR:AND);
 }

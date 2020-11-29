@@ -47,7 +47,7 @@ void PNS_test(Args& args){
     Board b;
     int player = 1;
     Play::choose_problem(b,player, args.disproof);
-    display(b, true);
+    if(args.show_lines) display(b, true);
 
     PNS tree(&args);
     PNS::PNSNode* node = new PNS::PNSNode(b, PNS::heuristic);
