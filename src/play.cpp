@@ -41,14 +41,15 @@ void Play::read_solution(std::string filename){
     }
 
     std::string s;
+    Args* args = new Args();
     while(std::getline (file, s)){
         var pn, dn;
         Board b;
-
         std::stringstream sstream(s);
         sstream>>b.white>>b.black>>b.node_type>>pn>>dn;
         if(tree.get_states(b)==nullptr){
-            PNS::PNSNode* node = new PNS::PNSNode(b, tree.heuristic);
+            
+            PNS::PNSNode* node = new PNS::PNSNode(b, tree.heuristic,args);
             node->pn = pn;
             node->dn = dn;
             tree.add_board(b, node);

@@ -20,7 +20,7 @@ public:
     friend class CanonicalOrder;
     friend class Logger;
     struct PNSNode{
-        PNSNode(const Board& b, Heuristic& h);
+        PNSNode(const Board& b, Heuristic& h, Args* args);
 
         // === DATA ===
         std::vector<PNSNode*> children;

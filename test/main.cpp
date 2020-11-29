@@ -26,6 +26,9 @@ Args::Args(int argc, char* argv[]){
         else if((std::string) argv[i] == "--test") test = true;
         else if((std::string) argv[i] == "--disproof") disproof = true;
         else if((std::string) argv[i] == "--lines") show_lines = true;
+        else if((std::string) argv[i] == "-potencial_n"){
+            potencial_n = std::stoi(argv[++i]);
+        }
         else if((std::string) argv[i] == "--PNS2") PNS_square = true;
         else if((std::string )argv[i] == "--help"){
             std::cout<<"Help for AMOBA\nARGS:\n";
@@ -50,7 +53,7 @@ void PNS_test(Args& args){
     if(args.show_lines) display(b, true);
 
     PNS tree(&args);
-    PNS::PNSNode* node = new PNS::PNSNode(b, PNS::heuristic);
+    PNS::PNSNode* node = new PNS::PNSNode(b, PNS::heuristic, &args);
     std::cout<<"Root node heuristic value: "<<node->heuristic_value<<std::endl;
 
     tree.init_PN_search(node);

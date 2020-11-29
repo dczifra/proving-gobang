@@ -157,9 +157,10 @@ void test_DFPN(){
     Heuristic h;
     int player = 1;
     //choose_problem(b,player);
+    Args args;
 
     PNS tree;
-    PNS::PNSNode* node = new PNS::PNSNode(b, h);
+    PNS::PNSNode* node = new PNS::PNSNode(b, h, &args);
     //tree.init_DFPN_search(node);
     
     unsigned int i = 0;

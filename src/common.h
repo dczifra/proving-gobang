@@ -68,8 +68,10 @@ struct Args{
     bool PNS_square = false;
     float A = 200000000000.0;
     float B = 15000000000.0;
+    int potencial_n = 128;
     std::string get_filename();
     Args(int argc, char* argv[]);
+    Args(){}
 };
 
 // ============================================

@@ -10,7 +10,7 @@
 
 #include <unistd.h>
 
-PNS::PNSNode::PNSNode(const Board& b, Heuristic& h):children(), board(b){
+PNS::PNSNode::PNSNode(const Board& b, Heuristic& h, Args* args):children(), board(b){
     type = b.node_type;
     child_num = __builtin_popcountll(b.get_valids_without_ondegree(h.all_linesinfo));
 
@@ -37,6 +37,10 @@ PNS::PNSNode::PNSNode(const Board& b, Heuristic& h):children(), board(b){
     //    pn = var_MAX;
     //    dn = 0;
     //}
+    else if((b.node_type == AND) && (b.heuristic_value(h.all_linesinfo)*128 < args->potencial_n-0.000000001)){
+        pn = var_MAX;
+        dn = 0;
+    }
     else{
         init_pn_dn();
     }
@@ -167,7 +171,7 @@ PNS::PNSNode* PNS::create_and_eval_node(Board& board, bool eval){
         node -> parent_num += 1;
     }
     else{
-        node = new PNS::PNSNode(board, heuristic);
+        node = new PNS::PNSNode(board, heuristic, args);
         add_board(board, node);
     }
 
@@ -222,7 +226,7 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board){
         }
     }
     else{
-        PNSNode* node = new PNSNode(base_board, heuristic);
+        PNSNode* node = new PNSNode(base_board, heuristic, args);
         add_board(base_board, node);
         return node;
     }
@@ -316,7 +320,7 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, unsigned int slot,
             node->children[slot] = evaluate_components(next_state);
         } 
         else{
-            node->children[slot] = new PNS::PNSNode(next_state, heuristic);
+            node->children[slot] = new PNS::PNSNode(next_state, heuristic, args);
             add_board(next_state, node->children[slot]);
             if(!fast_eval && moves_before < EVAL_TRESHOLD){
                 evaluate_node_with_PNS(node->children[slot], false, true);

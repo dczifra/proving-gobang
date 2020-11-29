@@ -270,7 +270,7 @@ void classical_board(std::vector<Line>& lines){
     // === INNER LINES ===
     add_horizontal_lines(lines, {0,1,2,3}, {1,COL-8}, 7);
     // === SIDE LINES ===
-    int length = 4;
+    int length = 7;
     add_horizontal_lines(lines, {1}, {0,0}, length);
     add_horizontal_lines(lines, {1}, {COL-length, COL-length}, length);
     add_horizontal_lines(lines, {0,2,3}, {0,0}, 4);
