@@ -34,7 +34,7 @@ unsigned long long set_full_board(){
     return board;
 }
 
-void display(mtx<int>& board, bool end, std::vector<int> show){
+void display(mtx<int>& board, bool end, std::vector<int> show, bool nocolor){
     std::vector<bool> is_show(ACTION_SIZE, 0);
     for(auto f: show){
         is_show[f]=1;
@@ -62,13 +62,16 @@ void display(mtx<int>& board, bool end, std::vector<int> show){
             int piece = board[y][x];
             std::string background = (is_show[y*ROW+x]?"\033[43m":"");
             if(piece>0){
-                printf("%s%s%s\033[0m", WARNING.c_str(),background.c_str(),  "o ");
+                if(nocolor) printf("o ");
+                else printf("%s%s%s\033[0m", WARNING.c_str(),background.c_str(),  "o ");
             }
             else if(piece<0){
-                printf("%s%s%s\033[0m", FAIL.c_str(), background.c_str(), "x ");
+                if(nocolor) printf("x ");
+                else printf("%s%s%s\033[0m", FAIL.c_str(), background.c_str(), "x ");
             }
             else{
-                printf("%s  \033[0m", background.c_str());
+                if(nocolor) printf("  ");
+                else printf("%s  \033[0m", background.c_str());
             }
         }
         printf("|\n");
@@ -79,7 +82,7 @@ void display(mtx<int>& board, bool end, std::vector<int> show){
     printf("\033[1A");
 }
 
-void display(const board_int board, bool end, std::vector<int> show){
+void display(const board_int board, bool end, std::vector<int> show, bool nocolor){
     mtx<int> big_board;
     for(int x=0;x<ROW;x++){
         for(int y=0;y<COL;y++){
@@ -87,10 +90,10 @@ void display(const board_int board, bool end, std::vector<int> show){
             big_board[y][x] = white;
         }
     }
-    display(big_board, end, show);
+    display(big_board, end, show, nocolor);
 }
 
-void display(const Board board, bool end, std::vector<int> show){
+void display(const Board board, bool end, std::vector<int> show, bool nocolor){
     mtx<int> big_board;
     for(int x=0;x<ROW;x++){
         for(int y=0;y<COL;y++){
@@ -99,7 +102,7 @@ void display(const Board board, bool end, std::vector<int> show){
             big_board[y][x] = white-black;
         }
     }
-    display(big_board, end, show);
+    display(big_board, end, show, nocolor);
 }
 
 

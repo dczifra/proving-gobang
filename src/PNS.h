@@ -114,4 +114,5 @@ private :
 
     Args* args;
     std::vector<std::vector<int>> component_cut;
+    bool print=false;
 };

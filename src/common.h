@@ -51,9 +51,9 @@ template<class T>
 using mtx = std::array<std::array<T,ROW>, COL> ;
 void print_v(std::vector<int>& v);
 struct Board;
-void display(const Board board, bool end, std::vector<int> show = std::vector<int>());
-void display(const mtx<int>& board, bool end, std::vector<int> show);
-void display(const board_int board, bool end, std::vector<int> show = std::vector<int>());
+void display(const Board board, bool end, std::vector<int> show = std::vector<int>(), bool nocolor=false);
+void display(const mtx<int>& board, bool end, std::vector<int> show, bool nocolor=false);
+void display(const board_int board, bool end, std::vector<int> show = std::vector<int>(), bool nocolor=false);
 
 // ============================================
 //                   ARGS

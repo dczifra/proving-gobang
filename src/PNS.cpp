@@ -240,6 +240,10 @@ void PNS::evaluate_node_with_PNS(PNSNode* node, bool log, bool fast_eval){
 
         if(log && i%10000 == 0){
             stats(node);
+            //std::cout<<"\n=== New path ===\n";
+            //print=true;
+            //PN_search(node, fast_eval);
+            //print=false;
         }
         // if(i == update_iteration){
         //     Counter counter;
@@ -357,6 +361,7 @@ void PNS::delete_and_log(PNS::PNSNode* node){
 void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
     assert(node != nullptr);
     // display_node(node);
+    //if(print) display(node->board, true, {}, true);
     if(node->pn == 0 || node->dn == 0) return;
 
     // if we are in a leaf, we extend it

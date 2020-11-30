@@ -220,6 +220,11 @@ void add_horizontal_lines(std::vector<Line>& lines, std::vector<int> rows,
     }
 }
 
+void add_side_lines(std::vector<Line>& lines, int row, int length){
+    add_horizontal_lines(lines, {row}, {0,0}, length);
+    add_horizontal_lines(lines, {row}, {COL-length, COL-length}, length);
+}
+
 void add_diagonal_lines(std::vector<Line>& lines, std::pair<int,int> cols){
     for(int y = cols.first; y<=cols.second; y++){
         Line l1;
@@ -270,11 +275,10 @@ void classical_board(std::vector<Line>& lines){
     // === INNER LINES ===
     add_horizontal_lines(lines, {0,1,2,3}, {1,COL-8}, 7);
     // === SIDE LINES ===
-    int length = 7;
-    add_horizontal_lines(lines, {1}, {0,0}, length);
-    add_horizontal_lines(lines, {1}, {COL-length, COL-length}, length);
-    add_horizontal_lines(lines, {0,2,3}, {0,0}, 4);
-    add_horizontal_lines(lines, {0,2,3}, {COL-4, COL-4}, 4);
+    add_side_lines(lines, 0, 4);
+    add_side_lines(lines, 1, 7);
+    add_side_lines(lines, 2, 4);
+    add_side_lines(lines, 3, 4);
     // === DIAGONAL LINES ===
     add_diagonal_lines(lines, {0, COL-1});
     // === VERTICAL LINES ===
