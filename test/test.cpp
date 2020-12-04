@@ -88,42 +88,6 @@ void human_play(){
 // =================================================================
 //                     TEST THE BOARD's GOODNESS
 // =================================================================
-void test_components(){
-    Heuristic h;
-
-    Board b;
-    int player = 1;
-    //std::vector<int> moves = {0, 12, 1, 13, 2, 14, 5, 15, 6, 3, 7, 6, 10, 9};
-    std::vector<int> moves = {12, 13, 14, 29, 26, 5, 6, 4, 15, 7, 0, 2};
-    for(auto act: moves){
-        b.move(act, player);
-        player = -player;
-        b.remove_lines_with_two_ondegree(h.all_linesinfo);
-        b.remove_2lines_all(h.all_linesinfo);
-        b.remove_dead_fields(h.linesinfo_per_field, act);
-    }
-    display(b,true);
-}
-
-void test_components2(){
-    Heuristic h;
-    Board b;
-    int player = 1;
-
-    std::vector<int> moves = {1, 4, 2, 5};
-
-    for(auto act: moves){
-        b.move(act, player);
-        if(player == -1){
-            b.remove_dead_fields(h.linesinfo_per_field, act);
-            //b.remove_small_components(h.all_linesinfo);
-            //b.remove_2lines_all(h.all_linesinfo);
-            b.remove_2lines(h.linesinfo_per_field, act);
-        }
-        display(b,true);
-        player = -player;
-    }
-}
 
 void artic_point(){
     std::vector<int> moves = {0,1,8,10, 29, 24, 25, 30, 5, 2, 17, 21};
