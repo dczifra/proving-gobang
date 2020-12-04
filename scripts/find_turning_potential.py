@@ -20,7 +20,7 @@ if(__name__ == "__main__"):
     # === Build ===
     os.chdir("build")
     if 1:
-        os.system("sed -i 's/#define COL.*/#define COL {}/g' ../src/common.h".format(10))
+        os.system("sed -i 's/#define COL.*/#define COL {}/g' ../src/common.h".format(9))
         build = Popen(["make", "-j4"],
                     stdout=PIPE, stdin=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True)
 

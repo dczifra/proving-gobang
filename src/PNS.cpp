@@ -143,6 +143,9 @@ bool PNS::game_ended(const Board& b){
     else if(b.white == 0 && b.black == FULL_BOARD){
         return true;
     }
+    else if((b.node_type == AND) && (b.heuristic_value(heuristic.all_linesinfo)*128 < args->potencial_n-0.000000001)){
+        return true;
+    }
     return false;
 }
 
@@ -240,19 +243,7 @@ void PNS::evaluate_node_with_PNS(PNSNode* node, bool log, bool fast_eval){
 
         if(log && i%10000 == 0){
             stats(node);
-            //std::cout<<"\n=== New path ===\n";
-            //print=true;
-            //PN_search(node, fast_eval);
-            //print=false;
         }
-        // if(i == update_iteration){
-        //     Counter counter;
-        //     int update_count = counter.update_tree(node);
-        //     update_iteration *= 2;
-        //     Counter counter2;
-        //     int node_count = counter2.count_nodes(node);
-        //     std::cout<<"Iteration "<<i<<", updated: "<<update_count<<"/"<<node_count<<std::endl;
-        // }
         ++i;
     }
 }
