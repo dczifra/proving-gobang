@@ -459,15 +459,15 @@ PNS::PNSNode* PNS::get_states(const Board& board){
             return nullptr;
         }
     #else
-        Board reversed(board);
-        reversed.flip();
+        //Board reversed(board);
+        //reversed.flip();
 
         if(states.find(board) != states.end()){
             return states[board];
         }
-        else if(states.find(reversed) != states.end()){
-            return states[reversed];
-        }
+        //else if(states.find(reversed) != states.end()){
+        //    return states[reversed];
+        //}
         else{
             //assert(states.find(board) != states.end());
             return nullptr;
