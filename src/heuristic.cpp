@@ -331,6 +331,32 @@ void zsolts_board(std::vector<Line>& lines){
     remove_duplicates(lines);
 }
 
+void classic_twopad(std::vector<Line>& lines){
+    lines = {
+        {{0,0},{0,1},{0,2},{0,3}},
+        {{1,0},{1,3}},
+        {{0,1},{1,2}},
+        {{0,2},{1,1}},
+        {{COL-2,0},{COL-2,3}},
+        {{COL-1, 0},{COL-1, 1},{COL-1, 2},{COL-1, 3}},
+        {{COL-2, 1}, {COL-1, 2}},
+        {{COL-2, 2}, {COL-1, 1}}
+    };
+
+    // === INNER LINES ===
+    if(COL>=8) add_horizontal_lines(lines, {0,1,2,3}, {1,COL-8}, 7);
+    // === SIDE LINES ===
+    int length = 5;
+    add_horizontal_lines(lines, {0,1,2,3}, {0,0}, length);
+    add_horizontal_lines(lines, {0,1,2,3}, {COL-length, COL-length}, length);
+    // === DIAGONAL LINES ===
+    add_diagonal_lines(lines, {0, COL-1});
+    // === VERTICAL LINES ===
+    add_vertical_lines(lines, {1, COL-2});
+
+    remove_duplicates(lines);
+}
+
 void cross_board_twopad(std::vector<Line>& lines){
     lines = {
         {{0, 1}, {0, 2}, {0, 3}},
@@ -471,6 +497,7 @@ void Heuristic::generate_lines(){
     //classical_board(lines);
     //zsolts_board(lines);
     cross_board_onepad(lines);
+    classic_twopad(lines);
 }
 
 
