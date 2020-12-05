@@ -40,9 +40,9 @@ public:
         void init_pn_dn();
     };
 
-    PNS(Args* inp_args = nullptr){
+    PNS(Args* inp_args){
         component_cut.resize((int)ACTION_SIZE, std::vector<int>((int)ACTION_SIZE, 0));
-	args = inp_args;
+	    args = inp_args;
     }
 
     ~PNS(){free_states();}

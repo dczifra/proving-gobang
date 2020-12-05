@@ -80,7 +80,7 @@ void init_graph(){
 }
 
 void convert_board(const Board& b){
-    PNS tree;
+    PNS tree(nullptr);
     //std::cout<<(ROW*COL+tree.heuristic.all_linesinfo.size())<<" "<<MAXN<<std::endl;
     int nodes = b.get_valids_num();
     int n = nodes+b.get_active_line_num(tree.heuristic.all_linesinfo);

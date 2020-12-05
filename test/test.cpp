@@ -10,6 +10,7 @@
 // =================================================================
 //                     TEST THE BOARD's GOODNESS
 // =================================================================
+Args* args;
 int play(Board& b, int player, const Heuristic& heuristic){
     int act;
     while(1){
@@ -93,7 +94,7 @@ void artic_point(){
     std::vector<int> moves = {0,1,8,10, 29, 24, 25, 30, 5, 2, 17, 21};
 
     Board b;
-    PNS tree;
+    PNS tree(args);
 
     int player = 1;
     for(auto act: moves){
@@ -121,10 +122,9 @@ void test_DFPN(){
     Heuristic h;
     int player = 1;
     //choose_problem(b,player);
-    Args args;
 
-    PNS tree;
-    PNS::PNSNode* node = new PNS::PNSNode(b, h, &args);
+    PNS tree(args);
+    PNS::PNSNode* node = new PNS::PNSNode(b, h, args);
     //tree.init_DFPN_search(node);
     
     unsigned int i = 0;
@@ -152,12 +152,12 @@ void canonical_order2(){
     display(b1, true);
     display(b2, true);
 
-    PNS tree;
+    PNS tree(args);
     tree.isom_machine.get_conversion(b1, b2, tree.heuristic.all_linesinfo);
 }
 
 void canonical_order(){
-    PNS tree;
+    PNS tree(args);
     Board b1;
     int player = 1;
     std::vector<int> moves = {1,4,8,9, 13, 14, 18, 12, 17, 6, 0, 16, 11, 2, 19, 10};
@@ -177,7 +177,7 @@ void canonical_order(){
 }
 
 void get_valids_test(){
-    PNS tree;
+    PNS tree(args);
     Board b1;
     Heuristic h;
     int player = 1;
@@ -193,7 +193,9 @@ void get_valids_test(){
 Heuristic PNS::heuristic;
 CanonicalOrder PNS::isom_machine;
 Logger* PNS::logger = new Logger();
+
 int main() {
+    args = new Args();
     std::cout<<"### TEST ###"<<std::endl;
 
     //test_components();

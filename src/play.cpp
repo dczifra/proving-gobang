@@ -4,8 +4,9 @@
 #include<sstream>
 #include<fstream>
 
-Play::Play(std::string filename, bool disproof, bool talky):talky(talky){
+Play::Play(std::string filename, bool disproof, bool talky, Args* args_):talky(talky),tree(args_){
     player = 1;
+    args = args_;
     choose_problem(board, player, disproof);
 
     // === Read Solution Tree ===
@@ -41,7 +42,6 @@ void Play::read_solution(std::string filename){
     }
 
     std::string s;
-    Args* args = new Args();
     while(std::getline (file, s)){
         var pn, dn;
         Board b;
@@ -76,7 +76,7 @@ int Play::move_human(){
 }
 
 void Play::build_node(Board b){
-    PNS new_tree;
+    PNS new_tree(args);
     int slot = 0;
     
     board_int valids = b.get_valids_without_ondegree(PNS::heuristic.all_linesinfo);

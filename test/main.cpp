@@ -94,7 +94,7 @@ int main(int argc, char* argv[]){
     PNS::logger->init(args.disproof);
 
     if(args.test){
-        Play game(args.get_filename(), args.disproof, args.talky);
+        Play game(args.get_filename(), args.disproof, args.talky, &args);
         game.play_with_solution2();
     }
     else{
