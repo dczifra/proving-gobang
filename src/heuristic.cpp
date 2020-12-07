@@ -370,7 +370,7 @@ void read_lines_from_file(std::vector<Line>& lines){
         else if(line[0] == '#' || line[0] == '/') continue;
 
         std::stringstream inp_line(line);
-        std::cout<<line<<std::endl;
+        //std::cout<<line<<std::endl;
 
         Line act_line={};
         while(!inp_line.eof()){
@@ -378,11 +378,12 @@ void read_lines_from_file(std::vector<Line>& lines){
             char split;
 
             inp_line>>coord.first>>coord.second>>split;
-            std::cout<<coord.first<<" "<<coord.second<<std::endl;
+            //std::cout<<coord.first<<" "<<coord.second<<std::endl;
             act_line.push_back(coord);
         }
         lines.push_back(act_line);
     }
+    remove_duplicates(lines);
 }
 
 void Heuristic::generate_lines(){
