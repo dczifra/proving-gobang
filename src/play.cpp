@@ -7,7 +7,7 @@
 Play::Play(std::string filename, bool disproof, bool talky, Args* args_):talky(talky),tree(args_){
     player = 1;
     args = args_;
-    choose_problem(board, player, disproof);
+    choose_problem(board, player, disproof, args);
 
     // === Read Solution Tree ===
     read_solution(filename);
@@ -23,11 +23,12 @@ Play::Play(std::string filename, bool disproof, bool talky, Args* args_):talky(t
     //build_tree();
 }
 
-NodeType Play::choose_problem(Board& board, int& player, bool disproof){
+NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* args){
     if(disproof) board.move({0,1, ACTION_SIZE-1}, player);
-    //board.move({1}, player);
     //board.move({1,4, 5, 2, ROW*COL-3, ROW*COL-8, ROW*COL-7, ROW*COL-2,}, player);
     //board.move({1,5, ROW*COL-7, ROW*COL-11}, player);
+
+    if(args->START > -1) board.move({args->START}, player);
 
     return (player==1?OR:AND);
 }

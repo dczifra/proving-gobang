@@ -17,7 +17,7 @@ public:
     void build_tree();
     void build_node(Board b);
 
-    static NodeType choose_problem(Board& b, int& player, bool disproof);
+    static NodeType choose_problem(Board& b, int& player, bool disproof, Args* args);
 
 private:
     int move_human();

@@ -26,6 +26,9 @@ Args::Args(int argc, char* argv[]){
         else if((std::string) argv[i] == "--test") test = true;
         else if((std::string) argv[i] == "--disproof") disproof = true;
         else if((std::string) argv[i] == "--lines") show_lines = true;
+        else if((std::string) argv[i] == "-start"){
+            START = std::stoi(argv[++i]);
+        }
         else if((std::string) argv[i] == "-potencial_n"){
             potencial_n = std::stoi(argv[++i]);
         }
@@ -49,7 +52,7 @@ std::string Args::get_filename(){
 void PNS_test(Args& args){
     Board b;
     int player = 1;
-    Play::choose_problem(b,player, args.disproof);
+    Play::choose_problem(b,player, args.disproof, &args);
     if(args.show_lines) display(b, true);
 
     PNS tree(&args);

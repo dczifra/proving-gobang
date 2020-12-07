@@ -69,6 +69,7 @@ struct Args{
     float A = 200000000000.0;
     float B = 15000000000.0;
     int potencial_n = 128;
+    int START=-1;
     std::string get_filename();
     Args(int argc, char* argv[]);
     Args(){}
