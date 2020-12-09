@@ -9,7 +9,6 @@
 #include <tuple>
 
 #include "common.h"
-#include "heuristic.h"
 
 // === NODETYPE ===
 enum NodeType : uint8_t {OR, AND};

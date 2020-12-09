@@ -6,98 +6,6 @@
 #include <iostream>
 #include <sstream>
 
-template<class T>
-void make_zero(mtx<T>& data){
-    for(int j=0;j<COL;j++){
-        for(int k=0;k<ROW;k++){
-            data[j][k]=0;
-        }
-    }
-}
-
-template<class T>
-std::array<mtx<T>, LAYERNUM+1> Heuristic::get_layers(mtx<int>& board){
-    std::array<mtx<double>, LAYERNUM+1> layers;
-    for(int i=0;i<layers.size();i++){
-        make_zero<double>(layers[i]);
-    }
-
-    for(int i=0;i<lines.size();i++){
-        bool enemyless = true;
-        int emptynum = 0;
-        for(int j=0;j<lines[i].size();j++){
-            int y = lines[i][j].first, x = lines[i][j].second;
-            if(board[y][x]==-1){
-                enemyless=false;
-                break;
-            }
-            else if(board[y][x]==0) emptynum++;
-        }
-        if(enemyless){
-            for(int j=0;j<lines[i].size();j++){
-                int y = lines[i][j].first, x = lines[i][j].second;
-                if(board[y][x]==0){
-                    layers[emptynum][y][x]++;
-                    layers[0][y][x]+=std::pow(2.0, -emptynum);
-                }
-            }
-        }
-    }
-    return layers;
-}
-
-
-int Heuristic::getGameEnded(mtx<int>& board, int action, int round){
-    bool free_line = true;
-    for(auto& point: lines_per_action[action]){
-        if(board[action/ROW][action%ROW]==-1){
-            free_line=false;
-            break;
-        }
-    }
-
-    if(free_line) return 1;
-    else return round<MAX_ROUND-1?0:-1;
-}
-
-template<class T>
-std::vector<T> Heuristic::get_flat_layers(mtx<int>& board){
-    // === Description ===
-    // Returns the flattened input for the NN
-    //     - board (COL*ROW)
-    //     - heur mtx (COL*ROW)
-    //     - heur layers (LAYERSNUM*COL_ROW)
-    std::vector<T> layers(ROW*COL*(LAYERNUM+2), 0.0);
-    for(int i=0;i<lines.size();i++){
-        bool enemyless = true;
-        int emptynum = 0;
-        for(int j=0;j<lines[i].size();j++){
-            int y = lines[i][j].first, x = lines[i][j].second;
-            if(board[y][x]==-1){
-                enemyless=false;
-                break;
-            }
-            else if(board[y][x]==0) emptynum++;
-        }
-        if(enemyless){
-            for(int j=0;j<lines[i].size();j++){
-                int y = lines[i][j].first, x = lines[i][j].second;
-                if(board[y][x]==0){
-                    layers[(emptynum+1)*(ROW*COL)+(y*ROW+x)]+=1.0;
-                    layers[(ROW*COL)+(y*ROW+x)]+=std::pow(2.0, -emptynum);
-                }
-            }
-        }
-    }
-
-    for(int y=0;y<COL;y++){
-        for(int x=0;x<ROW;x++){
-            layers[y*ROW+x]=board[y][x];
-        }
-    }
-    return layers;
-}
-
 int half(const int& a){ return (a%2 == 0) ? a/2 : (a+1)/2;}
 
 void Heuristic::generate_compressed_lines(){
@@ -360,6 +268,27 @@ void classic_twopad(std::vector<Line>& lines){
     remove_duplicates(lines);
 }
 
+void read_forbidden_strategy(std::map<board_int, int>& side_strategy){
+    std::ifstream inp("../boards/forbidden1.txt");
+    int N,x,y;
+    int R,C;
+    inp>>N>>R>>C;
+    for(int i=0;i<N;i++){
+        board_int act_board, action;
+
+        int rowNum;
+        inp >>rowNum;
+        for(int j=0;j<rowNum;j++){
+            inp>>action;
+            //inp>>y>>x;act_board |= (1ULL << (y*ROW+COL));
+            act_board |= (1ULL << action);
+        }
+        inp>>action;
+        side_strategy[act_board]=action;
+        side_strategy[act_board<<(40ULL)]=action<<(40ULL);
+    }
+}
+
 void read_lines_from_file(std::vector<Line>& lines){
     while(1){
         std::string line;
@@ -368,7 +297,6 @@ void read_lines_from_file(std::vector<Line>& lines){
         // === Stop condition ===
         if(line=="") break;
         else if(line[0] == '#' || line[0] == '/') continue;
-
         std::stringstream inp_line(line);
         //std::cout<<line<<std::endl;
 
@@ -390,6 +318,7 @@ void Heuristic::generate_lines(){
     //classical_board(lines);
     //zsolts_board(lines);
     read_lines_from_file(lines);
+    read_forbidden_strategy(side_strategy);
 }
 
 

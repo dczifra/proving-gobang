@@ -311,7 +311,7 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, unsigned int slot,
         int moves_before = next_state.get_valids_num();
         if(!fast_eval && next_state.node_type == OR && !game_ended(next_state) && moves_before >= EVAL_TRESHOLD){ 
             node->children[slot] = evaluate_components(next_state);
-        } 
+        }
         else{
             node->children[slot] = new PNS::PNSNode(next_state, heuristic, args);
             add_board(next_state, node->children[slot]);

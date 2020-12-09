@@ -4,15 +4,17 @@
 #include <vector>
 #include <array>
 #include <cmath>
+#include <map>
 
 #include "common.h"
 
-
 using Line = std::vector<std::pair<int,int>>;
-
 
 class Heuristic{
 public:
+    board_int forbidden_fields = 0;
+    std::map<board_int, int> side_strategy;
+
     std::vector<Line> lines;
     mtx<std::vector<Line>> lines_per_field;
     std::vector<std::vector<Line>> lines_per_action;
@@ -32,13 +34,4 @@ public:
     
     void generate_lines();
     void generate_compressed_lines();
-
-
-    template<class T>
-    std::array<mtx<T>, LAYERNUM+1> get_layers(mtx<int>& board);
-
-    template<class T>
-    std::vector<T> get_flat_layers(mtx<int>& board);
-
-    int getGameEnded(mtx<int>& board, const int action, const int round);
 };
