@@ -296,7 +296,36 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, unsigned int slot,
 		  bool fast_eval){
     Board next_state(node->board, action, get_player(node->type));
 
-    simplify_board(next_state);
+    if(next_state.node_type == AND &&
+        (heuristic.forbidden_fields_left & (1ULL)<<action)){
+        board_int side = next_state.white & heuristic.forbidden_fields_left;
+        if(heuristic.side_strategy.find(side) != heuristic.side_strategy.end()){
+            board_int side_step = heuristic.side_strategy[side];
+            //display(side, true);
+            //display(next_state, true, {(int)action, (int)side_step});
+            //next_state.move(side_step, -1);
+            if((side_step & next_state.black) < side_step){ 
+                next_state.black |= side_step;
+                next_state.node_type = (!next_state.node_type);
+            }
+        }
+    }
+    else if(next_state.node_type == AND && 
+        (heuristic.forbidden_fields_left & (1ULL)<<action)){
+        board_int side = next_state.white & heuristic.forbidden_fields_right;
+        if(heuristic.side_strategy.find(side) != heuristic.side_strategy.end()){
+            board_int side_step = heuristic.side_strategy[side];
+            //display(side, true);
+            //display(next_state, true, {(int)action, (int)side_step});
+            //next_state.move(side_step, -1);
+            if((side_step & next_state.black) < side_step){ 
+                next_state.black |= side_step;
+                next_state.node_type = (!next_state.node_type);
+            }
+        }
+    }
+    next_state.remove_dead_fields_all(heuristic.all_linesinfo);
+    //simplify_board(next_state);
     
     PNSNode* child = get_states(next_state);
     if(child != nullptr){
@@ -309,7 +338,7 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, unsigned int slot,
 
         // 2-connected components, if not ended
         int moves_before = next_state.get_valids_num();
-        if(!fast_eval && next_state.node_type == OR && !game_ended(next_state) && moves_before >= EVAL_TRESHOLD){ 
+        if(0 & !fast_eval && next_state.node_type == OR && !game_ended(next_state) && moves_before >= EVAL_TRESHOLD){ 
             node->children[slot] = evaluate_components(next_state);
         }
         else{

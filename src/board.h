@@ -84,6 +84,7 @@ inline void Board::set_black(const int action){
     if((white & ((1ULL) << action))>0){
         white = white ^ ((1ULL) << action);
     }
+    //while &= ~((1ULL) << action);
     black |= ((1ULL) << action);
 }
 

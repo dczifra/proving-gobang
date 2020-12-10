@@ -12,8 +12,9 @@ using Line = std::vector<std::pair<int,int>>;
 
 class Heuristic{
 public:
-    board_int forbidden_fields = 0;
-    std::map<board_int, int> side_strategy;
+    board_int forbidden_fields_right = 0;
+    board_int forbidden_fields_left = 0;
+    std::map<board_int, board_int> side_strategy;
 
     std::vector<Line> lines;
     mtx<std::vector<Line>> lines_per_field;
@@ -34,4 +35,6 @@ public:
     
     void generate_lines();
     void generate_compressed_lines();
+
+    void read_forbidden_strategy();
 };

@@ -4,7 +4,8 @@ cmake_minimum_required(VERSION 2.5)
 project(AMOBA)
 
 set(CMAKE_CXX_STANDARD 14)
-
+#set(CMAKE_CXX_FLAGS "-g")
+set(CMAKE_CXX_FLAGS "-O3")
 file(GLOB AMOBA_FILES src/*.cpp src/*.hpp)
 add_library(amoba ${AMOBA_FILES})
 
@@ -14,18 +15,18 @@ add_library(nauty ${NAUTY_FILES})
 #message("${FILES}")
 include_directories(src)
 
-set(CMAKE_CXX_FLAGS "-O3")
 add_executable(AMOBA test/main.cpp)
+set_target_properties(AMOBA PROPERTIES COMPILE_FLAGS "-O3")
 
 add_executable(AMOBA_DEBUG test/main.cpp)
 #set_target_properties(AMOBA_DEBUG PROPERTIES COMPILE_FLAGS "-Wall -Wno-long-long -pedantic")
-set_target_properties(AMOBA_DEBUG PROPERTIES COMPILE_FLAGS "-g")
+#set_target_properties(AMOBA_DEBUG PROPERTIES COMPILE_FLAGS "-g")
 
 add_executable(TEST test/test.cpp)
-set_target_properties(TEST PROPERTIES COMPILE_FLAGS "-g")
+#set_target_properties(TEST PROPERTIES COMPILE_FLAGS "-g")
 
 add_executable(NAUTY test/nauty.cpp)
-set_target_properties(NAUTY PROPERTIES COMPILE_FLAGS "-g")
+#set_target_properties(NAUTY PROPERTIES COMPILE_FLAGS "-g")
 
 file(COPY ${CMAKE_BINARY_DIR}/../test/measure.sh  ${CMAKE_BINARY_DIR}/../test/PLAY ${CMAKE_BINARY_DIR}/../test/measure_both.sh
   DESTINATION ${CMAKE_BINARY_DIR}

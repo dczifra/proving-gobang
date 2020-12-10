@@ -53,7 +53,16 @@ void PNS_test(Args& args){
     Board b;
     int player = 1;
     Play::choose_problem(b,player, args.disproof, &args);
-    if(args.show_lines) display(b, true);
+    if(args.show_lines){
+        display(b, true);
+    }
+    //std::cout<<PNS::heuristic.side_strategy.size()<<std::endl;
+    //for(auto p : PNS::heuristic.side_strategy){
+    //    Board b;
+    //    b.white = p.first;
+    //    b.black = p.second;
+    //    display(b,true);
+    //}
 
     PNS tree(&args);
     PNS::PNSNode* node = new PNS::PNSNode(b, PNS::heuristic, &args);

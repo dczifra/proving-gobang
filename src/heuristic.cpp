@@ -268,24 +268,32 @@ void classic_twopad(std::vector<Line>& lines){
     remove_duplicates(lines);
 }
 
-void read_forbidden_strategy(std::map<board_int, int>& side_strategy){
+void Heuristic::read_forbidden_strategy(){
     std::ifstream inp("../boards/forbidden1.txt");
     int N,x,y;
     int R,C;
     inp>>N>>R>>C;
     for(int i=0;i<N;i++){
-        board_int act_board, action;
-
+        board_int act_board = 0, def_board = 0, action;
         int rowNum;
         inp >>rowNum;
+        // === Read attacker fields ===
         for(int j=0;j<rowNum;j++){
             inp>>action;
-            //inp>>y>>x;act_board |= (1ULL << (y*ROW+COL));
             act_board |= (1ULL << action);
         }
-        inp>>action;
-        side_strategy[act_board]=action;
-        side_strategy[act_board<<(40ULL)]=action<<(40ULL);
+        // === Read defender fields ===
+        for(int j=0;j<rowNum;j++){
+            inp>>action;
+            def_board |= (1ULL << action);
+        }
+
+        side_strategy[act_board] = def_board;
+        forbidden_fields_left |= def_board;
+        // === Add symmetry ===
+        def_board = def_board << (40ULL);
+        side_strategy[act_board << (40ULL)] = def_board;
+        forbidden_fields_right |= def_board;
     }
 }
 
@@ -318,7 +326,7 @@ void Heuristic::generate_lines(){
     //classical_board(lines);
     //zsolts_board(lines);
     read_lines_from_file(lines);
-    read_forbidden_strategy(side_strategy);
+    read_forbidden_strategy();
 }
 
 
