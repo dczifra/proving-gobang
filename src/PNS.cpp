@@ -152,9 +152,8 @@ bool PNS::game_ended(const Board& b){
 void PNS::simplify_board(Board& next_state){
     while(!game_ended(next_state)){
         if(next_state.node_type == OR){ // Last move: black
-            //next_state.remove_lines_with_two_ondegree(heuristic.all_linesinfo);
-            //next_state.remove_2lines_all(heuristic.all_linesinfo);
-            next_state.remove_dead_fields_all(heuristic.all_linesinfo);
+            next_state.remove_lines_with_two_ondegree(heuristic.all_linesinfo, heuristic.forbidden_all);
+            next_state.remove_2lines_all(heuristic.all_linesinfo, heuristic.forbidden_all);
         }
         int temp_act = next_state.one_way(get_all_lines());
         if(temp_act > -1){
@@ -164,6 +163,7 @@ void PNS::simplify_board(Board& next_state){
             break;
         }
     }
+    next_state.remove_dead_fields_all(heuristic.all_linesinfo); // TODO can go out
 }
 
 PNS::PNSNode* PNS::create_and_eval_node(Board& board, bool eval){

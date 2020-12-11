@@ -295,6 +295,8 @@ void Heuristic::read_forbidden_strategy(){
         side_strategy[act_board << (40ULL)] = def_board;
         forbidden_fields_right |= def_board;
     }
+
+    forbidden_all = forbidden_fields_left | forbidden_fields_right;
 }
 
 void read_lines_from_file(std::vector<Line>& lines){

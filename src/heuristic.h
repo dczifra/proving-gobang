@@ -14,6 +14,7 @@ class Heuristic{
 public:
     board_int forbidden_fields_right = 0;
     board_int forbidden_fields_left = 0;
+    board_int forbidden_all = 0;
     std::map<board_int, board_int> side_strategy;
 
     std::vector<Line> lines;

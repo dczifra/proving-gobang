@@ -60,8 +60,8 @@ struct Board{
     // === Simplify board ===
     int one_way(const std::vector<Line_info>& all_lines) const;
     void remove_dead_fields_all(const std::vector<Line_info> &all_line);
-    void remove_2lines_all(const std::vector<Line_info>& all_line);
-    void remove_lines_with_two_ondegree(const std::vector<Line_info>& all_line);
+    void remove_2lines_all(const std::vector<Line_info>& all_line, board_int forbidden);
+    void remove_lines_with_two_ondegree(const std::vector<Line_info>& all_line, board_int forbidden);
 
     // === Symmetry ===
     void flip();    

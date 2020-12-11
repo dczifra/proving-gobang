@@ -289,18 +289,14 @@ int Board::one_way(const std::vector<Line_info> &all_lines) const
     return -1;
 }
 
-void Board::remove_dead_fields_all(const std::vector<Line_info> &all_line)
-{
+void Board::remove_dead_fields_all(const std::vector<Line_info> &all_line){
     std::vector<bool> dead(ACTION_SIZE, true);
     // === For all lines, which cross the action ===
-    for (auto line : all_line)
-    {
+    for (auto line : all_line){
         //  === Skip for not empty line (empty: except action) ===
         if (line.line_board & black) continue;
-
         // === For every field on the line ===
-        for (auto field : line.points)
-        {
+        for (auto field : line.points){
             dead[field] = false;
         }
     }
@@ -310,84 +306,71 @@ void Board::remove_dead_fields_all(const std::vector<Line_info> &all_line)
     }
 }
 
-void Board::remove_2lines_all(const std::vector<Line_info> &all_line)
-{
-    std::vector<unsigned int> free_num(ACTION_SIZE, 0);
+void Board::remove_2lines_all(const std::vector<Line_info> &all_line, board_int forbidden){
+    std::vector<unsigned int> degree(ACTION_SIZE, 0);
 
-    for (auto line : all_line)
-    {
+    for (auto line : all_line){
         bool is_free = !(line.line_board & black);
-        if (is_free)
-        {
-            for (auto field : line.points)
-            {
-                free_num[field] += 1;
+        if(is_free){
+            for(auto field : line.points){
+                degree[field] += 1;
             }
         }
     }
 
     bool rerun = false;
-    for (auto line : all_line)
-    {
+    for(auto line : all_line){
         bool is_free = !(line.line_board & black);
         int emptynum = line.size - __builtin_popcountll(line.line_board & white);
-        if (is_free && (emptynum == 2))
-        {
-            for (auto field : line.points)
-            {
-                if ((free_num[field] == 1) && !(white & (1ULL << field)))
-                {
+        if (is_free && (emptynum == 2)){
+            for (auto field : line.points){
+                if ((degree[field] == 1) && !(white & (1ULL << field))){
                     int other_empty = find_empty(line, field);
-                    move(other_empty, 1);
-                    move(field, -1);
-                    rerun = true;
+                    // Attacker choses the >= 2 degree field, that cannot be forbidden
+                    if(!(forbidden & (1ULL << other_empty))){
+                        move(other_empty, 1);
+                        move(field, -1);
+                        rerun = true;
+                    }
+
                 }
             }
         }
     }
 #ifdef REC
     if (rerun)
-        remove_2lines_all(all_line);
-//remove_2lines_all(all_line);
+        remove_2lines_all(all_line, forbidden);
 #endif
 }
 
-void Board::remove_lines_with_two_ondegree(const std::vector<Line_info> &all_line)
+void Board::remove_lines_with_two_ondegree(const std::vector<Line_info> &all_line, board_int forbidden)
 {
-    std::vector<unsigned int> free_num(ACTION_SIZE, 0);
+    std::vector<unsigned int> degree(ACTION_SIZE, 0);
 
-    for (auto line : all_line)
-    {
+    for (auto line : all_line){
         bool is_free = !(line.line_board & black);
-        if (is_free)
-        {
-            for (auto field : line.points)
-            {
-                free_num[field] += 1;
+        if (is_free){
+            for (auto field : line.points){
+                degree[field] += 1;
             }
         }
     }
 
     bool rerun = false;
-    for (auto line : all_line)
-    {
+    for (auto line : all_line){
         bool is_free = !(line.line_board & black);
         int emptynum = line.size - __builtin_popcountll(line.line_board & white);
-        if (is_free)
-        {
+        if (is_free){
             int deg_1 = -1;
-            for (auto field : line.points)
-            {
-                if ((free_num[field] == 1) && !(white & (1ULL << field)))
-                {
-                    if (deg_1 > -1)
-                    {
+            for (auto field : line.points){
+                // Cannot be any of the two forbidden ==> attacker will choose that
+                if ((degree[field] == 1) && !(white & (1ULL << field)) && !(forbidden & (1ULL << field))){
+                    if (deg_1 > -1){
                         move(field, 1);
                         move(deg_1, -1);
                         rerun = true;
                     }
-                    else
-                    {
+                    else{
                         deg_1 = field;
                     }
                 }
@@ -397,6 +380,6 @@ void Board::remove_lines_with_two_ondegree(const std::vector<Line_info> &all_lin
 
 #ifdef REC
     if (rerun)
-        remove_lines_with_two_ondegree(all_line);
+        remove_lines_with_two_ondegree(all_line, forbidden);
 #endif
 }
