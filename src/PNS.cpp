@@ -37,10 +37,10 @@ PNS::PNSNode::PNSNode(const Board& b, Heuristic& h, Args* args):children(), boar
     //    pn = var_MAX;
     //    dn = 0;
     //}
-    else if((b.node_type == AND) && (b.heuristic_value(h.all_linesinfo)*128 < args->potencial_n-0.000000001)){
-        pn = var_MAX;
-        dn = 0;
-    }
+    //else if((b.node_type == AND) && (b.heuristic_value(h.all_linesinfo)*128 < args->potencial_n-0.000000001)){
+    //    pn = var_MAX;
+    //    dn = 0;
+    //}
     else{
         init_pn_dn();
     }
@@ -143,9 +143,9 @@ bool PNS::game_ended(const Board& b){
     else if(b.white == 0 && b.black == FULL_BOARD){
         return true;
     }
-    else if((b.node_type == AND) && (b.heuristic_value(heuristic.all_linesinfo)*128 < args->potencial_n-0.000000001)){
-        return true;
-    }
+    //else if((b.node_type == AND) && (b.heuristic_value(heuristic.all_linesinfo)*128 < args->potencial_n-0.000000001)){
+    //    return true;
+    //}
     return false;
 }
 
@@ -292,39 +292,42 @@ void PNS::extend_all(PNS::PNSNode* node, bool fast_eval){
     update_node(node);
 }
 
+void forbidden_move(Board& next_state, unsigned int action, Heuristic& heuristic){
+    std::vector<board_int> sides = {heuristic.forbidden_fields_left, heuristic.forbidden_fields_right};
+    // === Check each forbidden region/side ===
+    for(board_int forbidden_fields: sides){
+        // === If attacker moved in the forbidden fields ===
+        if(next_state.node_type == AND &&
+            (forbidden_fields & (1ULL)<<action)){
+            board_int att_moves_in_side = next_state.white & forbidden_fields;
+            // === If it is a pattern, than answer to that (SOULD BE TRUE) ===
+            if(heuristic.side_strategy.find(att_moves_in_side) != heuristic.side_strategy.end()){
+                board_int def_move_in_side = heuristic.side_strategy[att_moves_in_side];
+                // === If answer field is free ===
+                if((def_move_in_side & next_state.black) < def_move_in_side){
+                    next_state.black |= def_move_in_side;
+                    next_state.node_type = (!next_state.node_type);
+                }
+                // 3. move is a must
+                if(__builtin_popcountll(att_moves_in_side)==2){
+                    board_int occ = ~(next_state.black | next_state.white);
+                    board_int free = (forbidden_fields & heuristic.forbidden_small & occ);
+                    //display(free, true);      
+                    //display(next_state, true, {action});      
+                    //next_state.white |= free;
+                    //next_state.node_type = (!next_state.node_type);
+                }
+            }
+            //else assert(0);
+        }
+    }
+}
+
 Board PNS::extend(PNS::PNSNode* node, unsigned int action, unsigned int slot,
 		  bool fast_eval){
     Board next_state(node->board, action, get_player(node->type));
 
-    if(next_state.node_type == AND &&
-        (heuristic.forbidden_fields_left & (1ULL)<<action)){
-        board_int side = next_state.white & heuristic.forbidden_fields_left;
-        if(heuristic.side_strategy.find(side) != heuristic.side_strategy.end()){
-            board_int side_step = heuristic.side_strategy[side];
-            //display(side, true);
-            //display(next_state, true, {(int)action, (int)side_step});
-            //next_state.move(side_step, -1);
-            if((side_step & next_state.black) < side_step){ 
-                next_state.black |= side_step;
-                next_state.node_type = (!next_state.node_type);
-            }
-        }
-    }
-    else if(next_state.node_type == AND && 
-        (heuristic.forbidden_fields_left & (1ULL)<<action)){
-        board_int side = next_state.white & heuristic.forbidden_fields_right;
-        if(heuristic.side_strategy.find(side) != heuristic.side_strategy.end()){
-            board_int side_step = heuristic.side_strategy[side];
-            //display(side, true);
-            //display(next_state, true, {(int)action, (int)side_step});
-            //next_state.move(side_step, -1);
-            if((side_step & next_state.black) < side_step){ 
-                next_state.black |= side_step;
-                next_state.node_type = (!next_state.node_type);
-            }
-        }
-    }
-    //next_state.remove_dead_fields_all(heuristic.all_linesinfo);
+    forbidden_move(next_state, action, heuristic);
     simplify_board(next_state);
     
     PNSNode* child = get_states(next_state);

@@ -269,6 +269,9 @@ void classic_twopad(std::vector<Line>& lines){
 }
 
 void Heuristic::read_forbidden_strategy(){
+    // =====================================
+    // TAKE CARE, LOT OF BURNED VARIABLE !!!
+    // =====================================
     std::ifstream inp("../boards/forbidden1.txt");
     int N,x,y;
     int R,C;
@@ -289,20 +292,28 @@ void Heuristic::read_forbidden_strategy(){
         }
 
         side_strategy[act_board] = def_board;
-        forbidden_fields_left |= def_board;
+        forbidden_fields_left |= act_board;
         // === Add symmetry ===
         def_board = def_board << (40ULL);
         side_strategy[act_board << (40ULL)] = def_board;
-        forbidden_fields_right |= def_board;
+        forbidden_fields_right |= (act_board << (40ULL));
     }
 
     forbidden_all = forbidden_fields_left | forbidden_fields_right;
+    for(int a:{1,2,3,46,47,48}){
+        forbidden_small |= (1ULL << a);
+    }
 }
 
 void read_lines_from_file(std::vector<Line>& lines){
+    std::ifstream inp("../boards/cross_board_twopad_weaken.txt");
+    //std::ifstream inp("/home/doma/repos/prooving-gobang/boards/cross_board_easy06.txt");
+    //std::ifstream inp("../boards/cross_board_twopad.txt");
+    //std::ifstream inp("../boards/cross_board_onepad.txt");
+    //std::istream& inp= std::cin;
     while(1){
         std::string line;
-        getline(std::cin, line);
+        getline(inp, line);
 
         // === Stop condition ===
         if(line=="") break;
