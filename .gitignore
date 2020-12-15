@@ -10,3 +10,5 @@ app/data
 app/bins
 app/.git
 prezi.py
+*/__pycache__/
+boards/forbidden1*
