@@ -57,12 +57,12 @@ void PNS_test(Args& args){
         display(b, true);
     }
     //std::cout<<PNS::heuristic.side_strategy.size()<<std::endl;
-    for(auto p : PNS::heuristic.side_strategy){
+    /*for(auto p : PNS::heuristic.side_strategy){
         Board b;
         b.white = p.first;
         b.black = p.second;
         display(b,true);
-    }
+        }*/
     //display(PNS::heuristic.forbidden_fields_left, true);
     //display(PNS::heuristic.forbidden_fields_right, true);
     //display(PNS::heuristic.forbidden_small, true);
