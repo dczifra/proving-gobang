@@ -300,16 +300,11 @@ void Heuristic::read_forbidden_strategy(){
     }
 
     forbidden_all = forbidden_fields_left | forbidden_fields_right;
-    for(int a:{1,2,3,46,47,48}){
-        forbidden_small |= (1ULL << a);
-    }
 }
 
 void read_lines_from_file(std::vector<Line>& lines){
-    //std::ifstream inp("../boards/cross_board_twopad_weaken.txt");
-    //std::ifstream inp("/home/doma/repos/prooving-gobang/boards/cross_board_easy06.txt");
-    std::ifstream inp("../boards/cross_board_twopad.txt");
-    //std::ifstream inp("../boards/cross_board_onepad.txt");
+    std::ifstream inp("../boards/cross_board_twopad_licit.txt");
+    //std::ifstream inp("../boards/cross_board_twopad.txt");
     //std::istream& inp= std::cin;
     while(1){
         std::string line;
@@ -319,7 +314,6 @@ void read_lines_from_file(std::vector<Line>& lines){
         if(line=="") break;
         else if(line[0] == '#' || line[0] == '/') continue;
         std::stringstream inp_line(line);
-        //std::cout<<line<<std::endl;
 
         Line act_line={};
         while(!inp_line.eof()){
@@ -327,7 +321,6 @@ void read_lines_from_file(std::vector<Line>& lines){
             char split;
 
             inp_line>>coord.first>>coord.second>>split;
-            //std::cout<<coord.first<<" "<<coord.second<<std::endl;
             act_line.push_back(coord);
         }
         lines.push_back(act_line);
@@ -339,7 +332,10 @@ void Heuristic::generate_lines(){
     //classical_board(lines);
     //zsolts_board(lines);
     read_lines_from_file(lines);
-    read_forbidden_strategy();
+    //forbidden_fields_left = ((1ULL) << 1) | ((1ULL) << 6) | ((1ULL) << 3) | ((1ULL) << 8);
+    //forbidden_fields_right = ((1ULL) << 41) | ((1ULL) << 46) | ((1ULL) << 43) | ((1ULL) << 48);
+    forbidden_all = forbidden_fields_left | forbidden_fields_right;
+    //read_forbidden_strategy();
 }
 
 

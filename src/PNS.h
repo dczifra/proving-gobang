@@ -4,6 +4,7 @@
 #include "limits.h"
 #include "heuristic.h"
 #include "canonicalorder.h"
+#include "licit.h"
 
 #include <map>
 #include <unordered_map>
@@ -21,6 +22,7 @@ public:
     friend class Logger;
     struct PNSNode{
         PNSNode(const Board& b, Heuristic& h, Args* args);
+        PNSNode(const Board&b, int childnum);
 
         // === DATA ===
         std::vector<PNSNode*> children;
@@ -71,6 +73,8 @@ public:
     // === Helper Functions ===
     void read_solution(std::string filename);
     void free_states();
+    void defender_get_favour_points(Board& next_state, int action);
+    void licit_for_defender_move(PNS::PNSNode* node, Board& next_state, int action);
     void simplify_board(Board& next_state);
     bool game_ended(const Board& b);
     void display_node(PNSNode* node);
@@ -114,5 +118,6 @@ private :
 
     Args* args;
     std::vector<std::vector<int>> component_cut;
+    Licit licit;
     bool print=false;
 };

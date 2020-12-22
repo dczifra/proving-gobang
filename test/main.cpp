@@ -65,7 +65,6 @@ void PNS_test(Args& args){
         }*/
     //display(PNS::heuristic.forbidden_fields_left, true);
     //display(PNS::heuristic.forbidden_fields_right, true);
-    //display(PNS::heuristic.forbidden_small, true);
 
     PNS tree(&args);
     PNS::PNSNode* node = new PNS::PNSNode(b, PNS::heuristic, &args);

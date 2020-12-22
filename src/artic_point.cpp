@@ -127,7 +127,6 @@ std::tuple<int, Board, Board> Artic_point::get_parts(){
 
     if(node == -1){
         Board b(board);
-        b.remove_dead_fields_all(all_linesinfo);
         display(b.white, true);
         display(b.black, true);
         display(b, true);
@@ -171,8 +170,8 @@ std::tuple<int, Board, Board> Artic_point::get_parts(){
                 //b2.white &= comp2;
                 //display(comp1, true);
                 //display(comp2, true);
-                b1.remove_dead_fields_all(all_linesinfo);
-                b2.remove_dead_fields_all(all_linesinfo);
+                //b1.remove_dead_fields_all(all_linesinfo);
+                //b2.remove_dead_fields_all(all_linesinfo);
 
                 if(__builtin_popcountll(comp1) < __builtin_popcountll(comp2)){
 

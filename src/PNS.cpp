@@ -48,6 +48,23 @@ PNS::PNSNode::PNSNode(const Board& b, Heuristic& h, Args* args):children(), boar
     parent_num = 1;
 }
 
+PNS::PNSNode::PNSNode(const Board&b, int childnum):children(), board(b){
+    type = b.node_type;
+    child_num = childnum;
+    children.resize(child_num);
+
+    if(board.node_type == OR){
+        pn = 1;
+        dn = childnum;
+    }
+    else{
+        pn = childnum;
+        dn = 1;
+    }
+
+    bool extended = true;
+}
+
 void inline PNS::PNSNode::init_pn_dn(){
 #if HEURISTIC
     // pn = 1/(1+exp(3*heuristic_value-2));
@@ -149,6 +166,53 @@ bool PNS::game_ended(const Board& b){
     return false;
 }
 
+void PNS::defender_get_favour_points(Board& next_state, int last_action){
+    if(next_state.node_type == OR){
+        // === The last last_action was a defender move ===
+        if(heuristic.forbidden_fields_left & (1ULL <<last_action)){
+            next_state.score_left += licit.cover_forbiden_reward;
+        }
+        else if(heuristic.forbidden_fields_right & (1ULL <<last_action)){
+            next_state.score_right += licit.cover_forbiden_reward;
+        }
+    }
+}
+
+void PNS::licit_for_defender_move(PNS::PNSNode* node, Board& next_state, int action){
+    int licit_limit;
+    bool is_left=false;
+    if(heuristic.forbidden_fields_left & (1ULL <<action)){
+        licit_limit = std::min(next_state.score_left+2, 0);
+        is_left = true;
+    }
+    else{
+        licit_limit = std::min(next_state.score_right+2, 0);
+    }
+    // === Create node ===
+    node = new PNS::PNSNode(next_state, licit_limit);
+    add_board(next_state, node);
+    
+    // === Init children ===
+    for(int i=0; i< licit_limit;i++){
+        // Set Licit nodes
+        Board b;
+        b.node_type = AND;
+        node->children[i] = new PNS::PNSNode(b, 2);
+        // For all licitnode set Accept and Reject node
+        Board reject(next_state);
+        if(is_left) reject.score_left += (i+licit.licit_diff);
+        else reject.score_right += (i+licit.licit_diff);
+        node->children[i]->children[0] = new PNS::PNSNode(reject, heuristic, args);
+        add_board(reject, node->children[i]->children[0]);
+
+        Board accept(next_state);
+        accept.node_type = AND;
+        if(is_left) accept.score_left -= i;
+        node->children[i]->children[1] = new PNS::PNSNode(accept, heuristic, args);
+        add_board(accept, node->children[i]->children[1]);
+    }
+}
+
 void PNS::simplify_board(Board& next_state){
     while(!game_ended(next_state)){
         if(next_state.node_type == OR){ // Last move: black
@@ -158,12 +222,14 @@ void PNS::simplify_board(Board& next_state){
         int temp_act = next_state.one_way(get_all_lines());
         if(temp_act > -1){
             next_state.move(temp_act, next_state.node_type== OR ? 1 : -1);
+            // === Get favour points from neighbour ===
+            defender_get_favour_points(next_state, temp_act);
         }
         else{
             break;
         }
     }
-    next_state.remove_dead_fields_all(heuristic.all_linesinfo); // TODO can go out
+    next_state.remove_dead_fields_all(heuristic.all_linesinfo, heuristic.forbidden_all); // TODO can go out
 }
 
 PNS::PNSNode* PNS::create_and_eval_node(Board& board, bool eval){
@@ -311,7 +377,7 @@ void forbidden_move(Board& next_state, unsigned int action, Heuristic& heuristic
                 // 3. move is a must
                 if(__builtin_popcountll(att_moves_in_side)==2){
                     board_int occ = ~(next_state.black | next_state.white);
-                    board_int free = (forbidden_fields & heuristic.forbidden_small & occ);
+                    //board_int free = (forbidden_fields & heuristic.forbidden_small & occ);
                     //display(free, true);      
                     //display(next_state, true, {action});      
                     //next_state.white |= free;
@@ -326,8 +392,9 @@ void forbidden_move(Board& next_state, unsigned int action, Heuristic& heuristic
 Board PNS::extend(PNS::PNSNode* node, unsigned int action, unsigned int slot,
 		  bool fast_eval){
     Board next_state(node->board, action, get_player(node->type));
+    // === Get favour points ===
+    defender_get_favour_points(next_state, action);
 
-    forbidden_move(next_state, action, heuristic);
     simplify_board(next_state);
     
     PNSNode* child = get_states(next_state);
@@ -338,10 +405,16 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, unsigned int slot,
     }
     else{
         assert(node->children[slot] == nullptr);
-
-        // 2-connected components, if not ended
         int moves_before = next_state.get_valids_num();
-        if(0 & !fast_eval && next_state.node_type == OR && !game_ended(next_state) && moves_before >= EVAL_TRESHOLD){ 
+
+        // === If forbidden attacker step ===
+        if(next_state.node_type == AND && ((1ULL << action) & heuristic.forbidden_all)){
+            licit_for_defender_move(node->children[slot], next_state, action);
+            
+            return node->children[slot]->board;
+        }
+        // 2-connected components, if not ended
+        else if(0 & !fast_eval && next_state.node_type == OR && !game_ended(next_state) && moves_before >= EVAL_TRESHOLD){ 
             node->children[slot] = evaluate_components(next_state);
         }
         else{

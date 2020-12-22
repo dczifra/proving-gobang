@@ -289,7 +289,7 @@ int Board::one_way(const std::vector<Line_info> &all_lines) const
     return -1;
 }
 
-void Board::remove_dead_fields_all(const std::vector<Line_info> &all_line){
+void Board::remove_dead_fields_all(const std::vector<Line_info> &all_line, board_int forbidden){
     std::vector<bool> dead(ACTION_SIZE, true);
     // === For all lines, which cross the action ===
     for (auto line : all_line){
@@ -302,7 +302,7 @@ void Board::remove_dead_fields_all(const std::vector<Line_info> &all_line){
     }
 
     for(int i=0;i<ACTION_SIZE;i++){
-        if(dead[i]) set_black(i);
+        if(dead[i] && ((1ULL << i) & forbidden)==0) set_black(i);
     }
 }
 
@@ -327,7 +327,7 @@ void Board::remove_2lines_all(const std::vector<Line_info> &all_line, board_int 
                 if ((degree[field] == 1) && !(white & (1ULL << field))){
                     int other_empty = find_empty(line, field);
                     // Attacker choses the >= 2 degree field, that cannot be forbidden
-                    if(!(forbidden & (1ULL << other_empty))){
+                    if(!(forbidden & (1ULL << other_empty)) && !(forbidden & (1ULL << field))){
                         move(other_empty, 1);
                         move(field, -1);
                         rerun = true;

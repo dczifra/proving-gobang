@@ -22,6 +22,8 @@ struct Board{
 
     board_int white;
     board_int black;
+    int score_left = 0;
+    int score_right = 0;
     //board_int blocked_lines;
     NodeType node_type;
 
@@ -59,7 +61,7 @@ struct Board{
 
     // === Simplify board ===
     int one_way(const std::vector<Line_info>& all_lines) const;
-    void remove_dead_fields_all(const std::vector<Line_info> &all_line);
+    void remove_dead_fields_all(const std::vector<Line_info> &all_line, board_int forbidden);
     void remove_2lines_all(const std::vector<Line_info>& all_line, board_int forbidden);
     void remove_lines_with_two_ondegree(const std::vector<Line_info>& all_line, board_int forbidden);
 
