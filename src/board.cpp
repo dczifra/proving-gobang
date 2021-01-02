@@ -26,7 +26,31 @@ int get_player(const NodeType &type)
 
 bool operator<(const Board &b1, const Board &b2)
 {
-    return (b1.node_type < b2.node_type) || ((b1.node_type == b2.node_type) && b1.white < b2.white) || ((b1.node_type == b2.node_type) && b1.white == b2.white && b1.black < b2.black);
+    if(b1.node_type < b2.node_type){
+        return true;
+    }
+    else if(b1.node_type == b2.node_type){
+        if(b1.white < b2.white){
+            return true;
+        }
+        else if(b1.white == b2.white){
+            if(b1.black < b2.black){
+                return true;
+            }
+            else if(b1.black == b2.black){
+                if(b1.score_left < b2.score_left){
+                    return true;
+                }
+                else if(b1.score_left == b2.score_left){
+                    return b1.score_right < b2.score_right;
+                }
+                else return false;
+            }
+            else return false;
+        }
+        else return false;
+    }
+    else return false;
 }
 
 // ==============================================
@@ -38,20 +62,23 @@ Board::Board(){
 Board::Board(const Board& b){
     white = b.white;
     black = b.black;
-    //blocled_line = b.blocked_lines;
     node_type = b.node_type;
+    score_left = b.score_left;
+    score_right = b.score_right;
 }
 
 Board::Board(const Board& b, int action, int player){
     white = b.white;
     black = b.black;
-    //blocked_lines = b.blocked_lines;
     node_type = b.node_type;
+    score_left = b.score_left;
+    score_right = b.score_right;
     move(action, player);
 }
 
 bool Board::operator==(const Board& b) const{
-    return (white == b.white) && (black == b.black) && node_type == b.node_type; 
+    return (white == b.white) && (black == b.black) && node_type == b.node_type &&
+        score_left == b.score_left && score_right == b.score_right; 
 }
 
 void Board::move(std::vector<int> actions, int& player){

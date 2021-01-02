@@ -10,21 +10,21 @@
 
 #include <unistd.h>
 
-PNS::PNSNode::PNSNode(const Board& b, Heuristic& h, Args* args):children(), board(b){
+PNS::PNSNode::PNSNode(const Board& b, Args* args):children(), board(b){
     type = b.node_type;
-    child_num = __builtin_popcountll(b.get_valids_without_ondegree(h.all_linesinfo));
+    child_num = __builtin_popcountll(b.get_valids_without_ondegree(heuristic.all_linesinfo));
 
     children.resize(child_num);
-    heuristic_value = board.heuristic_value(h.all_linesinfo);
+    heuristic_value = board.heuristic_value(heuristic.all_linesinfo);
     
     int valid_moves = board.get_valids_num();
     float log_odds = -4.63230495 - 9.67572108 * board.node_type - 0.87216265 * valid_moves + 17.23691808 *heuristic_value;
     float prob = 1 / (1 + exp(-log_odds));
-    if(b.white_win(h.all_linesinfo)){
+    if(b.white_win(heuristic.all_linesinfo)){
         pn = 0;
         dn = var_MAX;
     }
-    else if((b.node_type == AND) && b.heuristic_stop(h.all_linesinfo)){
+    else if((b.node_type == AND) && b.heuristic_stop(heuristic.all_linesinfo)){
         pn = var_MAX;
         dn = 0;
     }
@@ -37,7 +37,7 @@ PNS::PNSNode::PNSNode(const Board& b, Heuristic& h, Args* args):children(), boar
     //    pn = var_MAX;
     //    dn = 0;
     //}
-    //else if((b.node_type == AND) && (b.heuristic_value(h.all_linesinfo)*128 < args->potencial_n-0.000000001)){
+    //else if((b.node_type == AND) && (b.heuristic_value(heuristic.all_linesinfo)*128 < args->potencial_n-0.000000001)){
     //    pn = var_MAX;
     //    dn = 0;
     //}
@@ -52,6 +52,7 @@ PNS::PNSNode::PNSNode(const Board&b, int childnum):children(), board(b){
     type = b.node_type;
     child_num = childnum;
     children.resize(child_num);
+    heuristic_value = board.heuristic_value(heuristic.all_linesinfo);
 
     if(board.node_type == OR){
         pn = 1;
@@ -63,6 +64,7 @@ PNS::PNSNode::PNSNode(const Board&b, int childnum):children(), board(b){
     }
 
     bool extended = true;
+    parent_num = 1;
 }
 
 void inline PNS::PNSNode::init_pn_dn(){
@@ -168,7 +170,7 @@ bool PNS::game_ended(const Board& b){
 
 void PNS::defender_get_favour_points(Board& next_state, int last_action){
     if(next_state.node_type == OR){
-        // === The last last_action was a defender move ===
+        // === The last action was a defender move ===
         if(heuristic.forbidden_fields_left & (1ULL <<last_action)){
             next_state.score_left += licit.cover_forbiden_reward;
         }
@@ -178,39 +180,46 @@ void PNS::defender_get_favour_points(Board& next_state, int last_action){
     }
 }
 
-void PNS::licit_for_defender_move(PNS::PNSNode* node, Board& next_state, int action){
+PNS::PNSNode* PNS::licit_for_defender_move(Board& next_state, int action){
     int licit_limit;
     bool is_left=false;
-    if(heuristic.forbidden_fields_left & (1ULL <<action)){
-        licit_limit = std::min(next_state.score_left+2, 0);
+    if(heuristic.forbidden_fields_left & (1ULL << action)){
+        licit_limit = std::max(next_state.score_left+2, 0);
         is_left = true;
     }
     else{
-        licit_limit = std::min(next_state.score_right+2, 0);
+        licit_limit = std::max(next_state.score_right+2, 0);
     }
     // === Create node ===
-    node = new PNS::PNSNode(next_state, licit_limit);
+    PNS::PNSNode* node = new PNS::PNSNode(next_state, licit_limit+1);
     add_board(next_state, node);
+    node->extended = true;
+    node->heuristic_value = -1;
     
     // === Init children ===
-    for(int i=0; i< licit_limit;i++){
+    for(int i=0; i<= licit_limit;i++){
         // Set Licit nodes
         Board b;
         b.node_type = AND;
         node->children[i] = new PNS::PNSNode(b, 2);
+        node->children[i]->extended = true;
+        node->children[i]->heuristic_value = -1;
+
         // For all licitnode set Accept and Reject node
         Board reject(next_state);
         if(is_left) reject.score_left += (i+licit.licit_diff);
         else reject.score_right += (i+licit.licit_diff);
-        node->children[i]->children[0] = new PNS::PNSNode(reject, heuristic, args);
-        add_board(reject, node->children[i]->children[0]);
+        node->children[i]->children[0] = new PNS::PNSNode(reject, args);
+        //add_board(reject, node->children[i]->children[0]);
 
         Board accept(next_state);
         accept.node_type = AND;
         if(is_left) accept.score_left -= i;
-        node->children[i]->children[1] = new PNS::PNSNode(accept, heuristic, args);
-        add_board(accept, node->children[i]->children[1]);
+        else accept.score_right -= i;
+        node->children[i]->children[1] = new PNS::PNSNode(accept, args);
+        //add_board(accept, node->children[i]->children[1]);
     }
+    return node;
 }
 
 void PNS::simplify_board(Board& next_state){
@@ -240,7 +249,7 @@ PNS::PNSNode* PNS::create_and_eval_node(Board& board, bool eval){
         node -> parent_num += 1;
     }
     else{
-        node = new PNS::PNSNode(board, heuristic, args);
+        node = new PNS::PNSNode(board, args);
         add_board(board, node);
     }
 
@@ -270,7 +279,7 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board){
         }
         else{
             if (delete_comps) {
-                delete_all(small_comp);
+                delete_all(small_comp, false);
             }
 
             // 2. Evaluate small component with artic point
@@ -283,7 +292,7 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board){
                 big_board.white |= ((1ULL)<<artic_point);
             }
             if (delete_comps){
-              delete_all(small_comp_mod);
+              delete_all(small_comp_mod, false);
             }
 
             // TODO: Improve...
@@ -293,7 +302,7 @@ PNS::PNSNode* PNS::evaluate_components(Board& base_board){
         }
     }
     else{
-        PNSNode* node = new PNSNode(base_board, heuristic, args);
+        PNSNode* node = new PNSNode(base_board, args);
         add_board(base_board, node);
         return node;
     }
@@ -394,7 +403,6 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, unsigned int slot,
     Board next_state(node->board, action, get_player(node->type));
     // === Get favour points ===
     defender_get_favour_points(next_state, action);
-
     simplify_board(next_state);
     
     PNSNode* child = get_states(next_state);
@@ -409,7 +417,7 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, unsigned int slot,
 
         // === If forbidden attacker step ===
         if(next_state.node_type == AND && ((1ULL << action) & heuristic.forbidden_all)){
-            licit_for_defender_move(node->children[slot], next_state, action);
+            node->children[slot] = licit_for_defender_move(next_state, action);
             
             return node->children[slot]->board;
         }
@@ -418,7 +426,7 @@ Board PNS::extend(PNS::PNSNode* node, unsigned int action, unsigned int slot,
             node->children[slot] = evaluate_components(next_state);
         }
         else{
-            node->children[slot] = new PNS::PNSNode(next_state, heuristic, args);
+            node->children[slot] = new PNS::PNSNode(next_state, args);
             add_board(next_state, node->children[slot]);
             if(!fast_eval && moves_before < EVAL_TRESHOLD){
                 evaluate_node_with_PNS(node->children[slot], false, true);
@@ -464,10 +472,10 @@ void PNS::PN_search(PNS::PNSNode* node, bool fast_eval){
     }
     else{
         unsigned int min_ind = get_min_children_index(node, node->type == OR?PN:DN);
-	if (min_ind != -1){
-	    PN_search(node->children[min_ind], fast_eval);
-	}
-	update_node(node);
+        if (min_ind != -1){
+            PN_search(node->children[min_ind], fast_eval);
+        }
+        update_node(node);
     }
     // If PN or DN is 0, delete all unused descendents
     if(node->pn == 0 || node->dn == 0){
@@ -493,21 +501,21 @@ void PNS::update_node(PNS::PNSNode* node){
 // ============================================
 //             DELETE UNUSED NODES
 // ============================================
-void PNS::delete_all(PNS::PNSNode* node){
-  if(node == nullptr) return;
-  if( node->parent_num > 1 ){
-    node->parent_num -= 1;
-  }
-  else{
-    for(int i=0;i<node->child_num;i++){
-      //          std::cout<<"child "<<i<<std::endl;
-      delete_all(node->children[i]);
-      node->children[i]=nullptr;
+void PNS::delete_all(PNS::PNSNode* node, bool licit_node){
+    if(node == nullptr) return;
+    else if( node->parent_num > 1 ){
+        node->parent_num -= 1;
     }
-    
-    delete_from_map(node->board);
-    delete node;
-  }
+    else{
+        for(int i=0;i<node->child_num;i++){
+            //          std::cout<<"child "<<i<<std::endl;
+            delete_all(node->children[i], node->heuristic_value==-1);
+            node->children[i]=nullptr;
+        }
+
+        if(!licit_node) delete_from_map(node->board);
+        delete node;
+    }
 }
 
   //We only keep a single child that proves the given node
@@ -515,7 +523,6 @@ void PNS::delete_node(PNS::PNSNode* node){
     // === In this case, we need max 1 branch ===
     // === DON'T DELETE THIS IF ===
     if(keep_only_one_child(node)){
-        
         ProofType proof_type = (node->pn == 0 ? PN:DN);
         unsigned int min_ind = get_min_children_index(node, proof_type);
     
@@ -524,7 +531,7 @@ void PNS::delete_node(PNS::PNSNode* node){
         for(int i=0;i<node->children.size();i++){
             if( (node->children[i]==nullptr) || (min_ind == i)) continue;
             else{
-                delete_all(node->children[i]);
+                delete_all(node->children[i], node->heuristic_value==-1);
                 node->children[i]=nullptr;
             }
         }

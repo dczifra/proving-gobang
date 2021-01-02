@@ -21,7 +21,7 @@ public:
     friend class CanonicalOrder;
     friend class Logger;
     struct PNSNode{
-        PNSNode(const Board& b, Heuristic& h, Args* args);
+        PNSNode(const Board& b, Args* args);
         PNSNode(const Board&b, int childnum);
 
         // === DATA ===
@@ -62,7 +62,7 @@ public:
 
     void extend_all(PNSNode* node, bool fast_eval);
     Board extend(PNSNode* node, unsigned int action, unsigned int slot, bool fast_eval);
-    void delete_all(PNSNode* node);
+    void delete_all(PNSNode* node, bool licit_node);
     void delete_node(PNSNode* node);
     void delete_children(PNS::PNSNode* node);
     static unsigned int get_min_children_index(PNSNode* node, const ProofType type);
@@ -74,7 +74,7 @@ public:
     void read_solution(std::string filename);
     void free_states();
     void defender_get_favour_points(Board& next_state, int action);
-    void licit_for_defender_move(PNS::PNSNode* node, Board& next_state, int action);
+    PNS::PNSNode* licit_for_defender_move(Board& next_state, int action);
     void simplify_board(Board& next_state);
     bool game_ended(const Board& b);
     void display_node(PNSNode* node);

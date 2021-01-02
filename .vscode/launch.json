@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/AMOBA_DEBUG",
             //"args": ["--test"],
-            "args": ["--log", "<", "../boards/cross_board_easy05.txt"],
+            "args": ["--log"],
             //"args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build",

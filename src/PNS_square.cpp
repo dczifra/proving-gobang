@@ -29,7 +29,7 @@ void PNS::search_and_keep_one_layer(PNS::PNSNode* node, bool fast_eval){
         if(child == nullptr) continue;
         for(int i=0;i<child->children.size();i++){
             if(child->children[i] != nullptr){
-                delete_all(child->children[i]);
+                delete_all(child->children[i], false);
                 child->children[i] = nullptr;
             }
         }

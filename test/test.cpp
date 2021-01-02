@@ -124,7 +124,7 @@ void test_DFPN(){
     //choose_problem(b,player);
 
     PNS tree(args);
-    PNS::PNSNode* node = new PNS::PNSNode(b, h, args);
+    PNS::PNSNode* node = new PNS::PNSNode(b, args);
     //tree.init_DFPN_search(node);
     
     unsigned int i = 0;

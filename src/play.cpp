@@ -50,7 +50,7 @@ void Play::read_solution(std::string filename){
         sstream>>b.white>>b.black>>b.node_type>>pn>>dn;
         if(tree.get_states(b)==nullptr){
             
-            PNS::PNSNode* node = new PNS::PNSNode(b, tree.heuristic,args);
+            PNS::PNSNode* node = new PNS::PNSNode(b, args);
             node->pn = pn;
             node->dn = dn;
             tree.add_board(b, node);

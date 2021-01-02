@@ -67,7 +67,7 @@ void PNS_test(Args& args){
     //display(PNS::heuristic.forbidden_fields_right, true);
 
     PNS tree(&args);
-    PNS::PNSNode* node = new PNS::PNSNode(b, PNS::heuristic, &args);
+    PNS::PNSNode* node = new PNS::PNSNode(b, &args);
     std::cout<<"Root node heuristic value: "<<node->heuristic_value<<std::endl;
 
     tree.init_PN_search(node);
@@ -86,7 +86,7 @@ void PNS_test(Args& args){
     PNS::logger->log_solution_min(node, logfile, logged);
     logfile.close();
 
-    tree.delete_all(node);
+    tree.delete_all(node, false);
     tree.stats(nullptr, true);
     // tree.component_stats();
     std::cout<<"Nodes visited during search: "<<tree.total_state_size<<std::endl;
