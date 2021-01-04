@@ -74,7 +74,7 @@ public:
     void read_solution(std::string filename);
     void free_states();
     void defender_get_favour_points(Board& next_state, int action);
-    PNS::PNSNode* licit_for_defender_move(Board& next_state, int action);
+    PNS::PNSNode* licit_for_defender_move(const Board& next_state, int action);
     void simplify_board(Board& next_state);
     bool game_ended(const Board& b);
     void display_node(PNSNode* node);

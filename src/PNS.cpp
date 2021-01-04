@@ -52,7 +52,7 @@ PNS::PNSNode::PNSNode(const Board&b, int childnum):children(), board(b){
     type = b.node_type;
     child_num = childnum;
     children.resize(child_num);
-    heuristic_value = board.heuristic_value(heuristic.all_linesinfo);
+    heuristic_value = -1;
 
     if(board.node_type == OR){
         pn = 1;
@@ -63,7 +63,7 @@ PNS::PNSNode::PNSNode(const Board&b, int childnum):children(), board(b){
         dn = 1;
     }
 
-    bool extended = true;
+    extended = true;
     parent_num = 1;
 }
 
@@ -180,7 +180,9 @@ void PNS::defender_get_favour_points(Board& next_state, int last_action){
     }
 }
 
-PNS::PNSNode* PNS::licit_for_defender_move(Board& next_state, int action){
+PNS::PNSNode* PNS::licit_for_defender_move(const Board& next_state, int action){
+    assert(next_state.node_type == AND);
+
     int licit_limit;
     bool is_left=false;
     if(heuristic.forbidden_fields_left & (1ULL << action)){
@@ -190,36 +192,46 @@ PNS::PNSNode* PNS::licit_for_defender_move(Board& next_state, int action){
     else{
         licit_limit = std::max(next_state.score_right+2, 0);
     }
-    // === Create node ===
+
+    PNS::PNSNode* base_node = new PNS::PNSNode(next_state, 1);
+    add_board(next_state, base_node);
+
+    Board attackers_choices;
+    PNS::PNSNode* branch = new PNS::PNSNode(attackers_choices, 2);
+    base_node->children[0] = branch;
+    // === Attacker's 2 choices ===
+    // 1. Attacker moves into action field
     PNS::PNSNode* node = new PNS::PNSNode(next_state, licit_limit+1);
-    add_board(next_state, node);
     node->extended = true;
     node->heuristic_value = -1;
+    branch->children[0]=node;
+    // 2. Neighbour moves into the action field
+    Board neighbour_move(next_state);
+    neighbour_move.white &= !(1ULL << action);
+    neighbour_move.move(action, -1);
+    neighbour_move.node_type = AND;
+    branch->children[1] = new PNS::PNSNode(neighbour_move, args);
     
-    // === Init children ===
+    // === Init children of 1 ===
     for(int i=0; i<= licit_limit;i++){
         // Set Licit nodes
         Board b;
-        b.node_type = AND;
         node->children[i] = new PNS::PNSNode(b, 2);
-        node->children[i]->extended = true;
-        node->children[i]->heuristic_value = -1;
 
         // For all licitnode set Accept and Reject node
         Board reject(next_state);
+        reject.node_type = OR;
         if(is_left) reject.score_left += (i+licit.licit_diff);
         else reject.score_right += (i+licit.licit_diff);
         node->children[i]->children[0] = new PNS::PNSNode(reject, args);
-        //add_board(reject, node->children[i]->children[0]);
 
         Board accept(next_state);
         accept.node_type = AND;
         if(is_left) accept.score_left -= i;
         else accept.score_right -= i;
         node->children[i]->children[1] = new PNS::PNSNode(accept, args);
-        //add_board(accept, node->children[i]->children[1]);
     }
-    return node;
+    return base_node;
 }
 
 void PNS::simplify_board(Board& next_state){
