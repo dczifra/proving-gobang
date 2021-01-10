@@ -12,8 +12,8 @@ class Logger{
 public:
     Logger(){}
     void init(bool disproof);
-    void log(PNS::PNSNode* node, Heuristic& h);
-    void log_solution_min(PNS::PNSNode* node, std::ofstream& file, std::set<Board>& logged);
+    void log(PNS::Node* node, Heuristic& h);
+    void log_solution_min(PNS::Node* node, std::ofstream& file, std::set<Board>& logged);
 
 private:
     std::ofstream logstream;

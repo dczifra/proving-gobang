@@ -11,7 +11,10 @@ void Logger::init(bool disproof){
     #endif
 }
 
-void Logger::log(PNS::PNSNode* node, Heuristic& h){
+void Logger::log(PNS::Node* base_node, Heuristic& h){
+    PNS::PNSNode* node = dynamic_cast<PNS::PNSNode*>(base_node);
+    if(node == nullptr) return;
+
     if(logged_states.find(node->board) != logged_states.end()){
         return;
     }
@@ -30,12 +33,15 @@ void Logger::log(PNS::PNSNode* node, Heuristic& h){
     logstream<<std::endl;
 }
 
-void Logger::log_solution_min(PNS::PNSNode* node, std::ofstream& file, std::set<Board>& logged){
+void Logger::log_solution_min(PNS::Node* node, std::ofstream& file, std::set<Board>& logged){
+    PNS::PNSNode* heur_node = dynamic_cast<PNS::PNSNode*>(node);
     if(node == nullptr) return;
-    else if(logged.find(node->board) == logged.end()){
-        logged.insert(node->board);
-        file<<node->board.white<<" "<<node->board.black<<" "<<node->board.node_type<<" "<<node->pn<<" "<<node->dn<<std::endl;
-        
+    else if(heur_node == nullptr || logged.find(heur_node->board) == logged.end()){
+        if(heur_node != nullptr){
+            logged.insert(heur_node->board);
+            file<<heur_node->board.white<<" "<<heur_node->board.black<<" "<<heur_node->board.node_type<<" "<<node->pn<<" "<<node->dn<<std::endl;
+        }
+
         if(PNS::keep_only_one_child(node)){
             ProofType proof_type = (node->pn == 0 ? PN:DN);
             unsigned int min_ind = PNS::get_min_children_index(node, proof_type);

@@ -29,7 +29,7 @@ void PNS::search_and_keep_one_layer(PNS::PNSNode* node, bool fast_eval){
         if(child == nullptr) continue;
         for(int i=0;i<child->children.size();i++){
             if(child->children[i] != nullptr){
-                delete_all(child->children[i], false);
+                delete_all(child->children[i]);
                 child->children[i] = nullptr;
             }
         }
@@ -37,15 +37,16 @@ void PNS::search_and_keep_one_layer(PNS::PNSNode* node, bool fast_eval){
     }
 }
 
-void PNS::PN_search_square(PNS::PNSNode* node, bool fast_eval){
+void PNS::PN_search_square(PNS::Node* node, bool fast_eval){
     assert(node != nullptr);
     // display_node(node);
     if(node->pn == 0 || node->dn == 0) return;
 
     // if we are in a leaf, we extend it
     if(!node->extended){
-        extend_all(node, fast_eval);
-	    search_and_keep_one_layer(node, fast_eval);
+        PNSNode* heur_node = static_cast<PNSNode*>(node);
+        extend_all(heur_node, fast_eval);
+	    search_and_keep_one_layer(heur_node, fast_eval);
     }
     else{
         unsigned int min_ind = get_min_children_index(node, node->type == OR?PN:DN);

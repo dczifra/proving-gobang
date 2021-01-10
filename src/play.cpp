@@ -76,6 +76,19 @@ int Play::move_human(){
     return act;
 }
 
+int get_index(int act, Board board){
+    std::vector<int> indexes(ACTION_SIZE, -1);
+    int slot =0;
+    board_int valids = board.get_valids_without_ondegree(PNS::heuristic.all_linesinfo);
+    for(int i=0;i<ACTION_SIZE;i++){
+        if(valids & (1ULL << i)){
+	    indexes[i]=slot;
+	    slot++;
+        }
+    }
+    return indexes[act];
+}
+
 void Play::build_node(Board b){
     PNS new_tree(args);
     int slot = 0;
@@ -92,19 +105,72 @@ void Play::build_node(Board b){
         }
     }
 }
-
-int get_index(int act, Board board){
-    std::vector<int> indexes(ACTION_SIZE, -1);
-    int slot =0;
-    board_int valids = board.get_valids_without_ondegree(PNS::heuristic.all_linesinfo);
-    for(int i=0;i<ACTION_SIZE;i++){
-        if(valids & (1ULL << i)){
-	    indexes[i]=slot;
-	    slot++;
-        }
+/*
+void Play::build_licit_node(const Board& b, int action){
+    PNS new_tree(args);
+    PNS::PNSNode* node = new PNS::PNSNode(b, args);
+    PNS::PNSNode* branch;
+    new_tree.extend(node, action, get_index(action, b), false);
+    int choice;
+    // TODO: Add child1, child2
+    // 1. Licit or neighbour step
+    if(get_player(OR) == human_player){
+        std::cout<<"0: licit\n1: neighbour\n";
+        std::cin>>choice;
     }
-    return indexes[act];
+    else{
+        // If neighbour step in proof tree
+        Board neigh = node->children[0]->children[1]->board;
+        if(tree.get_states(neigh) != nullptr) choice = 1;
+        else choice = 0;
+    }
+    branch = node->children[0]->children[choice];
+
+    // 2. if licit
+    if(choice == 0){
+        // Choose licit
+        if(get_player(AND) == human_player){
+            printf("Choose licit: (MAX: %d)\n", (int)branch->children.size());
+            std::cin>>choice;
+        }
+        else{
+            choice = -1;
+            for(int i=0;i<branch->children.size();i++){
+                PNS::PNSNode *rej, *acc;
+                rej = branch->children[0];
+                acc = branch->children[1];
+                if(tree.get_states(rej->board) != nullptr &&
+                   tree.get_states(acc->board) != nullptr){
+                    choice = i;
+                    break;
+                }
+            }
+            assert(choice != -1);
+        }
+        branch = node->children[choice];
+
+        // Accept or reject licit
+        if(get_player(OR) == human_player){
+            printf("Reject: 0\nAccept: 1\n");
+            std::cin>>choice;
+        }
+        else{
+            if(tree.get_states(branch->children[0]->board) != nullptr){
+                choice = 0;
+            }
+            else if(tree.get_states(branch->children[0]->board) != nullptr){
+                choice = 1;
+            }
+            else assert(0);
+        }
+        branch = node->children[choice];
+        board = branch->board;
+    }
+    else{
+        board = branch->board;
+    }
 }
+*/
 
 void print_diff(board_int act_board, board_int last_board){
     for(int i=0;i<ACTION_SIZE;i++){
@@ -128,6 +194,7 @@ void Play::play_with_solution2(){
     Board last_board;
     while(!tree.game_ended(board)){
         std::vector<int> color;
+        //if((1ULL << act) & tree.heuristic.forbidden_all) build_licit_node(board, act);
         act = -1;
         build_node(board);
         // === Human player can choose ===
@@ -136,7 +203,13 @@ void Play::play_with_solution2(){
             std::cout<<"[RES]\n";
             std::cin>>row>>col;
             act = col*ROW+row;
-            board = tree.get_states(board)->children[get_index(act, board)]->board;
+            // TODO
+            //std::cout<<tree.get_states(board)->heuristic_value<<std::endl;
+            //if(tree.get_states(board)->heuristic_value == -1){
+            //    std::cout<<"Licit node\n";
+            //    board = tree.get_states(board)->children[act]->board;
+            //}
+            //else board = tree.get_states(board)->children[get_index(act, board)]->board;
         }
         else{
             // === Find the next child in Solution Tree ===
@@ -148,7 +221,8 @@ void Play::play_with_solution2(){
             }
             else
             {
-                board = tree.get_states(board)->children[act]->board;
+                // TODO
+                //board = tree.get_states(board)->children[act]->board;
             }
         }
         color.push_back(act);
