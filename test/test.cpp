@@ -105,7 +105,7 @@ void artic_point(){
     }
     display(b, true);
 
-    //PNS::PNSNode* node= new PNS::PNSNode(b, tree.heuristic);
+    //PNSNode* node= new PNSNode(b, tree.heuristic);
     //b = tree.extend(node, 21, false);
     //display(b, true);
     tree.evaluate_components(b);
@@ -124,7 +124,7 @@ void test_DFPN(){
     //choose_problem(b,player);
 
     PNS tree(args);
-    PNS::PNSNode* node = new PNS::PNSNode(b, args);
+    PNSNode* node = new PNSNode(b, args);
     //tree.init_DFPN_search(node);
     
     unsigned int i = 0;
@@ -203,7 +203,7 @@ int main() {
     //artic_point();
     //canonical_order();
     //canonical_order();
-    //PNS::PNSNode* node = new PNS::PNSNode(b, tree.heuristic);
+    //PNSNode* node = new PNSNode(b, tree.heuristic);
     //tree.evalueate_node_with_PNS(node, true, false);
     //tree.stats(node);
     get_valids_test();

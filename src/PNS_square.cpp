@@ -13,7 +13,7 @@ void PNS::evaluate_node_with_PNS_square(PNSNode* node, bool log, bool fast_eval)
     }
 }
 
-void PNS::search_and_keep_one_layer(PNS::PNSNode* node, bool fast_eval){
+void PNS::search_and_keep_one_layer(PNSNode* node, bool fast_eval){
     unsigned int x = states.size();
     float f = 1.0/(1+exp((args->A-x)/args->B));
     int N = (int) (states.size()*f);
@@ -37,7 +37,7 @@ void PNS::search_and_keep_one_layer(PNS::PNSNode* node, bool fast_eval){
     }
 }
 
-void PNS::PN_search_square(PNS::Node* node, bool fast_eval){
+void PNS::PN_search_square(Node* node, bool fast_eval){
     assert(node != nullptr);
     // display_node(node);
     if(node->pn == 0 || node->dn == 0) return;

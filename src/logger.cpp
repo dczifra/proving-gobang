@@ -11,8 +11,8 @@ void Logger::init(bool disproof){
     #endif
 }
 
-void Logger::log(PNS::Node* base_node, Heuristic& h){
-    PNS::PNSNode* node = dynamic_cast<PNS::PNSNode*>(base_node);
+void Logger::log(Node* base_node, Heuristic& h){
+    PNSNode* node = dynamic_cast<PNSNode*>(base_node);
     if(node == nullptr) return;
 
     if(logged_states.find(node->board) != logged_states.end()){
@@ -33,8 +33,8 @@ void Logger::log(PNS::Node* base_node, Heuristic& h){
     logstream<<std::endl;
 }
 
-void Logger::log_solution_min(PNS::Node* node, std::ofstream& file, std::set<Board>& logged){
-    PNS::PNSNode* heur_node = dynamic_cast<PNS::PNSNode*>(node);
+void Logger::log_solution_min(Node* node, std::ofstream& file, std::set<Board>& logged){
+    PNSNode* heur_node = dynamic_cast<PNSNode*>(node);
     if(node == nullptr) return;
     else if(heur_node == nullptr || logged.find(heur_node->board) == logged.end()){
         if(heur_node != nullptr){

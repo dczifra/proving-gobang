@@ -7,8 +7,8 @@
 class Counter{
 public:
     Counter(){}
-    int count_nodes(PNS::Node* node);
-    int update_tree(PNS::Node* node);
+    int count_nodes(Node* node);
+    int update_tree(Node* node);
 
 private:
     std::map<Board, bool> states;

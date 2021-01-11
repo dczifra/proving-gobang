@@ -50,7 +50,7 @@ void Play::read_solution(std::string filename){
         sstream>>b.white>>b.black>>b.node_type>>pn>>dn;
         if(tree.get_states(b)==nullptr){
             
-            PNS::PNSNode* node = new PNS::PNSNode(b, args);
+            PNSNode* node = new PNSNode(b, args);
             node->pn = pn;
             node->dn = dn;
             tree.add_board(b, node);
@@ -60,20 +60,6 @@ void Play::read_solution(std::string filename){
             //display(b, true);
         }
     }
-}
-
-int Play::move_human(){
-    int row, col, act = -1;
-    std::cin>>row>>col;
-    act = col*ROW+row;
-
-    while(!board.is_valid(act)){
-        printf("Not valid action: %d\n", act);
-        std::cin>>row>>col;
-        act = col*ROW+row;
-    }
-    board.move(act, human_player);
-    return act;
 }
 
 int get_index(int act, Board board){
@@ -97,7 +83,7 @@ void Play::build_node(Board b){
     for(int i=0;i<ACTION_SIZE;i++){
         if(valids & (1ULL << i)){
             Board next = new_tree.extend(tree.get_states(b), i, slot, false);
-            PNS::PNSNode* child = tree.get_states(next);
+            PNSNode* child = tree.get_states(next);
             if(child != nullptr){
                 tree.get_states(b)->children[slot] = child;
             }
@@ -108,8 +94,8 @@ void Play::build_node(Board b){
 /*
 void Play::build_licit_node(const Board& b, int action){
     PNS new_tree(args);
-    PNS::PNSNode* node = new PNS::PNSNode(b, args);
-    PNS::PNSNode* branch;
+    PNSNode* node = new PNSNode(b, args);
+    PNSNode* branch;
     new_tree.extend(node, action, get_index(action, b), false);
     int choice;
     // TODO: Add child1, child2
@@ -136,7 +122,7 @@ void Play::build_licit_node(const Board& b, int action){
         else{
             choice = -1;
             for(int i=0;i<branch->children.size();i++){
-                PNS::PNSNode *rej, *acc;
+                PNSNode *rej, *acc;
                 rej = branch->children[0];
                 acc = branch->children[1];
                 if(tree.get_states(rej->board) != nullptr &&
@@ -189,20 +175,24 @@ void print_board(board_int board){
     std::cout<<std::endl;
 }
 
-void Play::play_with_solution2(){
+void Play::play_with_solution(){
+    Node* act_node = new PNSNode(board, tree.args);
     int act = -1;
-    Board last_board;
-    while(!tree.game_ended(board)){
+    while(!tree.game_ended(act_node->get_board())){
         std::vector<int> color;
         //if((1ULL << act) & tree.heuristic.forbidden_all) build_licit_node(board, act);
         act = -1;
-        build_node(board);
+        if(!act_node->is_inner()) build_node(act_node->get_board());
         // === Human player can choose ===
         if(player == human_player ){
             int row, col;
             std::cout<<"[RES]\n";
+            if(act_node->is_inner()) printf("Special\n");
+
             std::cin>>row>>col;
             act = col*ROW+row;
+            if(act_node->is_inner()) act_node = act_node->children[act];
+            else act_node = act_node->children[get_index(act, act_node->get_board())];
             // TODO
             //std::cout<<tree.get_states(board)->heuristic_value<<std::endl;
             //if(tree.get_states(board)->heuristic_value == -1){
@@ -213,30 +203,28 @@ void Play::play_with_solution2(){
         }
         else{
             // === Find the next child in Solution Tree ===
-            if(board.node_type == OR) act = tree.get_min_children_index(tree.get_states(board), PN);
-            else act = tree.get_min_children_index(tree.get_states(board), DN);
+            if(act_node->type == OR) act = tree.get_min_children_index(act_node, PN);
+            else act = tree.get_min_children_index(act_node, DN);
 
             if(act == ACTION_SIZE or act == -1){
                 printf("Not found next step %d\n", act);
             }
             else
             {
-                // TODO
-                //board = tree.get_states(board)->children[act]->board;
+                act_node = act_node->children[act];
             }
         }
         color.push_back(act);
 
+        Board board = act_node->get_board();
         player = get_player(board.node_type);
         if(talky){
             printf("Action: %d pn: %d\n", act, (int)tree.get_states(board)->pn);
             display(board, true, color);
         }
         std::cout<<"[DIFF] "<<board.white<<" "<<board.black<<std::endl;
-        //print_diff(board.white, last_board.white);print_diff(board.black, last_board.black);
         print_board(board.white);
         print_board(board.black);
-        last_board = board;
     }
     std::cout<<"[END]\n";
 }

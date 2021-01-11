@@ -1,9 +1,9 @@
 #include "counter.h"
 
-int Counter::count_nodes(PNS::Node* node){
+int Counter::count_nodes(Node* node){
     if (node == nullptr) return 0;
 
-    PNS::PNSNode* heur_node = dynamic_cast<PNS::PNSNode*>(node);
+    PNSNode* heur_node = dynamic_cast<PNSNode*>(node);
     if(heur_node != nullptr && states.find(heur_node->board) != states.end()){
         return 0;
     }
@@ -19,10 +19,10 @@ int Counter::count_nodes(PNS::Node* node){
     return cnt;
 }
 
-int Counter::update_tree(PNS::Node* node){
+int Counter::update_tree(Node* node){
     if(node == nullptr) return 0;
 
-    PNS::PNSNode* heur_node = dynamic_cast<PNS::PNSNode*>(node);
+    PNSNode* heur_node = dynamic_cast<PNSNode*>(node);
     if(heur_node != nullptr){
         if(states.find(heur_node->board) != states.end()){
             return 0;

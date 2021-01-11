@@ -16,7 +16,8 @@
 #include "play.h"
 #include "canonicalorder.h"
 #include "logger.h"
-  
+#include "node.h"
+
 Args::Args(int argc, char* argv[]){
     int i=0;
     while(i<argc){
@@ -67,7 +68,7 @@ void PNS_test(Args& args){
     //display(PNS::heuristic.forbidden_fields_right, true);
 
     PNS tree(&args);
-    PNS::PNSNode* node = new PNS::PNSNode(b, &args);
+    PNSNode* node = new PNSNode(b, &args);
     std::cout<<"Root node heuristic value: "<<node->heuristic_value<<std::endl;
 
     tree.init_PN_search(node);
@@ -109,7 +110,7 @@ int main(int argc, char* argv[]){
 
     if(args.test){
         Play game(args.get_filename(), args.disproof, args.talky, &args);
-        game.play_with_solution2();
+        game.play_with_solution();
     }
     else{
         //DFPNS_test(args);

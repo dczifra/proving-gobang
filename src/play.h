@@ -12,7 +12,6 @@ class Play{
 public:
     Play(std::string filename, bool disproof, bool talky, Args* args_);
     void play_with_solution();
-    void play_with_solution2();
 
     void build_tree();
     void build_node(Board b);
@@ -30,7 +29,7 @@ private:
     PNS tree;
     Board board;
     int human_player, player;
-    std::map<std::vector<uint64_t>, PNS::PNSNode*> isom_map;
+    std::map<std::vector<uint64_t>, PNSNode*> isom_map;
 
     bool talky;
     Args* args;
