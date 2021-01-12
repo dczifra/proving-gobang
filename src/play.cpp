@@ -27,6 +27,7 @@ NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* ar
     if(disproof) board.move({0,1, ACTION_SIZE-1}, player);
     //board.move({1,4, 5, 2, ROW*COL-3, ROW*COL-8, ROW*COL-7, ROW*COL-2,}, player);
     //board.move({1,5, ROW*COL-7, ROW*COL-11}, player);
+    //board.move({6},player);
 
     if(args->START > -1) board.move({args->START}, player);
 
@@ -91,72 +92,31 @@ void Play::build_node(Board b){
         }
     }
 }
-/*
-void Play::build_licit_node(const Board& b, int action){
+
+void Play::build_node2(PNSNode* base_node){
     PNS new_tree(args);
-    PNSNode* node = new PNSNode(b, args);
-    PNSNode* branch;
-    new_tree.extend(node, action, get_index(action, b), false);
-    int choice;
-    // TODO: Add child1, child2
-    // 1. Licit or neighbour step
-    if(get_player(OR) == human_player){
-        std::cout<<"0: licit\n1: neighbour\n";
-        std::cin>>choice;
-    }
-    else{
-        // If neighbour step in proof tree
-        Board neigh = node->children[0]->children[1]->board;
-        if(tree.get_states(neigh) != nullptr) choice = 1;
-        else choice = 0;
-    }
-    branch = node->children[0]->children[choice];
+    PNSNode* node = new PNSNode(base_node->board, args);
+    new_tree.extend_all(node, false);
+    for(unsigned int i=0;i<node->children.size();i++){
+        Node* child = node->children[i];
+        if(child == nullptr) return; // Extends stops, if node is proven
+        PNSNode* orig_child = tree.get_states(child->get_board());
+        if(child->is_inner()) continue;
+        else if(orig_child != nullptr){
 
-    // 2. if licit
-    if(choice == 0){
-        // Choose licit
-        if(get_player(AND) == human_player){
-            printf("Choose licit: (MAX: %d)\n", (int)branch->children.size());
-            std::cin>>choice;
+            //tree.extend(base_node, i, get_index(i,child->get_board()), false);
+            base_node->children[i] = orig_child;
+            base_node->children[i]->pn = orig_child->pn;
+            base_node->children[i]->dn = orig_child->dn;
+
+            //display(child->get_board(), true);
         }
         else{
-            choice = -1;
-            for(int i=0;i<branch->children.size();i++){
-                PNSNode *rej, *acc;
-                rej = branch->children[0];
-                acc = branch->children[1];
-                if(tree.get_states(rej->board) != nullptr &&
-                   tree.get_states(acc->board) != nullptr){
-                    choice = i;
-                    break;
-                }
-            }
-            assert(choice != -1);
-        }
-        branch = node->children[choice];
-
-        // Accept or reject licit
-        if(get_player(OR) == human_player){
-            printf("Reject: 0\nAccept: 1\n");
-            std::cin>>choice;
-        }
-        else{
-            if(tree.get_states(branch->children[0]->board) != nullptr){
-                choice = 0;
-            }
-            else if(tree.get_states(branch->children[0]->board) != nullptr){
-                choice = 1;
-            }
-            else assert(0);
-        }
-        branch = node->children[choice];
-        board = branch->board;
-    }
-    else{
-        board = branch->board;
+            //node->children[i]=nullptr;
+            //new_tree.delete_all(child);
+        }        
     }
 }
-*/
 
 void print_diff(board_int act_board, board_int last_board){
     for(int i=0;i<ACTION_SIZE;i++){
@@ -182,7 +142,7 @@ void Play::play_with_solution(){
         std::vector<int> color;
         //if((1ULL << act) & tree.heuristic.forbidden_all) build_licit_node(board, act);
         act = -1;
-        if(!act_node->is_inner()) build_node(act_node->get_board());
+        if(!act_node->is_inner()) build_node2((PNSNode*)act_node);
         // === Human player can choose ===
         if(player == human_player ){
             int row, col;
@@ -216,7 +176,7 @@ void Play::play_with_solution(){
         }
         color.push_back(act);
 
-        Board board = act_node->get_board();
+        Board board(act_node->get_board());
         player = get_player(board.node_type);
         if(talky){
             printf("Action: %d pn: %d\n", act, (int)tree.get_states(board)->pn);

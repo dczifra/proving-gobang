@@ -15,6 +15,7 @@ public:
 
     void build_tree();
     void build_node(Board b);
+    void build_node2(PNSNode* node);
     void build_licit_node(const Board& b, int action);
 
     static NodeType choose_problem(Board& b, int& player, bool disproof, Args* args);

@@ -304,7 +304,7 @@ void Heuristic::read_forbidden_strategy(){
 
 void read_lines_from_file(std::vector<Line>& lines){
     std::ifstream inp("../boards/cross_board_twopad_licit.txt");
-    //std::ifstream inp("../boards/cross_board_twopad.txt");
+    //std::ifstream inp("../boards/cross_board_easy.txt");
     //std::istream& inp= std::cin;
     while(1){
         std::string line;

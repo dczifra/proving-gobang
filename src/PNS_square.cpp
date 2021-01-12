@@ -6,7 +6,7 @@ void PNS::evaluate_node_with_PNS_square(PNSNode* node, bool log, bool fast_eval)
     while(node->pn*node->dn != 0){
         PN_search_square(node, fast_eval);
 
-        if(log && i%100 == 0){
+        if(log && i%10000 == 0){
             stats(node);
         }
         ++i;

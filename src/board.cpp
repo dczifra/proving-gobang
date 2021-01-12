@@ -158,9 +158,11 @@ board_int Board::get_valids_without_ondegree(const std::vector<Line_info> & all_
     board_int valids = ~(white | black) & FULL_BOARD;
     for(int i=0;i<ACTION_SIZE;i++){
         if(white & (1ULL << i)) continue;
-        else if(degree[i] == 1){
-            valids = valids ^ ((1ULL) << i);
+        else if(degree[i] <= 1){
+            //valids = valids ^ ((1ULL) << i);
+            valids &= ~(1ULL << i);
         }
+        
     }
 
     return valids;
