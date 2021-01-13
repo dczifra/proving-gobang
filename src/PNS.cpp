@@ -255,7 +255,15 @@ Board PNS::extend(PNSNode* node, unsigned int action, unsigned int slot,
     // === Get favour points ===
     defender_get_favour_points(next_state, action);
     simplify_board(next_state);
-    
+    if(((next_state.black | next_state.white) & heuristic.forbidden_fields_left) == heuristic.forbidden_fields_left){
+        next_state.score_left = 0;
+        //display(next_state, true);
+    }
+    if(((next_state.black | next_state.white) & heuristic.forbidden_fields_right) == heuristic.forbidden_fields_right){
+        next_state.score_right = 0;
+        //display(next_state, true);
+    }
+
     PNSNode* child = get_states(next_state);
     if(child != nullptr){
         node->children[slot] = child;
