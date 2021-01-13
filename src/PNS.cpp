@@ -92,9 +92,11 @@ void PNS::defender_get_favour_points(Board& next_state, int last_action){
         // === The last action was a defender move ===
         if(heuristic.forbidden_fields_left & (1ULL <<last_action)){
             next_state.score_left += licit.cover_forbiden_reward;
+            next_state.score_left = clip(next_state.score_left, -licit.max_score, licit.max_score);
         }
         else if(heuristic.forbidden_fields_right & (1ULL <<last_action)){
             next_state.score_right += licit.cover_forbiden_reward;
+            next_state.score_right = clip(next_state.score_right, -licit.max_score, licit.max_score);
         }
     }
 }
@@ -102,72 +104,7 @@ void PNS::defender_get_favour_points(Board& next_state, int last_action){
 Node* PNS::licit_for_defender_move(const Board& act_board, int action){
     return new AttackerOnForbidden(this, act_board, action);
 }
-/*
-Node* PNS::licit_for_defender_move(const Board& next_state, int action){
-    assert(next_state.node_type == AND);
 
-    int licit_limit;
-    bool is_left=false;
-    if(heuristic.forbidden_fields_left & (1ULL << action)){
-        licit_limit = std::max(next_state.score_left+2, 0);
-        is_left = true;
-    }
-    else{
-        licit_limit = std::max(next_state.score_right+2, 0);
-    }
-
-    Board attackers_choices;
-    InnerNode* branch = new InnerNode(2, OR);
-    // === Attacker's 2 choices ===
-    // 1. Attacker moves into action field
-    InnerNode* node = new InnerNode(licit_limit+1, AND);
-    branch->children[0]=node;
-    // 2. Neighbour moves into the action field
-    Board neighbour_move(next_state);
-    neighbour_move.white &= !(1ULL << action);
-    neighbour_move.move(action, -1);
-    PNSNode* neigh = get_states(neighbour_move);
-    if(neigh == nullptr){
-        neigh = new PNSNode(neighbour_move, args);
-        add_board(neighbour_move, neigh);
-    }
-    else neigh->parent_num++;
-    branch->children[1] = neigh;
-    
-    // === Init children of 1 ===
-    for(int i=0; i<= licit_limit;i++){
-        // Set Licit nodes
-        Board b;
-        node->children[i] = new InnerNode(2, OR);
-
-        // For all licitnode set Accept and Reject node
-        Board reject(next_state);
-        reject.node_type = OR;
-        if(is_left) reject.score_left += (i+licit.licit_diff);
-        else reject.score_right += (i+licit.licit_diff);
-        PNSNode* rej = get_states(reject);
-        if(rej == nullptr){
-            rej = new PNSNode(reject, args);
-            add_board(reject, rej);
-        }
-        else rej->parent_num++;
-        node->children[i]->children[0] = rej;
-
-        Board accept(next_state);
-        accept.node_type = AND;
-        if(is_left) accept.score_left -= i;
-        else accept.score_right -= i;
-        PNSNode* acc = get_states(accept);
-        if(acc == nullptr){
-            acc = new PNSNode(accept, args);
-            add_board(accept, acc);
-        }
-        else acc->parent_num++;
-        node->children[i]->children[1] = acc;
-    }
-    return branch;
-}
-*/
 void PNS::simplify_board(Board& next_state){
     while(!game_ended(next_state)){
         if(next_state.node_type == OR){ // Last move: black
@@ -434,8 +371,7 @@ void PNS::delete_all(Node* node){
         }
 
         if(!node->is_inner()){
-            PNSNode* heur_node = static_cast<PNSNode*>(node);
-            delete_from_map(heur_node->board);
+            delete_from_map(node->get_board());
         }
         delete node;
     }

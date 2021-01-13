@@ -153,13 +153,6 @@ void Play::play_with_solution(){
             act = col*ROW+row;
             if(act_node->is_inner()) act_node = act_node->children[act];
             else act_node = act_node->children[get_index(act, act_node->get_board())];
-            // TODO
-            //std::cout<<tree.get_states(board)->heuristic_value<<std::endl;
-            //if(tree.get_states(board)->heuristic_value == -1){
-            //    std::cout<<"Licit node\n";
-            //    board = tree.get_states(board)->children[act]->board;
-            //}
-            //else board = tree.get_states(board)->children[get_index(act, board)]->board;
         }
         else{
             // === Find the next child in Solution Tree ===
@@ -182,9 +175,9 @@ void Play::play_with_solution(){
             printf("Action: %d pn: %d\n", act, (int)tree.get_states(board)->pn);
             display(board, true, color);
         }
-        std::cout<<"[DIFF] "<<board.white<<" "<<board.black<<std::endl;
-        print_board(board.white);
-        print_board(board.black);
+        //std::cout<<"[DIFF] "<<board.white<<" "<<board.black<<std::endl;
+        //print_board(board.white);
+        //print_board(board.black);
     }
     std::cout<<"[END]\n";
 }

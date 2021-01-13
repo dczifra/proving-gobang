@@ -75,6 +75,10 @@ struct Args{
     Args(){}
 };
 
+inline int clip(int n, int lower, int upper){
+    return n <= lower ? lower : n >= upper ? upper : n;
+}
+
 // ============================================
 //      Line infos (Shouldn't be in heuristic)
 // ============================================

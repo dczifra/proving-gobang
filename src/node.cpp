@@ -74,8 +74,8 @@ InnerNode::InnerNode(int childnum, NodeType t){
 }
 
 AttackerOnForbidden::AttackerOnForbidden(PNS* tree, const Board& act_board, int action): InnerNode(2, OR){
-    children[0] = new LicitSwitchNode(tree, act_board, action,
-                                      get_licit_limit(tree, act_board, action));
+    //children[0] = new LicitSwitchNode(tree, act_board, action, get_licit_limit(tree, act_board, action));
+    children[0] = get_defender_side(tree, act_board, action);
     children[1] = add_neighbour_move(tree, act_board, action);
 }
 
@@ -112,11 +112,42 @@ LicitNode::LicitNode(PNS* tree, const Board& act_board, int action, int licit_va
 
 
 // === Helper Functions ===
+PNSNode* Node::get_defender_side(PNS* tree, const Board& act_board, int action){
+    bool is_left = (1ULL << action) & tree->heuristic.forbidden_fields_left;
+    int score = is_left ? act_board.score_left : act_board.score_right;
+    
+    Board next_state(act_board);
+    if(score > 0 or (score == 0 && is_left)){
+        next_state.node_type = AND;
+        is_left ? next_state.score_left = -1 : next_state.score_right = -1;
+    }
+    else{
+        next_state.node_type = OR;
+        is_left ? next_state.score_left = 1 : next_state.score_right = 1;
+    }
+
+    PNSNode* neigh = tree->get_states(next_state);
+    handle_collision(tree, neigh, next_state);
+    return neigh;
+}
+
 PNSNode* Node::add_neighbour_move(PNS* tree, const Board& act_board, int action){
+    int licit_max = tree->licit.max_score;
+    bool is_left = (1ULL << action) & tree->heuristic.forbidden_fields_left;
+
     Board neighbour_move(act_board);
     // Change action field from white to black
     neighbour_move.white &= !(1ULL << action);
     neighbour_move.move(action, -1);
+    if(is_left){ // reduce score, and clip (-MAXS_CORE, MAX_SCORE)
+        neighbour_move.score_left -= tree->licit.cover_forbiden_reward;
+        neighbour_move.score_left = clip(neighbour_move.score_left, -licit_max, licit_max);
+    }
+    else{
+        neighbour_move.score_right -= tree->licit.cover_forbiden_reward;
+        neighbour_move.score_right = clip(neighbour_move.score_right, -licit_max, licit_max);
+    }
+
     PNSNode* neigh = tree->get_states(neighbour_move);
     handle_collision(tree, neigh, neighbour_move);
     return neigh;
