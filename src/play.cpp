@@ -100,21 +100,24 @@ void Play::build_node2(PNSNode* base_node){
     for(unsigned int i=0;i<node->children.size();i++){
         Node* child = node->children[i];
         if(child == nullptr) return; // Extends stops, if node is proven
-        PNSNode* orig_child = tree.get_states(child->get_board());
-        if(child->is_inner()) continue;
-        else if(orig_child != nullptr){
-
-            //tree.extend(base_node, i, get_index(i,child->get_board()), false);
-            base_node->children[i] = orig_child;
-            base_node->children[i]->pn = orig_child->pn;
-            base_node->children[i]->dn = orig_child->dn;
-
-            //display(child->get_board(), true);
+        else if(child->is_inner()){
+            tree.extend(base_node, i, get_index(i,child->get_board()), false);
         }
         else{
-            //node->children[i]=nullptr;
-            //new_tree.delete_all(child);
-        }        
+            PNSNode* orig_child = tree.get_states(child->get_board());
+            if(orig_child != nullptr){
+                //tree.extend(base_node, i, get_index(i,child->get_board()), false);
+                base_node->children[i] = orig_child;
+                base_node->children[i]->pn = orig_child->pn;
+                base_node->children[i]->dn = orig_child->dn;
+                //display(child->get_board(), true);
+            }
+            else{
+                std::cout<<"Child not found ("<<i<<")\n";
+                //node->children[i]=nullptr;
+                //new_tree.delete_all(child);
+            }
+        }     
     }
 }
 
