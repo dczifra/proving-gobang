@@ -11,41 +11,40 @@ void Logger::init(bool disproof){
     #endif
 }
 
-void Logger::log(Node* base_node, Heuristic& h){
-    PNSNode* node = dynamic_cast<PNSNode*>(base_node);
-    if(node == nullptr) return;
-
-    if(logged_states.find(node->board) != logged_states.end()){
+void Logger::log(Node* node, Heuristic& h){
+    if(node == nullptr || node->is_inner()) return;
+    else if(logged_states.find(node->get_board()) != logged_states.end()){
         return;
     }
     else{
-        logged_states[node->board] = true;
+        logged_states[node->get_board()] = true;
     }
 
     Counter counter;
+    Board act_board(node->get_board());
 
-    logstream<<node->board.white<<" "<<node->board.black<<" "<<node->board.node_type<<" ";
+    logstream<<act_board.white<<" "<<act_board.black<<" "<<act_board.node_type<<" ";
     logstream<<node->pn<<" "<<node->dn<<" ";
-    logstream<<node->board.get_valids_num()<<" ";
-    logstream<<node->heuristic_value<<" ";
+    logstream<<act_board.get_valids_num()<<" ";
+    logstream<<((PNSNode*)node)->heuristic_value<<" ";
     logstream<<counter.count_nodes(node)<<" ";
-    logstream<<node->board.heuristic_layers(h.all_linesinfo);
+    logstream<<act_board.heuristic_layers(h.all_linesinfo);
     logstream<<std::endl;
 }
 
 void Logger::log_solution_min(Node* node, std::ofstream& file, std::set<Board>& logged){
-    PNSNode* heur_node = dynamic_cast<PNSNode*>(node);
     if(node == nullptr) return;
-    else if(heur_node == nullptr || logged.find(heur_node->board) == logged.end()){
-        if(heur_node != nullptr){
-            logged.insert(heur_node->board);
-            file<<heur_node->board.white<<" "<<heur_node->board.black<<" "<<heur_node->board.node_type<<" "<<node->pn<<" "<<node->dn<<std::endl;
+    else if(logged.find(node->get_board()) == logged.end()){
+        if(!node->is_inner()){
+            Board act_board (node->get_board());
+            logged.insert(act_board);
+            file<<act_board.white<<" "<<act_board.black<<" "<<act_board.node_type<<" "<<node->pn<<" "<<node->dn<<std::endl;
         }
 
         if(PNS::keep_only_one_child(node)){
             ProofType proof_type = (node->pn == 0 ? PN:DN);
             unsigned int min_ind = PNS::get_min_children_index(node, proof_type);
-            if (min_ind == UINT_MAX) return;
+            if (min_ind == UINT_MAX) return; // node is a leaf
             else log_solution_min(node->children[min_ind], file, logged);
         }
         else{

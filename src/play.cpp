@@ -69,11 +69,25 @@ int get_index(int act, Board board){
     board_int valids = board.get_valids_without_ondegree(PNS::heuristic.all_linesinfo);
     for(int i=0;i<ACTION_SIZE;i++){
         if(valids & (1ULL << i)){
-	    indexes[i]=slot;
-	    slot++;
+            indexes[i]=slot;
+            slot++;
         }
     }
     return indexes[act];
+}
+
+int get_action(int base_slot, Board board){
+    board_int valids = board.get_valids_without_ondegree(PNS::heuristic.all_linesinfo);
+    
+    int slot =0;
+    for(int i=0;i<ACTION_SIZE;i++){
+        if(valids & (1ULL << i)){
+            if(slot == base_slot) return i;
+            else slot++;
+        }
+    }
+    assert(0); // base_slot out of range
+    return -1;
 }
 
 void Play::build_node(Board b){
@@ -101,21 +115,18 @@ void Play::build_node2(PNSNode* base_node){
         Node* child = node->children[i];
         if(child == nullptr) return; // Extends stops, if node is proven
         else if(child->is_inner()){
-            tree.extend(base_node, i, get_index(i,child->get_board()), false);
+            tree.extend(base_node, get_action(i,base_node->get_board()),i, false);
         }
         else{
             PNSNode* orig_child = tree.get_states(child->get_board());
             if(orig_child != nullptr){
-                //tree.extend(base_node, i, get_index(i,child->get_board()), false);
                 base_node->children[i] = orig_child;
                 base_node->children[i]->pn = orig_child->pn;
                 base_node->children[i]->dn = orig_child->dn;
                 //display(child->get_board(), true);
             }
             else{
-                std::cout<<"Child not found ("<<i<<")\n";
-                //node->children[i]=nullptr;
-                //new_tree.delete_all(child);
+                //std::cout<<"Child not found ("<<i<<")\n";
             }
         }     
     }
@@ -141,9 +152,10 @@ void print_board(board_int board){
 void Play::play_with_solution(){
     Node* act_node = new PNSNode(board, tree.args);
     int act = -1;
-    while(!tree.game_ended(act_node->get_board())){
+    while(act_node->is_inner() || !tree.game_ended(act_node->get_board())){
+        std::cout<<act_node->child_num<<std::endl;
+
         std::vector<int> color;
-        //if((1ULL << act) & tree.heuristic.forbidden_all) build_licit_node(board, act);
         act = -1;
         if(!act_node->is_inner()) build_node2((PNSNode*)act_node);
         // === Human player can choose ===
@@ -167,20 +179,28 @@ void Play::play_with_solution(){
             }
             else
             {
+                int true_act = get_action(act, act_node->get_board());
                 act_node = act_node->children[act];
+                act = true_act;
             }
         }
         color.push_back(act);
 
-        Board board(act_node->get_board());
-        player = get_player(board.node_type);
-        if(talky){
-            printf("Action: %d pn: %d\n", act, (int)tree.get_states(board)->pn);
-            display(board, true, color);
+        if(act_node->is_inner()){
+            player = get_player(act_node->type);
         }
-        //std::cout<<"[DIFF] "<<board.white<<" "<<board.black<<std::endl;
-        //print_board(board.white);
-        //print_board(board.black);
+        else{
+            Board board(act_node->get_board());
+            player = get_player(board.node_type);
+            if(talky){
+                printf("Action: %d pn: %d\n", act, (int)tree.get_states(board)->pn);
+                display(board, true, color);
+            }
+            //std::cout<<"[DIFF] "<<board.white<<" "<<board.black<<std::endl;
+            //print_board(board.white);
+            //print_board(board.black);
+        }
+        //std::cout<<"next done\n";
     }
     std::cout<<"[END]\n";
 }
