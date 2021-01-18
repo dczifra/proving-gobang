@@ -206,7 +206,31 @@ int main() {
     //PNSNode* node = new PNSNode(b, tree.heuristic);
     //tree.evalueate_node_with_PNS(node, true, false);
     //tree.stats(node);
-    get_valids_test();
+    //get_valids_test();
+    PNS tree(args);
+    Board b;
+    //std::cout<<b.white<<" "<<b.black<<" "<<b.score_left<<" "<<b.node_type<<std::endl;
 
+    Node* node = new PNSNode(b, args);
+    tree.extend_all((PNSNode*)node, false);
+    for(int i=0;i<node->children.size();i++){
+        if(node->children[i]->is_inner()){
+            std::cout<<i<<" ";
+        }
+    }
+    std::cout<<std::endl;
+
+    node = node->children[1];
+    tree.extend_all((PNSNode*)node, false);
+
+    node = node->children[2];
+    tree.extend_all((PNSNode*)node, false);
+    display(node->get_board(), true);
+    for(int i=0;i<node->children.size();i++){
+        if(node->children[i]->is_inner()){
+            std::cout<<i<<" ";
+        }
+    }
+    std::cout<<std::endl;
     return 0;
 }

@@ -22,8 +22,8 @@ struct Board{
 
     board_int white;
     board_int black;
-    int score_left = 0;
-    int score_right = 0;
+    int score_left;
+    int score_right;
     //board_int blocked_lines;
     NodeType node_type;
 
@@ -99,6 +99,8 @@ inline void Board::init(){
     white = 0;
     black = 0;
     //blocked_lines = 0;
+    score_left = 0;
+    score_right = 0;
     node_type = OR;
 }
 
@@ -118,9 +120,10 @@ struct Board_Hash{
     std::size_t operator()(Board const& b) const noexcept{
         std::size_t h1 = std::hash<uint64_t>{}(b.white);
         std::size_t h2 = std::hash<uint64_t>{}(b.black);
-        std::size_t h3 = std::hash<uint8_t>{}(b.node_type);
-        std::size_t h4 = std::hash<uint8_t>{}(b.score_left);
-        std::size_t h5 = std::hash<uint8_t>{}(b.score_right);
+        std::size_t h3 = std::hash<uint64_t>{}(b.score_left);
+        std::size_t h4 = std::hash<uint64_t>{}(b.score_right);
+        std::size_t h5 = std::hash<uint8_t>{}(b.node_type);
+
         return  h1 ^ h2 ^ h3 ^ h4 ^ h5;
     }
 };

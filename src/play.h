@@ -28,7 +28,6 @@ private:
 private:
     // === Init variables ===
     PNS tree;
-    Board board;
     int human_player, player;
     std::map<std::vector<uint64_t>, PNSNode*> isom_map;
 

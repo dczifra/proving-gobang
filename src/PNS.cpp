@@ -254,7 +254,12 @@ Board PNS::extend(PNSNode* node, unsigned int action, unsigned int slot,
     Board next_state(node->board, action, get_player(node->type));
     // === Get favour points ===
     defender_get_favour_points(next_state, action);
-    simplify_board(next_state);
+    if((next_state.node_type == AND) && ((1ULL << action) & heuristic.forbidden_all)){
+        //Attacker moves on forbidden, shouldn't simlify
+    }
+    else{
+        simplify_board(next_state);
+    }
     if(((next_state.black | next_state.white) & heuristic.forbidden_fields_left) == heuristic.forbidden_fields_left){
         next_state.score_left = 0;
         //display(next_state, true);

@@ -7,6 +7,7 @@
 Play::Play(std::string filename, bool disproof, bool talky, Args* args_):talky(talky),tree(args_){
     player = 1;
     args = args_;
+    Board board;
     choose_problem(board, player, disproof, args);
 
     // === Read Solution Tree ===
@@ -48,7 +49,7 @@ void Play::read_solution(std::string filename){
         var pn, dn;
         Board b;
         std::stringstream sstream(s);
-        sstream>>b.white>>b.black>>b.node_type>>pn>>dn;
+        sstream>>b.white>>b.black>>b.node_type>>b.score_left>>b.score_right>>pn>>dn;
         if(tree.get_states(b)==nullptr){
             
             PNSNode* node = new PNSNode(b, args);
@@ -115,6 +116,7 @@ void Play::build_node2(PNSNode* base_node){
         Node* child = node->children[i];
         if(child == nullptr) return; // Extends stops, if node is proven
         else if(child->is_inner()){
+            std::cout<<"Child extended ("<<i<<")\n";
             tree.extend(base_node, get_action(i,base_node->get_board()),i, false);
         }
         else{
@@ -150,10 +152,12 @@ void print_board(board_int board){
 }
 
 void Play::play_with_solution(){
-    Node* act_node = new PNSNode(board, tree.args);
+    Board base_board;
+    choose_problem(base_board, player, false, args); // TODO
+    Node* act_node = new PNSNode(base_board, tree.args);
     int act = -1;
     while(act_node->is_inner() || !tree.game_ended(act_node->get_board())){
-        std::cout<<act_node->child_num<<std::endl;
+        std::cout<<"Childnum: "<<act_node->child_num<<std::endl;
 
         std::vector<int> color;
         act = -1;
@@ -187,6 +191,7 @@ void Play::play_with_solution(){
         color.push_back(act);
 
         if(act_node->is_inner()){
+            std::cout<<"Inner node\n";
             player = get_player(act_node->type);
         }
         else{
@@ -195,12 +200,13 @@ void Play::play_with_solution(){
             if(talky){
                 printf("Action: %d pn: %d\n", act, (int)tree.get_states(board)->pn);
                 display(board, true, color);
+                std::cout<<"Scores: "<<board.score_left<<" "<<board.score_right<<std::endl;
             }
             //std::cout<<"[DIFF] "<<board.white<<" "<<board.black<<std::endl;
             //print_board(board.white);
             //print_board(board.black);
         }
-        //std::cout<<"next done\n";
+        std::cout<<"next done\n";
     }
     std::cout<<"[END]\n";
 }

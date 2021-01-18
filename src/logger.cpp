@@ -38,7 +38,8 @@ void Logger::log_solution_min(Node* node, std::ofstream& file, std::set<Board>& 
         if(!node->is_inner()){
             Board act_board (node->get_board());
             logged.insert(act_board);
-            file<<act_board.white<<" "<<act_board.black<<" "<<act_board.node_type<<" "<<node->pn<<" "<<node->dn<<std::endl;
+            file<<act_board.white<<" "<<act_board.black<<" "<<act_board.node_type<<" "<<
+                act_board.score_left<<" "<<act_board.score_right<<" "<<node->pn<<" "<<node->dn<<std::endl;
         }
 
         if(PNS::keep_only_one_child(node)){
