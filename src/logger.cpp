@@ -34,7 +34,7 @@ void Logger::log(Node* node, Heuristic& h){
 
 void Logger::log_solution_min(Node* node, std::ofstream& file, std::set<Board>& logged){
     if(node == nullptr) return;
-    else if(logged.find(node->get_board()) == logged.end()){
+    else if(node->is_inner() || logged.find(node->get_board()) == logged.end()){
         if(!node->is_inner()){
             Board act_board (node->get_board());
             logged.insert(act_board);
