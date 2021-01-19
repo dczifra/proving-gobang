@@ -77,6 +77,7 @@ AttackerOnForbidden::AttackerOnForbidden(PNS* tree, const Board& act_board, int 
     //children[0] = new LicitSwitchNode(tree, act_board, action, get_licit_limit(tree, act_board, action));
     children[0] = get_defender_side(tree, act_board, action);
     children[1] = add_neighbour_move(tree, act_board, action);
+    tree->update_node(this);
 }
 
 LicitSwitchNode::LicitSwitchNode(PNS* tree, const Board& act_board, int action, int licit_limit): InnerNode(licit_limit+1, AND){

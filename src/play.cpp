@@ -200,13 +200,13 @@ void Play::play_with_solution(){
             if(talky){
                 printf("Action: %d pn: %d\n", act, (int)tree.get_states(board)->pn);
                 display(board, true, color);
-                std::cout<<"Scores: "<<board.score_left<<" "<<board.score_right<<std::endl;
+                //std::cout<<"Scores: "<<board.score_left<<" "<<board.score_right<<std::endl;
             }
             //std::cout<<"[DIFF] "<<board.white<<" "<<board.black<<std::endl;
             //print_board(board.white);
             //print_board(board.black);
         }
-        std::cout<<"next done\n";
+        //std::cout<<"next done\n";
     }
     std::cout<<"[END]\n";
 }

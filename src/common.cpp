@@ -34,7 +34,7 @@ unsigned long long set_full_board(){
     return board;
 }
 
-void display(mtx<int>& board, bool end, std::vector<int> show, bool nocolor){
+void display(mtx<int>& board, bool end, std::pair<int, int> score, std::vector<int> show, bool nocolor){
     std::vector<bool> is_show(ACTION_SIZE, 0);
     for(auto f: show){
         is_show[f]=1;
@@ -78,7 +78,7 @@ void display(mtx<int>& board, bool end, std::vector<int> show, bool nocolor){
     }
     printf(" +%s+\n",std::string(2*COL,'=').c_str());
     if (!end) printf("\033[%dA",back_step);
-    printf("                           \n\n");
+    printf("Score %d %d                           \n\n", score.first, score.second);
     printf("\033[1A");
 }
 
@@ -90,7 +90,7 @@ void display(const board_int board, bool end, std::vector<int> show, bool nocolo
             big_board[y][x] = white;
         }
     }
-    display(big_board, end, show, nocolor);
+    display(big_board, end, {0,0}, show, nocolor);
 }
 
 void display(const Board board, bool end, std::vector<int> show, bool nocolor){
@@ -102,7 +102,7 @@ void display(const Board board, bool end, std::vector<int> show, bool nocolor){
             big_board[y][x] = white-black;
         }
     }
-    display(big_board, end, show, nocolor);
+    display(big_board, end, {board.score_left, board.score_right}, show, nocolor);
 }
 
 
