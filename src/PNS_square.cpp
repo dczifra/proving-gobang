@@ -33,7 +33,7 @@ void PNS::search_and_keep_one_layer(PNSNode* node, bool fast_eval){
                 child->children[i] = nullptr;
             }
         }
-	child->extended = false;
+	    if(!child->is_inner()) child->extended = false;
     }
 }
 
