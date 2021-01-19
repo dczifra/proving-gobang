@@ -125,6 +125,7 @@ PNSNode* Node::get_defender_side(PNS* tree, const Board& act_board, int action){
         next_state.node_type = OR;
         is_left ? next_state.score_left = 1 : next_state.score_right = 1;
     }
+    nullify_scores(next_state);
 
     PNSNode* neigh = tree->get_states(next_state);
     handle_collision(tree, neigh, next_state);
@@ -140,6 +141,7 @@ PNSNode* Node::add_neighbour_move(PNS* tree, const Board& act_board, int action)
     neighbour_move.white &= !(1ULL << action);
     neighbour_move.move(action, -1);
     neighbour_move.node_type = AND;
+    nullify_scores(neighbour_move);
     if(is_left){ // reduce score, and clip (-MAXS_CORE, MAX_SCORE)
         neighbour_move.score_left -= tree->licit.cover_forbiden_reward;
         neighbour_move.score_left = clip(neighbour_move.score_left, -licit_max, licit_max);
@@ -173,4 +175,16 @@ void Node::handle_collision(PNS* tree, PNSNode*& node, const Board& board){
         tree->add_board(board, node);
     }
     else node->parent_num++;
+}
+
+void Node::nullify_scores(Board& board){
+    // if this is the last forbidden square, set score to 0
+    if(((board.black | board.white) & PNS::heuristic.forbidden_fields_left) == PNS::heuristic.forbidden_fields_left){
+        board.score_left = 0;
+        //display(board, true);
+    }
+    if(((board.black | board.white) & PNS::heuristic.forbidden_fields_right) == PNS::heuristic.forbidden_fields_right){
+        board.score_right = 0;
+        //display(next_state, true);
+    }
 }

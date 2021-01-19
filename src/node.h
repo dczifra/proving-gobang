@@ -27,6 +27,7 @@ public:
     void handle_collision(PNS* tree, PNSNode*& node, const Board& board);
     PNSNode* get_defender_side(PNS* tree, const Board& act_board, int action);
     PNSNode* add_neighbour_move(PNS* tree, const Board& act_board, int action);
+    static void nullify_scores(Board& board);
 };
 
 class PNSNode: public Node{
