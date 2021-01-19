@@ -44,7 +44,7 @@ public:
     void search_and_keep_one_layer(PNSNode* node, bool fast_eval);
 
     void extend_all(PNSNode* node, bool fast_eval);
-    Board extend(PNSNode* node, unsigned int action, unsigned int slot, bool fast_eval);
+    void extend(PNSNode* node, unsigned int action, unsigned int slot, bool fast_eval);
     void delete_all(Node* node);
     void delete_node(Node* node);
     void delete_and_log(Node* node);

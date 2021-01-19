@@ -249,17 +249,11 @@ void PNS::extend_all(PNSNode* node, bool fast_eval){
     update_node(node);
 }
 
-Board PNS::extend(PNSNode* node, unsigned int action, unsigned int slot,
+void PNS::extend(PNSNode* node, unsigned int action, unsigned int slot,
 		  bool fast_eval){
     Board next_state(node->board, action, get_player(node->type));
-    // === Get favour points ===
-    defender_get_favour_points(next_state, action);
-    if((next_state.node_type == AND) && ((1ULL << action) & heuristic.forbidden_all)){
-        //Attacker moves on forbidden, shouldn't simlify
-    }
-    else{
-        simplify_board(next_state);
-    }
+
+    // if this is the last forbidden square, set score to 0
     if(((next_state.black | next_state.white) & heuristic.forbidden_fields_left) == heuristic.forbidden_fields_left){
         next_state.score_left = 0;
         //display(next_state, true);
@@ -268,45 +262,48 @@ Board PNS::extend(PNSNode* node, unsigned int action, unsigned int slot,
         next_state.score_right = 0;
         //display(next_state, true);
     }
+  
+    // === Get favour points ===
+    defender_get_favour_points(next_state, action);
 
-    PNSNode* child = get_states(next_state);
-    if(child != nullptr){
-        node->children[slot] = child;
-        node->children[slot] -> parent_num += 1;
-        return next_state;
+
+    if((next_state.node_type == AND) && ((1ULL << action) & heuristic.forbidden_all)){
+        //Attacker moves on forbidden, shouldn't simplify
+        node->children[slot] = licit_for_defender_move(next_state, action);
+        return;
     }
+    
     else{
-        assert(node->children[slot] == nullptr);
-        int moves_before = next_state.get_valids_num();
+        simplify_board(next_state);
 
-        Board child_b;
-        // === If forbidden attacker step ===
-        if(next_state.node_type == AND && ((1ULL << action) & heuristic.forbidden_all)){
-            node->children[slot] = licit_for_defender_move(next_state, action);
-            child_b.white = -1;
-            child_b.black = -1;
-        }
-        // 2-connected components, if not ended
-        else if(0 && !fast_eval && next_state.node_type == OR && !game_ended(next_state) && moves_before >= EVAL_TRESHOLD){ 
-            child = evaluate_components(next_state);
+        PNSNode* child = get_states(next_state);
+        if(child != nullptr){
             node->children[slot] = child;
-            child_b = child->board;
+            node->children[slot] -> parent_num += 1;
+            return;
         }
         else{
-            child = new PNSNode(next_state, args);
-            add_board(next_state, child);
-            if(!fast_eval && moves_before < EVAL_TRESHOLD){
-                evaluate_node_with_PNS(child, false, true);
-            }
-            node->children[slot] = child;
-            child_b = child->board;
-        }
-        int moves_after = child_b.white != -1 ? child_b.get_valids_num() : 0;
-        
-        component_cut[moves_before][moves_before - moves_after] += 1;
+            assert(node->children[slot] == nullptr);
+            int moves_before = next_state.get_valids_num();
 
-        return child_b;
-    }
+            // 2-connected components, if not ended
+            if(0 && !fast_eval && next_state.node_type == OR && !game_ended(next_state) && moves_before >= EVAL_TRESHOLD){ 
+                child = evaluate_components(next_state);
+                node->children[slot] = child;
+            }
+            else{
+                child = new PNSNode(next_state, args);
+                add_board(next_state, child);
+                if(!fast_eval && moves_before < EVAL_TRESHOLD){
+                    evaluate_node_with_PNS(child, false, true);
+                }
+                node->children[slot] = child;
+            }
+            int moves_after = child->board.white != -1 ? child->board.get_valids_num() : 0;
+        
+            component_cut[moves_before][moves_before - moves_after] += 1;
+        }
+    }   
 }
 
 void PNS::init_PN_search(PNSNode* node){

@@ -91,22 +91,22 @@ int get_action(int base_slot, Board board){
     return -1;
 }
 
-void Play::build_node(Board b){
-    PNS new_tree(args);
-    int slot = 0;
+// void Play::build_node(Board b){
+//     PNS new_tree(args);
+//     int slot = 0;
     
-    board_int valids = b.get_valids_without_ondegree(PNS::heuristic.all_linesinfo);
-    for(int i=0;i<ACTION_SIZE;i++){
-        if(valids & (1ULL << i)){
-            Board next = new_tree.extend(tree.get_states(b), i, slot, false);
-            PNSNode* child = tree.get_states(next);
-            if(child != nullptr){
-                tree.get_states(b)->children[slot] = child;
-            }
-            slot++;
-        }
-    }
-}
+//     board_int valids = b.get_valids_without_ondegree(PNS::heuristic.all_linesinfo);
+//     for(int i=0;i<ACTION_SIZE;i++){
+//         if(valids & (1ULL << i)){
+//             Board next = new_tree.extend(tree.get_states(b), i, slot, false);
+//             PNSNode* child = tree.get_states(next);
+//             if(child != nullptr){
+//                 tree.get_states(b)->children[slot] = child;
+//             }
+//             slot++;
+//         }
+//     }
+// }
 
 void Play::build_node2(PNSNode* base_node){
     PNS new_tree(args);
