@@ -139,6 +139,7 @@ PNSNode* Node::add_neighbour_move(PNS* tree, const Board& act_board, int action)
     // Change action field from white to black
     neighbour_move.white &= !(1ULL << action);
     neighbour_move.move(action, -1);
+    neighbour_move.node_type = AND;
     if(is_left){ // reduce score, and clip (-MAXS_CORE, MAX_SCORE)
         neighbour_move.score_left -= tree->licit.cover_forbiden_reward;
         neighbour_move.score_left = clip(neighbour_move.score_left, -licit_max, licit_max);
@@ -166,7 +167,7 @@ int Node::get_licit_limit(PNS* tree, const Board& act_board, int action){
     return licit_limit;
 }
 
-void Node::handle_collision(PNS* tree, PNSNode* node, const Board& board){
+void Node::handle_collision(PNS* tree, PNSNode*& node, const Board& board){
     if(node == nullptr){
         node = new PNSNode(board, tree->args);
         tree->add_board(board, node);

@@ -183,7 +183,7 @@ void Play::play_with_solution(){
             }
             else
             {
-                int true_act = get_action(act, act_node->get_board());
+                int true_act = act_node->is_inner() ? act : get_action(act, act_node->get_board());
                 act_node = act_node->children[act];
                 act = true_act;
             }
