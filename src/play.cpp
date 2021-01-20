@@ -29,6 +29,9 @@ NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* ar
     //board.move({1,4, 5, 2, ROW*COL-3, ROW*COL-8, ROW*COL-7, ROW*COL-2,}, player);
     //board.move({1,5, ROW*COL-7, ROW*COL-11}, player);
     //board.move({6},player);
+    board.move({43}, player);
+    board.white |= (1ULL << 42);
+    board.score_right = 1;
 
     if(args->START > -1) board.move({args->START}, player);
 
