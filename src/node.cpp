@@ -73,6 +73,10 @@ InnerNode::InnerNode(int childnum, NodeType t){
     parent_num = 1;
 }
 
+void AttackerOnForbidden::extend_all(){
+    assert(0);
+}
+
 AttackerOnForbidden::AttackerOnForbidden(PNS* tree, const Board& act_board, int action): InnerNode(2, OR){
     //children[0] = new LicitSwitchNode(tree, act_board, action, get_licit_limit(tree, act_board, action));
     children[0] = get_defender_side(tree, act_board, action);

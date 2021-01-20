@@ -190,26 +190,9 @@ void get_valids_test(){
     display(vals, true);
 }
 
-Heuristic PNS::heuristic;
-CanonicalOrder PNS::isom_machine;
-Logger* PNS::logger = new Logger();
-
-int main() {
-    args = new Args();
-    std::cout<<"### TEST ###"<<std::endl;
-
-    //test_components();
-    //test_DFPN();
-    //artic_point();
-    //canonical_order();
-    //canonical_order();
-    //PNSNode* node = new PNSNode(b, tree.heuristic);
-    //tree.evalueate_node_with_PNS(node, true, false);
-    //tree.stats(node);
-    //get_valids_test();
+void test_inner(){
     PNS tree(args);
     Board b;
-    //std::cout<<b.white<<" "<<b.black<<" "<<b.score_left<<" "<<b.node_type<<std::endl;
 
     Node* node = new PNSNode(b, args);
     tree.extend_all((PNSNode*)node, false);
@@ -232,5 +215,36 @@ int main() {
         }
     }
     std::cout<<std::endl;
+}
+
+void testPNS2(){
+    PNS tree(args);
+    Board b;
+    PNSNode* node = new PNSNode(b, args);
+    tree.extend_all(node, false);
+    tree.search_and_keep_one_layer(node, false, 100);
+    node->children[0]->pn = 20.0;
+    tree.PN_search_square(node, false);
+}
+
+Heuristic PNS::heuristic;
+CanonicalOrder PNS::isom_machine;
+Logger* PNS::logger = new Logger();
+
+int main() {
+    args = new Args();
+    std::cout<<"### TEST ###"<<std::endl;
+
+    //test_components();
+    //test_DFPN();
+    //artic_point();
+    //canonical_order();
+    //canonical_order();
+    //PNSNode* node = new PNSNode(b, tree.heuristic);
+    //tree.evalueate_node_with_PNS(node, true, false);
+    //tree.stats(node);
+    //get_valids_test();
+    testPNS2();
+
     return 0;
 }

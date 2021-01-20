@@ -63,6 +63,7 @@ public:
 class AttackerOnForbidden: public InnerNode{
 public:
     AttackerOnForbidden(PNS* tree, const Board& act_board, int action);
+    virtual void extend_all();
 };
 
 class LicitSwitchNode: public InnerNode{
