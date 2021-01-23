@@ -332,6 +332,7 @@ void Board::remove_dead_fields_all(const std::vector<Line_info> &all_line, board
 
     for(int i=0;i<ACTION_SIZE;i++){
         if(dead[i] && ((1ULL << i) & forbidden)==0) set_black(i);
+        if(dead[i] && ((1ULL << i) & white)) set_black(i);
     }
 }
 
