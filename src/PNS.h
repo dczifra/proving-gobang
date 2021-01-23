@@ -57,11 +57,11 @@ public:
     // === Helper Functions ===
     void read_solution(std::string filename);
     void free_states();
-    void defender_get_favour_points(Board& next_state, int action);
     Node* licit_for_defender_move(const Board& next_state, int action);
-    void simplify_board(Board& next_state);
-    bool game_ended(const Board& b);
-    void display_node(PNSNode* node);
+    static void defender_get_favour_points(Board& next_state, int action);
+    static void simplify_board(Board& next_state);
+    static bool game_ended(const Board& b);
+    static void display_node(PNSNode* node);
     static bool keep_only_one_child(Node* node);
 
 
@@ -89,6 +89,7 @@ public:
     static Heuristic heuristic;
     static CanonicalOrder isom_machine;
     static Logger* logger;
+    static Licit licit;
 
     int total_state_size = 0;
     
@@ -100,7 +101,6 @@ private :
     #endif
 
     Args* args;
-    Licit licit;
     bool print=false;
     std::vector<std::vector<int>> component_cut;
 };

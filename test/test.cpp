@@ -7,6 +7,7 @@
 #include "PNS.h"
 #include "artic_point.h"
 #include "logger.h"
+#include "licit.h"
 // =================================================================
 //                     TEST THE BOARD's GOODNESS
 // =================================================================
@@ -230,6 +231,7 @@ void testPNS2(){
 Heuristic PNS::heuristic;
 CanonicalOrder PNS::isom_machine;
 Logger* PNS::logger = new Logger();
+Licit PNS::licit;
 
 int main() {
     args = new Args();

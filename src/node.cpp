@@ -118,11 +118,12 @@ LicitNode::LicitNode(PNS* tree, const Board& act_board, int action, int licit_va
 
 // === Helper Functions ===
 PNSNode* Node::get_defender_side(PNS* tree, const Board& act_board, int action){
-    bool is_left = (1ULL << action) & tree->heuristic.forbidden_fields_left;
+    bool is_left = (1ULL << action) & PNS::heuristic.forbidden_fields_left;
+    bool inner = (1ULL << action) & PNS::heuristic.forbidden_fields_inner;
     int score = is_left ? act_board.score_left : act_board.score_right;
     
     Board next_state(act_board);
-    if(score > 0 or (score == 0 && is_left)){
+    if(score > 0 or (score == 0 && inner)){
         next_state.node_type = AND;
         is_left ? next_state.score_left = -1 : next_state.score_right = -1;
     }
@@ -131,6 +132,7 @@ PNSNode* Node::get_defender_side(PNS* tree, const Board& act_board, int action){
         is_left ? next_state.score_left = 1 : next_state.score_right = 1;
     }
     nullify_scores(next_state);
+    PNS::simplify_board(next_state);
 
     PNSNode* neigh = tree->get_states(next_state);
     handle_collision(tree, neigh, next_state);
@@ -146,7 +148,6 @@ PNSNode* Node::add_neighbour_move(PNS* tree, const Board& act_board, int action)
     neighbour_move.white &= !(1ULL << action);
     neighbour_move.move(action, -1);
     neighbour_move.node_type = AND;
-    nullify_scores(neighbour_move);
     if(is_left){ // reduce score, and clip (-MAXS_CORE, MAX_SCORE)
         neighbour_move.score_left -= tree->licit.cover_forbiden_reward;
         neighbour_move.score_left = clip(neighbour_move.score_left, -licit_max, licit_max);
@@ -155,6 +156,8 @@ PNSNode* Node::add_neighbour_move(PNS* tree, const Board& act_board, int action)
         neighbour_move.score_right -= tree->licit.cover_forbiden_reward;
         neighbour_move.score_right = clip(neighbour_move.score_right, -licit_max, licit_max);
     }
+    nullify_scores(neighbour_move);
+    PNS::simplify_board(neighbour_move);
 
     PNSNode* neigh = tree->get_states(neighbour_move);
     handle_collision(tree, neigh, neighbour_move);

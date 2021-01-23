@@ -337,6 +337,7 @@ void Heuristic::generate_lines(){
         //forbidden_fields_right = ((1ULL) << 41) | ((1ULL) << 43);
         forbidden_fields_left = ((1ULL) << 1) | ((1ULL) << 6) | ((1ULL) << 3) | ((1ULL) << 8);
         forbidden_fields_right = ((1ULL) << 41) | ((1ULL) << 46) | ((1ULL) << 43) | ((1ULL) << 48);
+        forbidden_fields_inner = ((1ULL) << 6) | ((1ULL) << 8) | ((1ULL) << 41) | ((1ULL) << 43);
         forbidden_all = forbidden_fields_left | forbidden_fields_right;
     }
     //read_forbidden_strategy();

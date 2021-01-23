@@ -96,6 +96,7 @@ void PNS_test(Args& args){
 Heuristic PNS::heuristic;
 CanonicalOrder PNS::isom_machine;
 Logger* PNS::logger;
+Licit PNS::licit;
 
 int main(int argc, char* argv[]){
     Args args(argc, argv);

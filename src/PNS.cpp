@@ -111,7 +111,7 @@ void PNS::simplify_board(Board& next_state){
             next_state.remove_lines_with_two_ondegree(heuristic.all_linesinfo, heuristic.forbidden_all);
             next_state.remove_2lines_all(heuristic.all_linesinfo, heuristic.forbidden_all);
         }
-        int temp_act = next_state.one_way(get_all_lines());
+        int temp_act = next_state.one_way(heuristic.all_linesinfo);
         if(temp_act > -1){
             next_state.move(temp_act, next_state.node_type== OR ? 1 : -1);
             // === Get favour points from neighbour ===

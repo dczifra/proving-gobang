@@ -148,6 +148,8 @@ void convert_board(const Board& b){
 Heuristic PNS::heuristic;
 CanonicalOrder PNS::isom_machine;
 Logger* PNS::logger = new Logger();
+Licit PNS::licit;
+
 int main(){
     std::cout<<"###################\n";
     printf("# Nauty           #\n#  * Version: %d  #\n", 27);
