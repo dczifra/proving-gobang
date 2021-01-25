@@ -123,7 +123,7 @@ PNSNode* Node::get_defender_side(PNS* tree, const Board& act_board, int action){
     int score = is_left ? act_board.score_left : act_board.score_right;
     
     Board next_state(act_board);
-    if(score > 0 or (score == 0 && inner)){
+    if(score > 0 or (score == 0 && is_left)){
         next_state.node_type = AND;
         is_left ? next_state.score_left = -1 : next_state.score_right = -1;
     }

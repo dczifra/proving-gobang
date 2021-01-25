@@ -191,7 +191,7 @@ PNSNode* PNS::evaluate_components(Board& base_board){
     }
 }
 
-void PNS::evaluate_node_with_PNS(PNSNode* node, bool log, bool fast_eval){
+void PNS::evaluate_node_with_PNS(Node* node, bool log, bool fast_eval){
     int i=0;
     // int update_iteration = 1000;
     while(node->pn*node->dn != 0){
@@ -430,15 +430,15 @@ PNSNode* PNS::get_states(const Board& board){
             return nullptr;
         }
     #else
-        //Board reversed(board);
-        //reversed.flip();
+        Board reversed(board);
+        reversed.flip();
 
         if(states.find(board) != states.end()){
             return states[board];
         }
-        //else if(states.find(reversed) != states.end()){
-        //    return states[reversed];
-        //}
+        else if(states.find(reversed) != states.end()){
+            return states[reversed];
+        }
         else{
             //assert(states.find(board) != states.end());
             return nullptr;
@@ -506,7 +506,7 @@ void PNS::component_stats() {
   }
 }
 
-void PNS::stats(PNSNode* node, bool end){
+void PNS::stats(Node* node, bool end){
     unsigned int x = states.size();
     float f = 1.0/(1+exp((args->A-x)/args->B));
     int N = (int) (states.size()*f);

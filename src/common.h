@@ -43,7 +43,7 @@ const unsigned int ACTION_SIZE = ROW*COL;
 const unsigned int MAX_ROUND = ROW*COL;
 // The number of bits need to be moved back after flip board:
 const unsigned int FLIP_SIZE = BITSIZE-ACTION_SIZE;
-
+const board_int flip_base = ((1ULL << 0) | (1ULL <<5) | (1ULL <<10) | (1ULL <<15) | (1ULL <<20) | (1ULL <<25) | (1ULL <<30) | (1ULL <<35) | (1ULL <<40) | (1ULL <<45));
 // ============================================
 //                  DISPLAY
 // ============================================

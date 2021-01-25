@@ -38,7 +38,7 @@ public:
     void init_DFPN_search(PNSNode* node);
 
     PNSNode* create_and_eval_node(Board& board, bool eval);
-    void evaluate_node_with_PNS(PNSNode* node, bool log, bool fast_eval);
+    void evaluate_node_with_PNS(Node* node, bool log, bool fast_eval);
     void evaluate_node_with_PNS_square(PNSNode* node, bool log, bool fast_eval);
     PNSNode* evaluate_components(Board& base_board);
     void search_and_keep_one_layer(Node* node, bool fast_eval, int iter = -1);
@@ -77,7 +77,7 @@ public:
         return heuristic.all_linesinfo;
     }
 
-    void stats(PNSNode* node, bool end = false);
+    void stats(Node* node, bool end = false);
     void component_stats();
     
     // === MAP ===

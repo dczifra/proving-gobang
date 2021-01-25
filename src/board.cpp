@@ -225,6 +225,26 @@ std::string Board::heuristic_layers(const std::vector<Line_info>& all_lines) con
     return ret;
 }
 
+void Board::flip(){
+    board_int w = 0, b = 0;
+    for(int row=0; row<5; row++){
+        //std::cout<<row<<" "<<4-row<<std::endl;
+        //display((white & (flip_base << row)), true);
+        int shift = (4-2*row);
+        if(shift >= 0){
+            w |= ((white & (flip_base << row)) << shift);
+            b |= ((black & (flip_base << row)) << shift);
+        }
+        else{
+            w |= ((white & (flip_base << row)) >> -shift);
+            b |= ((black & (flip_base << row)) >> -shift);
+        }
+    }
+    white = w;
+    black = b;
+}
+
+/*
 void Board::flip()
 {
     board_int w = 0, b = 0;
@@ -252,6 +272,7 @@ void Board::flip()
     //white = static_cast<board_int>(flip_bit(white))>>FLIP_SIZE;
     //black = static_cast<board_int>(flip_bit(black))>>FLIP_SIZE;
 }
+*/
 
 std::array<float, ACTION_SIZE> Board::heuristic_mtx(const std::vector<Line_info> &lines) const
 {

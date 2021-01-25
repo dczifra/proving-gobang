@@ -14,6 +14,7 @@ public:
     void init(bool disproof);
     void log(Node* node, Heuristic& h);
     void log_solution_min(Node* node, std::ofstream& file, std::set<Board>& logged);
+    void log_node(Node* node, std::string filename);
 
 private:
     std::ofstream logstream;

@@ -57,21 +57,22 @@ void PNS_test(Args& args){
     if(args.show_lines){
         display(b, true);
     }
-    //std::cout<<PNS::heuristic.side_strategy.size()<<std::endl;
-    /*for(auto p : PNS::heuristic.side_strategy){
-        Board b;
-        b.white = p.first;
-        b.black = p.second;
-        display(b,true);
-        }*/
-    //display(PNS::heuristic.forbidden_fields_left, true);
-    //display(PNS::heuristic.forbidden_fields_right, true);
-
+    
     PNS tree(&args);
     PNSNode* node = new PNSNode(b, &args);
     std::cout<<"Root node heuristic value: "<<node->heuristic_value<<std::endl;
 
     tree.init_PN_search(node);
+    // === Eval all children first ===
+    tree.extend_all(node, false);
+    for(int i=node->children.size()-1;i>=0;i--){
+        std::cout<<"Child "<<i<<std::endl;
+        tree.evaluate_node_with_PNS(node->children[i], args.log, false);
+        tree.stats(node->children[i], true);
+        PNS::logger->log_node(node->children[i],
+                        "../data/final/child_"+std::to_string(i)+".sol");
+        //if(i==30) tree.delete_all(node);
+    }
 
     if(args.PNS_square){
         std::cout<<"PNS2"<<std::endl;
@@ -80,12 +81,9 @@ void PNS_test(Args& args){
     else{
         tree.evaluate_node_with_PNS(node, args.log, false);
     }
-    tree.stats(node, true);
     
-    std::ofstream logfile(args.get_filename());
-    std::set<Board> logged;
-    PNS::logger->log_solution_min(node, logfile, logged);
-    logfile.close();
+    tree.stats(node, true);
+    PNS::logger->log_node(node, args.get_filename());
 
     tree.delete_all(node);
     tree.stats(nullptr, true);

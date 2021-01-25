@@ -55,3 +55,11 @@ void Logger::log_solution_min(Node* node, std::ofstream& file, std::set<Board>& 
         }
     }
 }
+
+
+void Logger::log_node(Node* node, std::string filename){
+    std::ofstream file(filename.c_str());
+    std::set<Board> logged;
+    log_solution_min(node, file, logged);
+    file.close();
+}
