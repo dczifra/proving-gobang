@@ -114,8 +114,6 @@ LicitNode::LicitNode(PNS* tree, const Board& act_board, int action, int licit_va
     children[1] = acc;
 }
 
-
-
 // === Helper Functions ===
 PNSNode* Node::get_defender_side(PNS* tree, const Board& act_board, int action){
     bool is_left = (1ULL << action) & PNS::heuristic.forbidden_fields_left;
@@ -123,7 +121,34 @@ PNSNode* Node::get_defender_side(PNS* tree, const Board& act_board, int action){
     int score = is_left ? act_board.score_left : act_board.score_right;
     
     Board next_state(act_board);
-    if(score > 0 or (score == 0 && is_left)){
+    // ======================================================
+    //                 TAKE CARE HARD CODED !!!!
+    // ======================================================
+    // If attacker moves first to common, there is a common strategy:
+    //    defender moves to the other forbidden field in the column,
+    //    and the score will be 0
+    // TODO: what if the previous attacker sign was deleted?
+    board_int common_side;
+    if(is_left) common_side = PNS::heuristic.forbidden_fields_left & (next_state.white | next_state.black);
+    else common_side = PNS::heuristic.forbidden_fields_right & (next_state.white | next_state.black);
+
+    if(common_side == (1ULL <<action)){
+        int row = action % 5;
+        int shift = 4-2*row;
+        next_state.move(action+shift, -1);
+
+        if(is_left){
+            // The left side did a favour: -1 ==> 0
+            next_state.node_type = OR;
+            next_state.score_left = 0;
+        }
+        else{
+            // The right side get a favour: 1 ==> 0 
+            next_state.node_type = AND;
+            next_state.score_right = 0;
+        }
+    }
+    else if(score > 0 or (score == 0 && is_left)){
         next_state.node_type = AND;
         is_left ? next_state.score_left = -1 : next_state.score_right = -1;
     }
@@ -131,6 +156,7 @@ PNSNode* Node::get_defender_side(PNS* tree, const Board& act_board, int action){
         next_state.node_type = OR;
         is_left ? next_state.score_left = 1 : next_state.score_right = 1;
     }
+
     nullify_scores(next_state);
     PNS::simplify_board(next_state);
 

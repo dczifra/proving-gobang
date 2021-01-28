@@ -1,5 +1,4 @@
-#ifndef BOARD_H_
-#define BOARD_H_
+#pragma once
 
 #include <stdio.h>
 #include <cstdint>
@@ -137,5 +136,3 @@ struct Vector_Hash{
         return  h_all;
     }
 };
-
-#endif

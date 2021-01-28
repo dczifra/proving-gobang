@@ -94,9 +94,12 @@ void PNS_test(Args& args){
     tree.init_PN_search(node);
     // === Eval all children first ===
     tree.extend_all(node, false);
-    eval_child(node->children[35], tree, args);
+    
+
+    // ============================================
+    //eval_child(node->children[35], tree, args);
     int last_states_size = 0;
-    for(int i=0; i<28; i++){
+    for(int i=0; i<node->children.size(); i++){
         std::cout<<"Child "<<i<<std::endl;
         tree.evaluate_node_with_PNS(node->children[i], args.log, false);
         tree.stats(node->children[i], true);
@@ -106,7 +109,7 @@ void PNS_test(Args& args){
             last_states_size = tree.get_states_size();
         }
     }
-    return;
+    // ============================================
 
     if(args.PNS_square){
         std::cout<<"PNS2"<<std::endl;
