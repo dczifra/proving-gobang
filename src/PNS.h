@@ -92,6 +92,7 @@ public:
     static Licit licit;
 
     int total_state_size = 0;
+    int get_states_size(){return states.size();}
     
 private :
     #if ISOM

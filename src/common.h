@@ -27,6 +27,7 @@
 #define EVAL_TRESHOLD 5
 #define ISOM false
 #define HEURISTIC true
+#define PNS2_START 500000000
 
 #if HEURISTIC
     #define var float

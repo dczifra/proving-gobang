@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include <sstream>
+#include <dirent.h>
 
 #include "common.h"
 #include "heuristic.h"
@@ -50,6 +51,33 @@ std::string Args::get_filename(){
     return folder + filename;
 }
 
+void add_proven_nodes(PNS& tree, std::string folder){
+    //std::cout<<"";
+    DIR *dir;
+    struct dirent *ent;
+    if((dir=opendir(folder.c_str())) != NULL){
+        while((ent=readdir(dir)) != NULL){
+            if(ent->d_name[0] == 'c'){
+                std::string filename = folder + "/"+(std::string) ent->d_name;
+                Play::read_solution(filename, tree);
+                std::cout<<ent->d_name<<" processed\n";
+            }
+        }
+    }
+}
+
+void eval_child(Node* node, PNS& tree, Args& args){
+    //tree.extend_all(node, false);
+    for(int i=0; i<node->children.size(); i++){
+        std::cout<<"Grandchild "<<i<<std::endl;
+        tree.evaluate_node_with_PNS(node->children[i], args.log, false);
+        tree.stats(node->children[i], true);
+        PNS::logger->log_node(node->children[i],
+                              "../data/final/child_35_"+std::to_string(i)+".sol");
+        tree.delete_all(node->children[i]);
+    }
+}
+
 void PNS_test(Args& args){
     Board b;
     int player = 1;
@@ -59,20 +87,26 @@ void PNS_test(Args& args){
     }
     
     PNS tree(&args);
+    //add_proven_nodes(tree, "../data/final");
     PNSNode* node = new PNSNode(b, &args);
     std::cout<<"Root node heuristic value: "<<node->heuristic_value<<std::endl;
 
     tree.init_PN_search(node);
     // === Eval all children first ===
     tree.extend_all(node, false);
-    for(int i=node->children.size()-1;i>=0;i--){
+    eval_child(node->children[35], tree, args);
+    int last_states_size = 0;
+    for(int i=0; i<28; i++){
         std::cout<<"Child "<<i<<std::endl;
         tree.evaluate_node_with_PNS(node->children[i], args.log, false);
         tree.stats(node->children[i], true);
-        PNS::logger->log_node(node->children[i],
+        if(tree.get_states_size() != last_states_size){
+            PNS::logger->log_node(node->children[i],
                         "../data/final/child_"+std::to_string(i)+".sol");
-        //if(i==30) tree.delete_all(node);
+            last_states_size = tree.get_states_size();
+        }
     }
+    return;
 
     if(args.PNS_square){
         std::cout<<"PNS2"<<std::endl;

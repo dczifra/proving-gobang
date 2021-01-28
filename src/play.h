@@ -17,13 +17,13 @@ public:
     void build_node(Board b);
     void build_node2(PNSNode* node);
     void build_licit_node(const Board& b, int action);
+    static void read_solution(std::string filename, PNS& mytree);
 
     static NodeType choose_problem(Board& b, int& player, bool disproof, Args* args);
 
 private:
     int move_human();
     Board move_in_solution(int i, int& act, std::vector<int>& color);
-    void read_solution(std::string filename);
 
 private:
     // === Init variables ===

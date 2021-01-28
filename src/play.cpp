@@ -11,7 +11,7 @@ Play::Play(std::string filename, bool disproof, bool talky, Args* args_):talky(t
     choose_problem(board, player, disproof, args);
 
     // === Read Solution Tree ===
-    read_solution(filename);
+    read_solution(filename, tree);
     printf("Proof/disproof tree size: %zu\n", tree.states.size());
     printf("Isommap size: %zu\n", isom_map.size());
     if(board.node_type == OR){
@@ -40,7 +40,8 @@ NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* ar
     return (player==1?OR:AND);
 }
 
-void Play::read_solution(std::string filename){
+void Play::read_solution(std::string filename, PNS& mytree){
+    Args temp_args;
     std::ifstream file(filename.c_str());
     if(file.is_open()){
         std::cout<<"Processing file...\n";
@@ -55,12 +56,12 @@ void Play::read_solution(std::string filename){
         Board b;
         std::stringstream sstream(s);
         sstream>>b.white>>b.black>>b.node_type>>b.score_left>>b.score_right>>pn>>dn;
-        if(tree.get_states(b)==nullptr){
+        if(mytree.get_states(b)==nullptr){
             
-            PNSNode* node = new PNSNode(b, args);
+            PNSNode* node = new PNSNode(b, &temp_args);
             node->pn = pn;
             node->dn = dn;
-            tree.add_board(b, node);
+            mytree.add_board(b, node);
         }
         else{
             //printf("Duplicated state:\n");

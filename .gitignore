@@ -12,3 +12,4 @@ app/.git
 prezi.py
 */__pycache__/
 boards/forbidden1*
+data/*

@@ -326,6 +326,9 @@ void PNS::PN_search(Node* node, bool fast_eval){
     if(!node->extended){
         PNSNode* heur_node = static_cast<PNSNode*>(node);
         extend_all(heur_node, fast_eval);
+        if(states.size() > PNS2_START && !fast_eval){
+            search_and_keep_one_layer(heur_node, true);
+        }
     }
     else{
         unsigned int min_ind = get_min_children_index(node, node->type == OR?PN:DN);
