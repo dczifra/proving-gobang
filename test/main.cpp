@@ -98,6 +98,7 @@ void PNS_test(Args& args){
 
     // ============================================
     //eval_child(node->children[35], tree, args);
+    /*
     int last_states_size = 0;
     for(int i=0; i<node->children.size(); i++){
         std::cout<<"Child "<<i<<std::endl;
@@ -108,7 +109,7 @@ void PNS_test(Args& args){
                         "../data/final/child_"+std::to_string(i)+".sol");
             last_states_size = tree.get_states_size();
         }
-    }
+        }*/
     // ============================================
 
     if(args.PNS_square){
