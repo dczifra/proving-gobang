@@ -67,7 +67,7 @@ void add_proven_nodes(PNS& tree, std::string folder){
 }
 
 void eval_child(Node* node, PNS& tree, Args& args){
-    //tree.extend_all(node, false);
+    tree.extend_all((PNSNode*) node, false);
     for(int i=0; i<node->children.size(); i++){
         std::cout<<"Grandchild "<<i<<std::endl;
         tree.evaluate_node_with_PNS(node->children[i], args.log, false);
@@ -97,10 +97,10 @@ void PNS_test(Args& args){
     
 
     // ============================================
-    //eval_child(node->children[35], tree, args);
-    /*
+    //eval_child(node->children[35]->children[0], tree, args);
+    //return;
     int last_states_size = 0;
-    for(int i=0; i<node->children.size(); i++){
+    for(int i=0; i<28; i++){
         std::cout<<"Child "<<i<<std::endl;
         tree.evaluate_node_with_PNS(node->children[i], args.log, false);
         tree.stats(node->children[i], true);
@@ -109,7 +109,7 @@ void PNS_test(Args& args){
                         "../data/final/child_"+std::to_string(i)+".sol");
             last_states_size = tree.get_states_size();
         }
-        }*/
+    }
     // ============================================
 
     if(args.PNS_square){

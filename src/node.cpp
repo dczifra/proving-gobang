@@ -128,25 +128,7 @@ PNSNode* Node::get_defender_side(PNS* tree, const Board& act_board, int action){
     //    defender moves to the other forbidden field in the column,
     //    and the score will be 0
     // TODO: what if the previous attacker sign was deleted?
-    board_int common_side;
-    if(is_left) common_side = PNS::heuristic.forbidden_fields_left & (next_state.white | next_state.black);
-    else common_side = PNS::heuristic.forbidden_fields_right & (next_state.white | next_state.black);
-    bool myside = (action == 6) || (action == 8) || (action == 46) || (action == 48);
-
-    if(common_side == (1ULL <<action) && myside){
-        if(is_left){
-            // The left side give up all common fields
-            next_state.score_left = 1;
-            next_state.white |= (1ULL << 1) | (1ULL << 3);
-        }
-        else{
-            // The right side got all the common fields 
-            next_state.score_right = 1;
-            next_state.white |= (1ULL << 46) | (1ULL << 48);
-        }
-        next_state.node_type = AND;
-    }
-    else if(score > 0 or (score == 0 && is_left)){
+    if(score > 0 or (score == 0 && is_left)){
         next_state.node_type = AND;
         is_left ? next_state.score_left = -1 : next_state.score_right = -1;
     }
