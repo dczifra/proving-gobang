@@ -434,3 +434,7 @@ void Board::remove_lines_with_two_ondegree(const std::vector<Line_info> &all_lin
         remove_lines_with_two_ondegree(all_line, forbidden);
 #endif
 }
+
+std::string Board::to_string() const{
+    return std::to_string(white)+"_"+std::to_string(black)+"_"+std::to_string(score_left)+"_"+std::to_string(score_right);
+}

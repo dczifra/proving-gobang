@@ -3,11 +3,13 @@
 #include "PNS.h"
 
 // =======================
-PNSNode::PNSNode(const Board& b, Args* args): board(b){
-    type = b.node_type;
-    child_num = __builtin_popcountll(b.get_valids_without_ondegree(PNS::heuristic.all_linesinfo));
+inline int get_child_num(const Board& b){
+    return __builtin_popcountll(b.get_valids_without_ondegree(PNS::heuristic.all_linesinfo));
+}
 
-    children.resize(child_num);
+PNSNode::PNSNode(const Board& b, Args* args): Node(get_child_num(b)), board(b){
+    type = b.node_type;
+
     heuristic_value = board.heuristic_value(PNS::heuristic.all_linesinfo);
     
     int valid_moves = board.get_valids_num();
@@ -55,10 +57,8 @@ void inline PNSNode::init_pn_dn(){
 #endif
 }
 
-InnerNode::InnerNode(int childnum, NodeType t){
+InnerNode::InnerNode(int childnum, NodeType t): Node(childnum){
     type = t;
-    child_num = childnum;
-    children.resize(child_num);
 
     if(type == OR){
         pn = 1;
@@ -114,6 +114,22 @@ LicitNode::LicitNode(PNS* tree, const Board& act_board, int action, int licit_va
     children[1] = acc;
 }
 
+bool Node::is_empty_side(int action, const Board& b){
+    bool is_left = (1ULL << action) & PNS::heuristic.forbidden_fields_left;
+    if(is_left){
+        if(((b.white | b.black) & PNS::heuristic.forbidden_fields_left) == 0){
+            return true;
+        }
+        else return false;
+    }
+    else{
+        if(((b.white | b.black) & PNS::heuristic.forbidden_fields_right) == 0){
+            return true;
+        }
+        else return false;
+    }
+}
+
 // === Helper Functions ===
 PNSNode* Node::get_defender_side(PNS* tree, const Board& act_board, int action){
     bool is_left = (1ULL << action) & PNS::heuristic.forbidden_fields_left;
@@ -128,6 +144,7 @@ PNSNode* Node::get_defender_side(PNS* tree, const Board& act_board, int action){
     //    defender moves to the other forbidden field in the column,
     //    and the score will be 0
     // TODO: what if the previous attacker sign was deleted?
+    int diff = PNS::licit.max_score;
     if(score > 0 or (score == 0 && is_left)){
         next_state.node_type = AND;
         is_left ? next_state.score_left = -1 : next_state.score_right = -1;
@@ -152,14 +169,18 @@ PNSNode* Node::add_neighbour_move(PNS* tree, const Board& act_board, int action)
     Board neighbour_move(act_board);
     // Change action field from white to black
     neighbour_move.white &= !(1ULL << action);
+    int reward = is_empty_side(action, neighbour_move) ? 0 : PNS::licit.cover_forbiden_reward;
+    //display(neighbour_move, true);
+    //std::cout<<reward<<std::endl;
+    //int reward = 0;
     neighbour_move.move(action, -1);
-    neighbour_move.node_type = AND;
+    neighbour_move.node_type = OR;//!!!
     if(is_left){ // reduce score, and clip (-MAXS_CORE, MAX_SCORE)
-        neighbour_move.score_left -= tree->licit.cover_forbiden_reward;
+        neighbour_move.score_left -= reward;
         neighbour_move.score_left = clip(neighbour_move.score_left, -licit_max, licit_max);
     }
     else{
-        neighbour_move.score_right -= tree->licit.cover_forbiden_reward;
+        neighbour_move.score_right -= reward;
         neighbour_move.score_right = clip(neighbour_move.score_right, -licit_max, licit_max);
     }
     nullify_scores(neighbour_move);

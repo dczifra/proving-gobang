@@ -65,7 +65,9 @@ struct Board{
     void remove_lines_with_two_ondegree(const std::vector<Line_info>& all_line, board_int forbidden);
 
     // === Symmetry ===
-    void flip();    
+    void flip();
+
+    std::string to_string() const;
 
 };
 

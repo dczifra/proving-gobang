@@ -9,13 +9,15 @@ class LicitSwitchNode;
 
 class Node{
 public:
+    Node(int childnum): children(childnum), child_num(childnum){} // abstract class!
+
     NodeType type;
     var pn = 1;
     var dn = 1;
 
     std::vector<Node*> children;
     unsigned int parent_num = 1;    
-    unsigned int child_num;
+    unsigned int child_num = 0;
     bool extended = false;
 
     virtual void extend_all()=0; // TODO
@@ -28,10 +30,16 @@ public:
     PNSNode* get_defender_side(PNS* tree, const Board& act_board, int action);
     PNSNode* add_neighbour_move(PNS* tree, const Board& act_board, int action);
     static void nullify_scores(Board& board);
+    static bool is_empty_side(int action, const Board& b);
 };
 
 class PNSNode: public Node{
 public:
+    PNSNode(const Board& b) : Node(0){
+        type = b.node_type;
+        parent_num = 1;
+        heuristic_value = -1;
+    }
     PNSNode(const Board& b, Args* args);
 
     // === DATA ===
