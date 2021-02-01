@@ -117,7 +117,8 @@ LicitNode::LicitNode(PNS* tree, const Board& act_board, int action, int licit_va
 bool Node::is_empty_side(int action, const Board& b){
     bool is_left = (1ULL << action) & PNS::heuristic.forbidden_fields_left;
     if(is_left){
-        if(((b.white | b.black) & PNS::heuristic.forbidden_fields_left) == 0){
+        if(((b.white) & PNS::heuristic.forbidden_fields_left) == 0){
+        //if(((b.white | b.black) & PNS::heuristic.forbidden_fields_left) == 0){
             return true;
         }
         else return false;
@@ -145,13 +146,14 @@ PNSNode* Node::get_defender_side(PNS* tree, const Board& act_board, int action){
     //    and the score will be 0
     // TODO: what if the previous attacker sign was deleted?
     int diff = PNS::licit.max_score;
+    int base_score = 1;
     if(score > 0 or (score == 0 && is_left)){
         next_state.node_type = AND;
-        is_left ? next_state.score_left = -1 : next_state.score_right = -1;
+        is_left ? next_state.score_left = -base_score : next_state.score_right = -base_score;
     }
     else{
         next_state.node_type = OR;
-        is_left ? next_state.score_left = 1 : next_state.score_right = 1;
+        is_left ? next_state.score_left = base_score : next_state.score_right = base_score;
     }
 
     nullify_scores(next_state);

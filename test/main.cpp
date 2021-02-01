@@ -70,9 +70,9 @@ void eval_child(Node* node, PNS& tree, Args& args){
     if(!node->extended) tree.extend_all((PNSNode*) node, false);
     for(int i=0; i<node->children.size(); i++){
         std::cout<<"Child "<<i<<std::endl;
-        if(!node->children[i]->is_inner()) display(node->children[i]->get_board(), true);
-        //tree.evaluate_node_with_PNS(node->children[i], args.log, false);
-        //tree.stats(node->children[i], true);
+        //if(!node->children[i]->is_inner()) display(node->children[i]->get_board(), true);
+        tree.evaluate_node_with_PNS(node->children[i], args.log, false);
+        tree.stats(node->children[i], true);
         PNS::logger->log_node(node->children[i],
                               "../data/final/child_"+std::to_string(i)+".sol");
         tree.delete_all(node->children[i]);
@@ -81,31 +81,38 @@ void eval_child(Node* node, PNS& tree, Args& args){
 
 void eval_all_OR_descendents(Node* node, PNS& tree, Args& args, int depth, PNS& sol){
     if(!node->extended) tree.extend_all((PNSNode*) node, false);
-    for(Node* child: node->children){
-        if(child->type == OR){
+    if(!node->is_inner()){
+        if(sol.get_states(node->get_board()) != nullptr){
+            return;
+        }
+        else{
+            sol.add_board(node->get_board(), new PNSNode(node->get_board()));
+        }
+        display(node->get_board(), true);
+    }
+
+    for(int i=0;i<node->children.size();i++){
+        //std::cout<<"I "<<i<<std::endl;
+        Node* child = node->children[i];
+        if(child==nullptr) assert(0);
+        if(child->is_inner() || (child->type == OR && depth < 1)){
             eval_all_OR_descendents(child, tree, args, depth+1, sol);
-            tree.delete_all(child);
         }
         else{
             assert(!child->is_inner());
             const Board act_board(child->get_board());
-            if(sol.get_states(act_board) != nullptr){
-                display(act_board, true);
-                std::cout<<"seen"<<child->parent_num<<std::endl;
-                tree.delete_all(child);
-            }
-            else{
+            if(sol.get_states(act_board) == nullptr){
                 sol.add_board(act_board, new PNSNode(act_board));
                 //tree.evaluate_node_with_PNS(child, args.log, false);
-                display(act_board, true);
-                //if(depth < 2) display(act_board, true);
                 //tree.stats(child, true);
                 PNS::logger->log_node(child,
                                     "../data/board_sol/"+act_board.to_string()+".sol");
-                std::cout<<child->parent_num<<std::endl;
-                tree.delete_all(child);
+                display(act_board, true);
             }
         }
+
+        tree.delete_all(child);
+        node->children[i]=nullptr;
     }
 }
 
@@ -128,8 +135,9 @@ void PNS_test(Args& args){
     // ============================================
     //PNS sol(&args);
     //eval_all_OR_descendents(node, tree, args, 0, sol);
-    //eval_child(node, tree, args);
+    //sol.stats(node, true);
     //std::cout<<"Trick end\n";
+    //eval_child(node, tree, args);
     //return;
     // ============================================
 
