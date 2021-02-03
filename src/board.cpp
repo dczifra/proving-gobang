@@ -169,16 +169,16 @@ board_int Board::get_valids_without_ondegree(const std::vector<Line_info> & all_
 }
 
 
-bool Board::heuristic_stop(const std::vector<Line_info> &all_lines) const
-{
+bool Board::heuristic_stop(const std::vector<Line_info> &all_lines) const{
+    // If there is a forbidden field, which is not empty:
+    if(forbidden_all & (white | black) != forbidden_all) return false;
+    
     double sum = 0;
-    for (auto line : all_lines)
-    {
+    for (auto line : all_lines){
         bool is_free = !(line.line_board & black);
         if (!is_free)
             continue;
-        else
-        {
+        else{
             int emptynum = line.size - __builtin_popcountll(line.line_board & white);
             sum += std::pow(2.0, -emptynum);
             if (sum >= 1.0)

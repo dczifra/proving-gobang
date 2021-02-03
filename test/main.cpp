@@ -95,7 +95,7 @@ void eval_all_OR_descendents(Node* node, PNS& tree, Args& args, int depth, PNS& 
         //std::cout<<"I "<<i<<std::endl;
         Node* child = node->children[i];
         if(child==nullptr) assert(0);
-        if(child->is_inner() || (child->type == OR && depth < 1)){
+        if(child->is_inner() || (child->type == OR && depth < 5)){
             eval_all_OR_descendents(child, tree, args, depth+1, sol);
         }
         else{
@@ -103,8 +103,8 @@ void eval_all_OR_descendents(Node* node, PNS& tree, Args& args, int depth, PNS& 
             const Board act_board(child->get_board());
             if(sol.get_states(act_board) == nullptr){
                 sol.add_board(act_board, new PNSNode(act_board));
-                //tree.evaluate_node_with_PNS(child, args.log, false);
-                //tree.stats(child, true);
+                tree.evaluate_node_with_PNS(child, args.log, false);
+                tree.stats(child, true);
                 PNS::logger->log_node(child,
                                     "../data/board_sol/"+act_board.to_string()+".sol");
                 display(act_board, true);
@@ -137,8 +137,8 @@ void PNS_test(Args& args){
     //eval_all_OR_descendents(node, tree, args, 0, sol);
     //sol.stats(node, true);
     //std::cout<<"Trick end\n";
-    //eval_child(node, tree, args);
-    //return;
+    eval_child(node, tree, args);
+    return;
     // ============================================
 
     if(args.PNS_square){
@@ -162,6 +162,7 @@ Heuristic PNS::heuristic;
 CanonicalOrder PNS::isom_machine;
 Logger* PNS::logger;
 Licit PNS::licit;
+board_int Board::forbidden_all = PNS::heuristic.forbidden_all;
 
 int main(int argc, char* argv[]){
     Args args(argc, argv);

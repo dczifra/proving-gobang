@@ -89,13 +89,14 @@ bool PNS::game_ended(const Board& b){
 
 void PNS::defender_get_favour_points(Board& next_state, int last_action){
     if(next_state.node_type == OR){
+        int reward = Node::is_empty_side(last_action, next_state) ? 0 : licit.cover_forbiden_reward;
         // === The last action was a defender move ===
         if(heuristic.forbidden_fields_left & (1ULL <<last_action)){
-            next_state.score_left += licit.cover_forbiden_reward;
+            next_state.score_left += reward;
             next_state.score_left = clip(next_state.score_left, -licit.max_score, licit.max_score);
         }
         else if(heuristic.forbidden_fields_right & (1ULL <<last_action)){
-            next_state.score_right += licit.cover_forbiden_reward;
+            next_state.score_right += reward;
             next_state.score_right = clip(next_state.score_right, -licit.max_score, licit.max_score);
         }
     }

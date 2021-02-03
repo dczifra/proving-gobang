@@ -232,6 +232,7 @@ Heuristic PNS::heuristic;
 CanonicalOrder PNS::isom_machine;
 Logger* PNS::logger = new Logger();
 Licit PNS::licit;
+board_int Board::forbidden_all = PNS::heuristic.forbidden_all;
 
 int main() {
     args = new Args();

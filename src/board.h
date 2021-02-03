@@ -25,6 +25,7 @@ struct Board{
     int score_right;
     //board_int blocked_lines;
     NodeType node_type;
+    static board_int forbidden_all;
 
     Board();
     Board(const Board& b);
