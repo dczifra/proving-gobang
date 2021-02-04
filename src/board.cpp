@@ -168,7 +168,6 @@ board_int Board::get_valids_without_ondegree(const std::vector<Line_info> & all_
     return valids;
 }
 
-
 bool Board::heuristic_stop(const std::vector<Line_info> &all_lines) const{
     // If there is a forbidden field, which is not empty:
     if(forbidden_all & (white | black) != forbidden_all) return false;
@@ -299,32 +298,26 @@ std::array<float, ACTION_SIZE> Board::heuristic_mtx(const std::vector<Line_info>
 // ==============================================
 //                 SIMPLIFY BOARD
 // ==============================================
-int Board::one_way(const std::vector<Line_info> &all_lines) const
-{
+int Board::one_way(const std::vector<Line_info> &all_lines) const{
     std::vector<bool> two_line(ACTION_SIZE, 0);
 
-    for (auto line : all_lines)
-    {
+    for (auto line : all_lines){
         bool is_free = !(line.line_board & black);
         if (!is_free)
             continue;
-        else
-        {
+        else{
             int emptynum = line.size - __builtin_popcountll(line.line_board & white);
             if (emptynum >= 3 || (emptynum == 2 && node_type == AND))
                 continue;
 
-            for (int field : line.points)
-            {
+            for (int field : line.points){
                 if (white & (1ULL << field))
                     continue;
 
-                if (emptynum == 1)
-                {
+                if (emptynum == 1){
                     return field;
                 }
-                else if (emptynum == 2)
-                {
+                else if (emptynum == 2){
                     //else if(emptynum == 2 && node_type == OR){
                     if (two_line[field])
                         return field;

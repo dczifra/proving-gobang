@@ -6,6 +6,7 @@
 #include "canonicalorder.h"
 #include "licit.h"
 #include "node.h"
+#include "common_strategy.h"
 
 #include <map>
 #include <unordered_map>
@@ -24,6 +25,7 @@ public:
     friend class Logger;
     friend class Node;
     friend class LicitNode;
+    friend class GeneralCommonStrategy;
 
     PNS(Args* inp_args){
         component_cut.resize((int)ACTION_SIZE, std::vector<int>((int)ACTION_SIZE, 0));
@@ -104,4 +106,5 @@ private :
     Args* args;
     bool print=false;
     std::vector<std::vector<int>> component_cut;
+    GeneralCommonStrategy strategy;
 };

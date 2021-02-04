@@ -113,10 +113,8 @@ void PNS::simplify_board(Board& next_state){
             next_state.remove_2lines_all(heuristic.all_linesinfo, heuristic.forbidden_all);
         }
         int temp_act = next_state.one_way(heuristic.all_linesinfo);
-        if(temp_act > -1){
+        if(temp_act > -1 && !((1ULL << temp_act) & heuristic.forbidden_all)){
             next_state.move(temp_act, next_state.node_type== OR ? 1 : -1);
-            // === Get favour points from neighbour ===
-            defender_get_favour_points(next_state, temp_act);
         }
         else{
             break;
@@ -252,20 +250,10 @@ void PNS::extend_all(PNSNode* node, bool fast_eval){
 
 void PNS::extend(PNSNode* node, unsigned int action, unsigned int slot,
 		  bool fast_eval){
-    Board next_state(node->board, action, get_player(node->type));
     if((1ULL << action) & heuristic.forbidden_all){
-        if(next_state.node_type == AND){
-            //Attacker moves on forbidden, shouldn't simplify
-            node->children[slot] = licit_for_defender_move(next_state, action);
-            return;
-        }
-        else{
-            // === Get favour points ===
-            defender_get_favour_points(next_state, action);
-            Node::nullify_scores(next_state);
-        }
-
+        node->children[slot] = strategy.move_on_common(node->board, action, args);
     }
+    Board next_state(node->board, action, get_player(node->type));
     simplify_board(next_state);
 
     PNSNode* child = get_states(next_state);
