@@ -81,7 +81,7 @@ def build(message):
     print("Build", session_id)
     #os.system("pwd")
     #os.system("ls")
-    p = Popen(['./bins/AMOBA_4x{}'.format(message["COL"]), '--test', "--quiet"],
+    p = Popen(['./bins/AMOBA_{}x{}x{}'.format(message["ROW"], message["COL"], message["TYPE"]), '--test', "--quiet"],
             stdout=PIPE, stdin=PIPE, stderr=PIPE, encoding='utf8', bufsize=1, universal_newlines=True)
     processes[request.sid] = p
 

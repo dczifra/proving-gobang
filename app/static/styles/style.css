@@ -27,6 +27,9 @@ p{
     font-size: 60px;
     text-align: center;
 }
+.cell_empty{
+    border: 0px solid #333333;
+}
 
 .navigator_old {
     width: 60px;

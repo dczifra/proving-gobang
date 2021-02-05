@@ -6,10 +6,12 @@ let gameActive = true;
 
 var row=0;
 var col=0;
+var type="0";
 var socket = null;
 all_boards = {"white": [], "black": []};
 var players = [["white", "O"], ["black", "X"]];
 var act_board_index = -1;
+var empties = {"0":[], "coop1": [0,5,10,35,40,45,2,47,4,9,14,39,44,49]}
 
 function handleCellClick(clickedCellEvent) {
     // === Get clicked cell index ===
@@ -73,7 +75,7 @@ function handleRestartGame() {
     if(col > 0){
         if(socket != null) socket.close();
         socket = io('/test');
-        socket.emit("build", {"COL":col});
+        socket.emit("build", {"ROW":row, "COL":col, "TYPE":type});
         socket.on('update_nodes', handleMove);
     }
 }
@@ -83,6 +85,7 @@ function create_board(limits){
     mylist = limits.split("x");
     row = parseInt(mylist[0]);
     col = parseInt(mylist[1]);
+    type = parseInt(mylist[2]);
 
     handleRestartGame();
 
@@ -104,7 +107,8 @@ function create_board(limits){
             div.setAttribute("col", i);
             //div.innerHTML = id;
 
-            div.className="cell";
+            if(!empties[type].includes(id)) div.className="cell";
+            else div.className="empty_cell";
             div.addEventListener('click', handleCellClick);
             board.appendChild(div);
             sum++;
@@ -116,6 +120,7 @@ function create_empty_board(limits){
     mylist = limits.split("x");
     row = parseInt(mylist[0]);
     col = parseInt(mylist[1]);
+    type = parseInt(mylist[2]);
 
     var c = document.getElementById("linesCanvas");
     c.setAttribute("row", row);
