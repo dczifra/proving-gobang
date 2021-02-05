@@ -250,8 +250,9 @@ void PNS::extend_all(PNSNode* node, bool fast_eval){
 
 void PNS::extend(PNSNode* node, unsigned int action, unsigned int slot,
 		  bool fast_eval){
-    if((1ULL << action) & heuristic.forbidden_all){
-        node->children[slot] = strategy.move_on_common(node->board, action, args);
+    if((1ULL << action) & node->board.forbidden_all){
+        node->children[slot] = strategy.move_on_common(node->board, action);
+        return;
     }
     Board next_state(node->board, action, get_player(node->type));
     simplify_board(next_state);
@@ -422,15 +423,15 @@ PNSNode* PNS::get_states(const Board& board){
             return nullptr;
         }
     #else
-        Board reversed(board);
-        reversed.flip();
+        //Board reversed(board);
+        //reversed.flip();
 
         if(states.find(board) != states.end()){
             return states[board];
         }
-        else if(states.find(reversed) != states.end()){
-            return states[reversed];
-        }
+        //else if(states.find(reversed) != states.end()){
+        //    return states[reversed];
+        //}
         else{
             //assert(states.find(board) != states.end());
             return nullptr;

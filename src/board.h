@@ -125,8 +125,9 @@ struct Board_Hash{
         std::size_t h3 = std::hash<uint64_t>{}(b.score_left);
         std::size_t h4 = std::hash<uint64_t>{}(b.score_right);
         std::size_t h5 = std::hash<uint8_t>{}(b.node_type);
+        std::size_t h6 = std::hash<uint8_t>{}(b.forbidden_all);
 
-        return  h1 ^ h2 ^ h3 ^ h4 ^ h5;
+        return  h1 ^ h2 ^ h3 ^ h4 ^ h5 ^ h6;
     }
 };
 

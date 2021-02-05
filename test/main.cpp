@@ -137,8 +137,8 @@ void PNS_test(Args& args){
     //eval_all_OR_descendents(node, tree, args, 0, sol);
     //sol.stats(node, true);
     //std::cout<<"Trick end\n";
-    eval_child(node, tree, args);
-    return;
+    //eval_child(node, tree, args);
+    //return;
     // ============================================
 
     if(args.PNS_square){

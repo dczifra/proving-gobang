@@ -65,6 +65,7 @@ Board::Board(const Board& b){
     node_type = b.node_type;
     score_left = b.score_left;
     score_right = b.score_right;
+    forbidden_all = b.forbidden_all;
 }
 
 Board::Board(const Board& b, int action, int player){
@@ -73,12 +74,14 @@ Board::Board(const Board& b, int action, int player){
     node_type = b.node_type;
     score_left = b.score_left;
     score_right = b.score_right;
+    forbidden_all = b.forbidden_all;
     move(action, player);
 }
 
 bool Board::operator==(const Board& b) const{
-    return (white == b.white) && (black == b.black) && node_type == b.node_type &&
-        score_left == b.score_left && score_right == b.score_right; 
+    return (white == b.white) && (black == b.black) && (node_type == b.node_type) &&
+        (score_left == b.score_left) && (score_right == b.score_right) &&
+        (forbidden_all == b.forbidden_all); 
 }
 
 void Board::move(std::vector<int> actions, int& player){

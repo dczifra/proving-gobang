@@ -25,9 +25,10 @@ public:
     friend class Logger;
     friend class Node;
     friend class LicitNode;
+    friend class CommonStrategy;
     friend class GeneralCommonStrategy;
 
-    PNS(Args* inp_args){
+    PNS(Args* inp_args): strategy(this){
         component_cut.resize((int)ACTION_SIZE, std::vector<int>((int)ACTION_SIZE, 0));
 	    args = inp_args;
     }
