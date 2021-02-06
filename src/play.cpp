@@ -164,6 +164,8 @@ void Play::play_with_solution(){
     int act = -1;
     while(act_node->is_inner() || !tree.game_ended(act_node->get_board())){
         std::cout<<"Childnum: "<<act_node->child_num<<std::endl;
+        //tree.evaluate_node_with_PNS(act_node, true, false);
+        printf("PN: %f, DN: %f\n", act_node->pn, act_node->dn);
 
         std::vector<int> color;
         act = -1;

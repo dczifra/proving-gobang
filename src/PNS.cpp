@@ -252,6 +252,8 @@ void PNS::extend(PNSNode* node, unsigned int action, unsigned int slot,
 		  bool fast_eval){
     if((1ULL << action) & node->board.forbidden_all){
         node->children[slot] = strategy.move_on_common(node->board, action);
+        if(node->children[slot]->is_inner()) update_node(node->children[slot]);
+        //update_node(node->children[slot]);
         return;
     }
     Board next_state(node->board, action, get_player(node->type));
