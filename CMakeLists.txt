@@ -16,7 +16,7 @@ add_library(nauty ${NAUTY_FILES})
 include_directories(src)
 
 add_executable(AMOBA test/main.cpp)
-set_target_properties(AMOBA PROPERTIES COMPILE_FLAGS "-O3")
+#set_target_properties(AMOBA PROPERTIES COMPILE_FLAGS "-O3")
 
 add_executable(AMOBA_DEBUG test/main.cpp)
 #set_target_properties(AMOBA_DEBUG PROPERTIES COMPILE_FLAGS "-Wall -Wno-long-long -pedantic")
