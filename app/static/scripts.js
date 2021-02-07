@@ -7,6 +7,8 @@ let gameActive = true;
 var row=0;
 var col=0;
 var type="0";
+var right_score = 0;
+var left_score = 0;
 var socket = null;
 all_boards = {"white": [], "black": []};
 var players = [["white", "O"], ["black", "X"]];
@@ -85,13 +87,14 @@ function create_board(limits){
     mylist = limits.split("x");
     row = parseInt(mylist[0]);
     col = parseInt(mylist[1]);
-    type = parseInt(mylist[2]);
+    type = mylist[2];
 
     handleRestartGame();
 
     var board = document.getElementById("board");
-    board.style.setProperty("--col", col);
-    board.style.setProperty("--row", row);
+    var game = document.getElementById("game--container")
+    game.style.setProperty("--col", col);
+    game.style.setProperty("--row", row);
     board.innerHTML = "";
     board.row = row;
     board.col = col;
@@ -230,4 +233,5 @@ document.getElementById('forward_button').addEventListener('click', function(){
 });
 
 document.querySelector('.game--restart').addEventListener('click', handleRestartGame);
-
+document.querySelector('#right_score').innerHTML = "Right Score: "+right_score.toString();
+document.querySelector('#left_score').innerHTML = "Left Score: "+left_score.toString();

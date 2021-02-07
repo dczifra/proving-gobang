@@ -8,14 +8,15 @@ p{
     width: 900px;
 }
 
-.game--container {
+.board--container {
     align-self: right;
     display: grid;
     grid-template-columns: repeat(var(--col, 1), 100px);
     grid-template-rows: repeat(var(--row, 1), 100px);
-    grid-gap: 3px 3px;
+    grid-gap: 0px 0px;
     margin: 50px 50px;
 }
+
 .cell {
     font-family: "Permanent Marker", cursive;
     width: 100px;
@@ -38,6 +39,22 @@ p{
     font-size: 60px;
     text-align: center;
     background-color: rgb(236, 243, 134);
+}
+
+.row {
+    --width: 50px;
+    display: grid;
+    padding-left: 50px;
+    grid-template-columns: calc(var(--col, 4)*var(--width)) calc(var(--col, 4)*var(--width));
+}
+
+.column-left{
+    text-align: left;
+    background-color: grey;
+}
+.column-right{
+    text-align: right;
+    background-color: grey;
 }
 
 #linesCanvas {
