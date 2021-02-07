@@ -88,14 +88,13 @@ void eval_all_OR_descendents(Node* node, PNS& tree, Args& args, int depth, PNS& 
         else{
             sol.add_board(node->get_board(), new PNSNode(node->get_board()));
         }
-        display(node->get_board(), true);
     }
 
     for(int i=0;i<node->children.size();i++){
         //std::cout<<"I "<<i<<std::endl;
         Node* child = node->children[i];
         if(child==nullptr) assert(0);
-        if(child->is_inner() || (child->type == OR && depth < 5)){
+        if(child->is_inner() || (child->type == OR && depth < 1)){
             eval_all_OR_descendents(child, tree, args, depth+1, sol);
         }
         else{
@@ -105,9 +104,9 @@ void eval_all_OR_descendents(Node* node, PNS& tree, Args& args, int depth, PNS& 
                 sol.add_board(act_board, new PNSNode(act_board));
                 tree.evaluate_node_with_PNS(child, args.log, false);
                 tree.stats(child, true);
+                display(act_board, true);
                 PNS::logger->log_node(child,
                                     "../data/board_sol/"+act_board.to_string()+".sol");
-                display(act_board, true);
             }
         }
 
@@ -176,7 +175,8 @@ int main(int argc, char* argv[]){
     PNS::logger->init(args.disproof);
 
     if(args.test){
-        Play game(args.get_filename(), args.disproof, args.talky, &args);
+        Play game("/home/doma/repos/prooving-gobang/data/board_sol/0_2_-1_0.sol", args.disproof, args.talky, &args);
+        //Play game(args.get_filename(), args.disproof, args.talky, &args);
         game.play_with_solution();
     }
     else{

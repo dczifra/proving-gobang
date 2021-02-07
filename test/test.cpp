@@ -228,6 +228,38 @@ void testPNS2(){
     tree.PN_search_square(node, false);
 }
 
+void print_inner(Node* node){
+    if(!node->is_inner()){
+        display(node->get_board(), true);
+        node->type == OR ? std::cout<<"OR\n":std::cout<<"AND\n";
+    }
+    else{
+        for(int i=0;i<node->children.size();i++){
+            if(!node->children[i]->is_inner()) display(node->children[i]->get_board(), true);
+            else{
+                std::cout<<"=== Begin ===\n";
+                print_inner(node->children[i]);
+                std::cout<<"=== END ===\n";
+            }
+            node->children[i]->type == OR ? std::cout<<"OR\n":std::cout<<"AND\n";
+        }
+    }
+}
+
+void test_strategy(){
+    PNS tree(args);
+    Board b;
+    Node* node = new PNSNode(b, args);
+    tree.extend_all((PNSNode*)node, false);
+
+    node = node->children[1];
+    print_inner(node);
+    node = node->children[1];
+    tree.extend_all((PNSNode*)node, false);
+    node = node->children[0];
+    print_inner(node);
+}
+
 Heuristic PNS::heuristic;
 CanonicalOrder PNS::isom_machine;
 Logger* PNS::logger = new Logger();
@@ -247,7 +279,8 @@ int main() {
     //tree.evalueate_node_with_PNS(node, true, false);
     //tree.stats(node);
     //get_valids_test();
-    testPNS2();
+    //testPNS2();
+    test_strategy();
 
     return 0;
 }
