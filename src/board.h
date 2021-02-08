@@ -25,7 +25,8 @@ struct Board{
     int score_right;
     //board_int blocked_lines;
     NodeType node_type;
-    static board_int forbidden_all;
+    board_int forbidden_all;
+    static board_int base_forbidden;
 
     Board();
     Board(const Board& b);
@@ -104,6 +105,7 @@ inline void Board::init(){
     score_left = 0;
     score_right = 0;
     node_type = OR;
+    forbidden_all = base_forbidden;
 }
 
 // === ACTION FUNCTIONS ===
@@ -125,7 +127,7 @@ struct Board_Hash{
         std::size_t h3 = std::hash<uint64_t>{}(b.score_left);
         std::size_t h4 = std::hash<uint64_t>{}(b.score_right);
         std::size_t h5 = std::hash<uint8_t>{}(b.node_type);
-        std::size_t h6 = std::hash<uint8_t>{}(b.forbidden_all);
+        std::size_t h6 = std::hash<uint8_t>{}(b.forbidden_all & ~(b.white | b.black));
 
         return  h1 ^ h2 ^ h3 ^ h4 ^ h5 ^ h6;
     }

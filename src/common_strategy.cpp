@@ -32,7 +32,7 @@ Node* GeneralCommonStrategy::four_common_fields(Board& act_board, int action){
         // Child 0: action defender, score = -1, OR
         score = -1;
         Board child0(act_board);
-        child0.node_type = OR;
+        child0.node_type = OR; // not necessary
         child0.black |= (1ULL <<action);
         node->children[0] = add_or_create(child0);
 
@@ -165,7 +165,7 @@ Node* GeneralCommonStrategy::two_common_fields(Board& act_board, board_int side,
                 return node;
             }
             else if(score == -1){
-                Node* node = new InnerNode(2, OR);
+                Node* node = new InnerNode(2, AND);
 
                 Board child0(act_board);
                 child0.white |= (1ULL << first);

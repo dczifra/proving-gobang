@@ -55,13 +55,16 @@ void Play::read_solution(std::string filename, PNS& mytree){
         var pn, dn;
         Board b;
         std::stringstream sstream(s);
-        sstream>>b.white>>b.black>>b.node_type>>b.score_left>>b.score_right>>pn>>dn;
+        sstream>>b.white>>b.black>>b.node_type>>b.score_left>>b.score_right>>b.forbidden_all>>pn>>dn;
         if(mytree.get_states(b)==nullptr){
             
             PNSNode* node = new PNSNode(b, &temp_args);
             node->pn = pn;
             node->dn = dn;
             mytree.add_board(b, node);
+            //display(b, true);
+            //std::cout<<node->get_board().white<<" "<<node->get_board().black<<" "<<node->get_board().node_type<<" "<<node->get_board().forbidden_all<<"\n";
+   
         }
         else{
             //printf("Duplicated state:\n");
@@ -122,7 +125,7 @@ void Play::build_node2(PNSNode* base_node){
         Node* child = node->children[i];
         if(child == nullptr) return; // Extends stops, if node is proven
         else if(child->is_inner()){
-            std::cout<<"Child extended ("<<i<<")\n";
+            //std::cout<<"Child extended ("<<i<<" "<<child->pn<<")\n";
             tree.extend(base_node, get_action(i,base_node->get_board()),i, false);
         }
         else{
@@ -164,7 +167,7 @@ void Play::play_with_solution(){
     int act = -1;
     while(act_node->is_inner() || !tree.game_ended(act_node->get_board())){
         std::cout<<"Childnum: "<<act_node->child_num<<std::endl;
-        tree.evaluate_node_with_PNS(act_node, true, false);
+        //tree.evaluate_node_with_PNS(act_node, true, false);
         printf("PN: %f, DN: %f\n", act_node->pn, act_node->dn);
 
         std::vector<int> color;

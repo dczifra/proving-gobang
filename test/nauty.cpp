@@ -149,7 +149,7 @@ Heuristic PNS::heuristic;
 CanonicalOrder PNS::isom_machine;
 Logger* PNS::logger = new Logger();
 Licit PNS::licit;
-board_int Board::forbidden_all = PNS::heuristic.forbidden_all;
+board_int Board::base_forbidden = PNS::heuristic.forbidden_all;
 
 int main(){
     std::cout<<"###################\n";

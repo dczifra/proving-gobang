@@ -136,10 +136,17 @@ void PNS_test(Args& args){
     //eval_all_OR_descendents(node, tree, args, 0, sol);
     //sol.stats(node, true);
     //std::cout<<"Trick end\n";
-    //eval_child(node, tree, args);
+    //eval_child(node->children[0]->children[0], tree, args);
     //return;
     // ============================================
-
+    //node = (PNSNode*)node->children[0]->children[0];
+    //display(node->get_board(), true);
+    //tree.extend_all(node, false);
+    //node = (PNSNode*)node->children[0]->children[1]->children[1];
+    //std::cout<<node->is_inner()<<std::endl;
+    //display(node->get_board(), true);
+    //std::cout<<node->get_board().white<<" "<<node->get_board().black<<" "<<node->get_board().node_type<<" "<<node->get_board().forbidden_all<<"\n";
+    
     if(args.PNS_square){
         std::cout<<"PNS2"<<std::endl;
         tree.evaluate_node_with_PNS_square(node, args.log, false);
@@ -161,7 +168,7 @@ Heuristic PNS::heuristic;
 CanonicalOrder PNS::isom_machine;
 Logger* PNS::logger;
 Licit PNS::licit;
-board_int Board::forbidden_all = PNS::heuristic.forbidden_all;
+board_int Board::base_forbidden = PNS::heuristic.forbidden_all;
 
 int main(int argc, char* argv[]){
     Args args(argc, argv);
@@ -175,8 +182,8 @@ int main(int argc, char* argv[]){
     PNS::logger->init(args.disproof);
 
     if(args.test){
-        Play game("/home/doma/repos/prooving-gobang/data/board_sol/0_2_-1_0.sol", args.disproof, args.talky, &args);
-        //Play game(args.get_filename(), args.disproof, args.talky, &args);
+        //Play game("../data/final/child_0.sol", args.disproof, args.talky, &args);
+        Play game(args.get_filename(), args.disproof, args.talky, &args);
         game.play_with_solution();
     }
     else{

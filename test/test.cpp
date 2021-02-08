@@ -252,19 +252,56 @@ void test_strategy(){
     Node* node = new PNSNode(b, args);
     tree.extend_all((PNSNode*)node, false);
 
-    node = node->children[1];
-    print_inner(node);
+    node = node->children[0];
+    //print_inner(node);
     node = node->children[1];
     tree.extend_all((PNSNode*)node, false);
     node = node->children[0];
     print_inner(node);
 }
 
+void test_extend(){
+    PNS tree(args);
+    Board b;
+    b.white = 72ULL;
+    b.black = 281474976710658ULL;
+    b.node_type = OR;
+    b.score_left = -1;
+    b.score_right = 1;
+    b.forbidden_all = 362838837166410ULL;
+    PNSNode* node0 = new PNSNode(b, args);
+    node0->pn = 0;
+    node0->dn = var_MAX;
+    tree.add_board(b, node0);
+
+    display(b, true);
+
+    Board base;
+    Node* node = new PNSNode(base, args);
+    tree.extend_all((PNSNode*)node, false);
+    node = (PNSNode*)node->children[0]->children[0];
+    tree.extend_all((PNSNode*)node, false);
+    node = (PNSNode*)node->children[34]->children[0];
+    display(node->get_board(), true);
+
+    tree.extend_all((PNSNode*)node, false);
+    tree.stats(node, true);
+
+    node = (PNSNode*)node->children[0]->children[1]->children[0];
+    std::cout<<node->is_inner()<<std::endl;
+    display(node->get_board(), true);
+    std::cout<<node->get_board().white<<" "<<node->get_board().black<<" "<<node->get_board().node_type<<" "<<node->get_board().forbidden_all<<"\n";
+
+    Board b1(node->get_board());
+    Board b2(node0->get_board());
+    std::cout<<( b1 == b2)<<std::endl;
+}
+
 Heuristic PNS::heuristic;
 CanonicalOrder PNS::isom_machine;
 Logger* PNS::logger = new Logger();
 Licit PNS::licit;
-board_int Board::forbidden_all = PNS::heuristic.forbidden_all;
+board_int Board::base_forbidden = PNS::heuristic.forbidden_all;
 
 int main() {
     args = new Args();
@@ -280,7 +317,8 @@ int main() {
     //tree.stats(node);
     //get_valids_test();
     //testPNS2();
-    test_strategy();
+    //test_strategy();
+    test_extend();
 
     return 0;
 }
