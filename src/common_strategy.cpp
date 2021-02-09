@@ -16,12 +16,15 @@ Node* CommonStrategy::add_or_create(const Board& board){
     return node;
 }
 
+
+
 Node* GeneralCommonStrategy::four_common_fields(Board& act_board, int action){
     bool is_left = (1ULL << action) & PNS::heuristic.forbidden_fields_left;
     int& score = is_left ? act_board.score_left : act_board.score_right;
 
     if(act_board.node_type == AND){
-        score = 1;
+        score = 1; // !!!!!
+        //score = 0; // No lunch, if there is no danger
         Board next(act_board, action, -1); // Copy board, and move action with defender
         return add_or_create(next);
     }
@@ -31,6 +34,7 @@ Node* GeneralCommonStrategy::four_common_fields(Board& act_board, int action){
 
         // Child 0: action defender, score = -1, OR
         score = -1;
+        //score = 0; // No lunch, if there is no danger
         Board child0(act_board);
         child0.node_type = OR; // not necessary
         child0.black |= (1ULL <<action);
@@ -63,7 +67,10 @@ Node* GeneralCommonStrategy::three_common_fields(Board& act_board, int action){
     board_int side = is_left ? PNS::heuristic.forbidden_fields_left : PNS::heuristic.forbidden_fields_right;
     // If defender moves:
     if(act_board.node_type == AND){
-        if(score == 1){
+        if(score == 0){
+            score = 1;
+        }
+        else if(score == 1){
             board_int common_inner = PNS::heuristic.forbidden_fields_inner & side;
             board_int new_black = (1ULL << action) | act_board.black;
             if(__builtin_popcountll(new_black & common_inner) == 2) score = 1;
@@ -79,7 +86,7 @@ Node* GeneralCommonStrategy::three_common_fields(Board& act_board, int action){
     }
     // Attacker moves:
     else{
-        if(score == 1){
+        if(score == 1 || score == 0){
             Node* node = new InnerNode(2, OR);
             // Child 0: Neighbour defender move, remains attacker move!!
             score = 1;
@@ -114,7 +121,7 @@ Node* GeneralCommonStrategy::three_common_fields(Board& act_board, int action){
             node->children[0] = two_common_fields(child0, side, score);
 
             // === We cannot answer ===
-            score = -1;
+            score = 0;
             Board child1(act_board);
             child1.white |= (1ULL << action);
             child1.node_type = OR;
@@ -127,9 +134,39 @@ Node* GeneralCommonStrategy::three_common_fields(Board& act_board, int action){
 }
 
 Node* GeneralCommonStrategy::two_common_fields(Board& act_board, board_int side, int score){
+    board_int free_common = side & ~(act_board.black | act_board.white);
+    int first = __builtin_ctzl(free_common); // get first nonzero bit
+    free_common &= ~(1ULL << first);
+    int second = __builtin_ctzl(free_common);// get second nonzero bit
+    //printf("First %d\n", first);
+    //printf("Second %d\n", second);
+
     if(score == 0){
+        // === Side-by-side ===
+        if(second-first == 5){ // 2-line or split by side
+            free_common = side & ~(act_board.black | act_board.white);
+            act_board.white |= (free_common & ~PNS::heuristic.forbidden_fields_inner);
+            act_board.forbidden_all &= (~side);
+            return add_or_create(act_board);
+        }
+        // === Same side ===
+        else if(second-first == 2){
+            return add_or_create(act_board);
+        }
+        // === Diagonal ===
+        else if(second-first == 3 || second-first == 7){
+            free_common = side & ~(act_board.black | act_board.white);
+            act_board.white |= (free_common & ~PNS::heuristic.forbidden_fields_inner);
+            act_board.forbidden_all &= (~side);
+            return add_or_create(act_board);
+        }
+        else{
+            std::cout<<first<<" "<<second<<std::endl;
+            display(act_board, true);
+            assert(0);
+        }
+        // IF two emty is diagonal: 
         // two line
-        return add_or_create(act_board);
     }
     else{
         act_board.forbidden_all &= (~side);
@@ -139,13 +176,6 @@ Node* GeneralCommonStrategy::two_common_fields(Board& act_board, board_int side,
             return add_or_create(act_board);
         }
         else{ // score == 1 or score == -1
-            board_int free_common = side & ~(act_board.black | act_board.white);
-            int first = __builtin_ctzl(free_common); // get first nonzero bit
-            free_common &= ~(1ULL << first);
-            int second = __builtin_ctzl(free_common);// get second nonzero bit
-            //printf("First %d\n", first);
-            //printf("Second %d\n", second);
-
             if(score == 1){
                 Node* node = new InnerNode(4, AND);
                 // 4 child: XO OX XE EX  (E = empty, our )

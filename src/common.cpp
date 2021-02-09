@@ -34,7 +34,7 @@ unsigned long long set_full_board(){
     return board;
 }
 
-void display(mtx<int>& board, bool end, std::pair<int, int> score, std::vector<int> show, bool nocolor){
+void display(std::vector<mtx<int>>& boards, bool end, std::vector<std::pair<int, int>> scores, std::vector<int> show, bool nocolor){
     std::vector<bool> is_show(ACTION_SIZE, 0);
     for(auto f: show){
         is_show[f]=1;
@@ -48,37 +48,55 @@ void display(mtx<int>& board, bool end, std::pair<int, int> score, std::vector<i
     int back_step = ROW+5; 
     printf("=== Gobang Game ===               \n");
     printf("  ");
-    for(int i=0;i<COL;i++){
-        std::string num = std::to_string(i);
-        num = num.substr(num.size()-1,num.size());
-        printf("%s ",num.c_str());
+    for(auto board: boards){
+        for(int i=0;i<COL;i++){
+            std::string num = std::to_string(i);
+            num = num.substr(num.size()-1,num.size());
+            printf("%s ",num.c_str());
+        }
+        printf("    ");
     }
     printf("\n");
     
-    printf(" +%s+\n",std::string(2*COL,'=').c_str());
-    for(int x =0;x<ROW;x++){
-        printf("%d|",x);
-        for(int y =0;y<COL;y++){
-            int piece = board[y][x];
-            std::string background = (is_show[y*ROW+x]?"\033[43m":"");
-            if(piece>0){
-                if(nocolor) printf("o ");
-                else printf("%s%s%s\033[0m", WARNING.c_str(),background.c_str(),  "o ");
-            }
-            else if(piece<0){
-                if(nocolor) printf("x ");
-                else printf("%s%s%s\033[0m", FAIL.c_str(), background.c_str(), "x ");
-            }
-            else{
-                if(nocolor) printf("  ");
-                else printf("%s  \033[0m", background.c_str());
-            }
-        }
-        printf("|\n");
+    for(auto board: boards){
+        printf(" +%s+ ", std::string(2*COL,'=').c_str());
     }
-    printf(" +%s+\n",std::string(2*COL,'=').c_str());
+    printf("\n");
+
+    for(int x =0;x<ROW;x++){
+        for(auto board: boards){
+            printf("%d|",x);
+            for(int y =0;y<COL;y++){
+                int piece = board[y][x];
+                std::string background = (is_show[y*ROW+x]?"\033[43m":"");
+                if(piece>0){
+                    if(nocolor) printf("o ");
+                    else printf("%s%s%s\033[0m", WARNING.c_str(),background.c_str(),  "o ");
+                }
+                else if(piece<0){
+                    if(nocolor) printf("x ");
+                    else printf("%s%s%s\033[0m", FAIL.c_str(), background.c_str(), "x ");
+                }
+                else{
+                    if(nocolor) printf("  ");
+                    else printf("%s  \033[0m", background.c_str());
+                }
+            }
+            printf("| ");
+        }
+        printf("\n");
+    }
+    
+    for(auto board: boards){
+        printf(" +%s+ ", std::string(2*COL,'=').c_str());
+    }
+    printf("\n");
+
     if (!end) printf("\033[%dA",back_step);
-    printf("Score %d %d                           \n\n", score.first, score.second);
+    for(auto score: scores){
+        printf("Score: %d %d %s", score.first, score.second, std::string(2*COL-9,' ').c_str());
+    }
+    printf("     \n\n");
     printf("\033[1A");
 }
 
@@ -90,19 +108,32 @@ void display(const board_int board, bool end, std::vector<int> show, bool nocolo
             big_board[y][x] = white;
         }
     }
-    display(big_board, end, {0,0}, show, nocolor);
+    std::vector<mtx<int>> boards = {big_board};
+    std::vector<std::pair<int,int>> scores = {{0,0}};
+    display(boards, end, scores, show, nocolor);
+}
+
+void display(const std::vector<Board> boards, bool end, std::vector<int> show, bool nocolor){
+    std::vector<mtx<int>> big_boards;
+    std::vector<std::pair<int,int>> scores;
+    for(auto board: boards){
+        mtx<int> big_board;
+        for(int x=0;x<ROW;x++){
+            for(int y=0;y<COL;y++){
+                int white = (board.white & ((1ULL)<<(y*ROW+x)))>0;
+                int black = (board.black & ((1ULL)<<(y*ROW+x)))>0;
+                big_board[y][x] = white-black;
+            }
+        }
+        big_boards.push_back(big_board);
+        scores.push_back({board.score_left, board.score_right});
+    }
+    display(big_boards, end, scores, show, nocolor);
 }
 
 void display(const Board board, bool end, std::vector<int> show, bool nocolor){
-    mtx<int> big_board;
-    for(int x=0;x<ROW;x++){
-        for(int y=0;y<COL;y++){
-            int white = (board.white & ((1ULL)<<(y*ROW+x)))>0;
-            int black = (board.black & ((1ULL)<<(y*ROW+x)))>0;
-            big_board[y][x] = white-black;
-        }
-    }
-    display(big_board, end, {board.score_left, board.score_right}, show, nocolor);
+    std::vector<Board> boards = {board};
+    display(boards, end, show, nocolor);
 }
 
 

@@ -166,9 +166,9 @@ void Play::play_with_solution(){
     Node* act_node = new PNSNode(base_board, tree.args);
     int act = -1;
     while(act_node->is_inner() || !tree.game_ended(act_node->get_board())){
-        std::cout<<"Childnum: "<<act_node->child_num<<std::endl;
+        //std::cout<<"Childnum: "<<act_node->child_num<<std::endl;
         //tree.evaluate_node_with_PNS(act_node, true, false);
-        printf("PN: %f, DN: %f\n", act_node->pn, act_node->dn);
+        //printf("PN: %f, DN: %f\n", act_node->pn, act_node->dn);
 
         std::vector<int> color;
         act = -1;
@@ -177,12 +177,20 @@ void Play::play_with_solution(){
         if(player == human_player ){
             int row, col;
             std::cout<<"[RES]\n";
-            if(act_node->is_inner()) printf("Special\n");
+            if(act_node->is_inner()){
+                printf("Your choices\n");
+                std::vector<Board> boards;
+                for(auto ch: act_node->children) boards.push_back(ch->get_board());
 
-            std::cin>>row>>col;
-            act = col*ROW+row;
-            if(act_node->is_inner()) act_node = act_node->children[act];
-            else act_node = act_node->children[get_index(act, act_node->get_board())];
+                display(boards, true);
+                std::cin>>act;
+                act_node = act_node->children[act];
+            }
+            else{
+                std::cin>>row>>col;
+                act = col*ROW+row;
+                act_node = act_node->children[get_index(act, act_node->get_board())];
+            }
         }
         else{
             // === Find the next child in Solution Tree ===
@@ -202,7 +210,7 @@ void Play::play_with_solution(){
         color.push_back(act);
 
         if(act_node->is_inner()){
-            std::cout<<"Inner node\n";
+            //std::cout<<"Inner node\n";
             player = get_player(act_node->type);
         }
         else{
