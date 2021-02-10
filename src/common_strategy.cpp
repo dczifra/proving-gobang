@@ -23,8 +23,8 @@ Node* GeneralCommonStrategy::four_common_fields(Board& act_board, int action){
     int& score = is_left ? act_board.score_left : act_board.score_right;
 
     if(act_board.node_type == AND){
-        score = 1; // !!!!!
-        //score = 0; // No lunch, if there is no danger
+        //score = 1; // !!!!!
+        score = 0; // No lunch, if there is no danger
         Board next(act_board, action, -1); // Copy board, and move action with defender
         return add_or_create(next);
     }
@@ -33,8 +33,8 @@ Node* GeneralCommonStrategy::four_common_fields(Board& act_board, int action){
         Node* node = new InnerNode(2, OR);
 
         // Child 0: action defender, score = -1, OR
-        score = -1;
-        //score = 0; // No lunch, if there is no danger
+        //score = -1;
+        score = 0; // No lunch, if there is no danger
         Board child0(act_board);
         child0.node_type = OR; // not necessary
         child0.black |= (1ULL <<action);
@@ -43,7 +43,8 @@ Node* GeneralCommonStrategy::four_common_fields(Board& act_board, int action){
         // Child 1
         // If attacker moves to inner-common ==> we can answer
         //                      outer.common ==> neighbour answers
-        if((1ULL << action) & PNS::heuristic.forbidden_fields_inner){
+        //if((1ULL << action) & PNS::heuristic.forbidden_fields_inner){
+        if(is_left){
             // child1: action attacker, score = -1, AND
             score = -1;
             act_board.node_type = AND;
@@ -74,7 +75,8 @@ Node* GeneralCommonStrategy::three_common_fields(Board& act_board, int action){
             board_int common_inner = PNS::heuristic.forbidden_fields_inner & side;
             board_int new_black = (1ULL << action) | act_board.black;
             if(__builtin_popcountll(new_black & common_inner) == 2) score = 1;
-            else score = 2;
+            //else score = 2;
+            else score = 1;
         }
         else{
             assert(score == -1);
@@ -115,7 +117,8 @@ Node* GeneralCommonStrategy::three_common_fields(Board& act_board, int action){
             //std::cout<<"www\n";
             //display(new_black & common_outer, true);
             if(__builtin_popcountll(new_black & common_outer) == 2) score = -1;
-            else score = -2;
+            //else score = -2;
+            else score = -1;
             Board child0(act_board);
             child0.black |= (1ULL << action);
             node->children[0] = two_common_fields(child0, side, score);
@@ -229,9 +232,14 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
     }
     else if(num_common_fields == 2){
         // This is possible if and only if, the last two field is a 2-line
-        act_board.white |= (1ULL << action);
-        act_board.black |= ~(act_board.white | act_board.black)  & side;
-
+        if(act_board.node_type == OR){
+            act_board.white |= (1ULL << action);
+            act_board.black |= ~(act_board.white | act_board.black)  & side;
+        }
+        else{
+            act_board.black |= (1ULL << action);
+            act_board.white |= ~(act_board.white | act_board.black)  & side;
+        }
         //std::cout<<"==========================\n";
         //display(act_board, true);
         return add_or_create(act_board);
