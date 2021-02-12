@@ -29,4 +29,5 @@ public:
     Node* two_common_fields(Board& act_board, board_int side, int score);
     Node* three_common_fields(Board& act_board, int action);
     Node* four_common_fields(Board& act_board, int action);
+    Node* six_common_fields(Board& act_board, int action);
 };

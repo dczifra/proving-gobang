@@ -303,7 +303,7 @@ void Heuristic::read_forbidden_strategy(){
 }
 
 void read_lines_from_file(std::vector<Line>& lines){
-    std::ifstream inp("../boards/cross_board_twopad_licit3.txt");
+    std::ifstream inp("../boards/cross_board_6common.txt");
     //std::ifstream inp("../boards/cross_board_easy.txt");
     //std::istream& inp= std::cin;
     while(1){
@@ -333,11 +333,13 @@ void Heuristic::generate_lines(){
     //zsolts_board(lines);
     read_lines_from_file(lines);
     if(1){
-        //forbidden_fields_left = ((1ULL) << 6) | ((1ULL) << 8);
-        //forbidden_fields_right = ((1ULL) << 41) | ((1ULL) << 43);
-        forbidden_fields_left = ((1ULL) << 1) | ((1ULL) << 6) | ((1ULL) << 3) | ((1ULL) << 8);
-        forbidden_fields_right = ((1ULL) << 41) | ((1ULL) << 46) | ((1ULL) << 43) | ((1ULL) << 48);
-        forbidden_fields_inner = ((1ULL) << 6) | ((1ULL) << 8) | ((1ULL) << 41) | ((1ULL) << 43);
+        std::vector<int> lefts = {1,2,3,6,7,8};
+        std::vector<int> rights = {41,42,43,46,47,48};
+        std::vector<int> inner = {6,7,8,41,42,43};
+        for(auto f: lefts) forbidden_fields_left |= (1ULL << f);
+        for(auto f: rights) forbidden_fields_right |= (1ULL << f);
+        for(auto f: inner) forbidden_fields_inner |= (1ULL << f);
+
         forbidden_all = forbidden_fields_left | forbidden_fields_right;
     }
     //read_forbidden_strategy();

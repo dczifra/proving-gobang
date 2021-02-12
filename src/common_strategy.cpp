@@ -16,6 +16,37 @@ Node* CommonStrategy::add_or_create(const Board& board){
     return node;
 }
 
+Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
+    // TODO: Ugly, burnt in variables
+    bool is_left = (1ULL << action) & PNS::heuristic.forbidden_fields_left;
+    board_int side = is_left ? PNS::heuristic.forbidden_fields_left : PNS::heuristic.forbidden_fields_right;
+
+
+    if(act_board.node_type == AND){
+        if(is_left) act_board.white |= (1ULL << 1) | (1ULL << 2) | (1ULL << 3);
+        else act_board.white |= (1ULL << 46) | (1ULL << 47) | (1ULL << 48);
+        act_board.move(is_left?7:42, -1);
+        act_board.forbidden_all &= ~side;
+    }
+    else{
+        // Center
+        if(action == 7 || action == 2 || action == 42 || action == 47){
+            act_board.move(action, 1);
+            act_board.move(action-1, -1);
+            // Cooperation continues
+        }
+        else{
+            act_board.move(action, 1);
+            act_board.move(is_left?7:42, -1);
+            // Do we need that? ==> keep in mind the AND case
+            if(is_left) act_board.white |= (1ULL << 1) | (1ULL << 3);
+            else act_board.white |= (1ULL << 46) | (1ULL << 48);
+            act_board.forbidden_all &= ~side;
+            
+        }
+    }
+    return add_or_create(act_board);
+}
 
 
 Node* GeneralCommonStrategy::four_common_fields(Board& act_board, int action){
@@ -224,6 +255,37 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
     board_int side = is_left ? PNS::heuristic.forbidden_fields_left : PNS::heuristic.forbidden_fields_right;
     int num_common_fields = __builtin_popcountll(side & ~(b.white | b.black));
 
+    if(num_common_fields == 6){
+        return six_common_fields(act_board, action);
+    }
+    else{
+        if(act_board.node_type == AND){
+            act_board.move(action, -1);
+            act_board.forbidden_all &= ~side;
+            return add_or_create(act_board);
+        }
+        else{
+            Node* node = new InnerNode(2, OR);
+
+            // Neighbour defender get the other 2 fielsd
+            Board child0(act_board);
+            child0.black |= (1ULL << action);
+            child0.white &= (side & ~(child0.white | child0.black));
+            node->children[0] = add_or_create(child0);
+
+            // Attacker moves to common, defender answers to common
+            act_board.move(action, 1);
+            if(action == 2 || action == 42)  act_board.move(action+1, -1);
+            else act_board.move(is_left?2:42, -1);
+            act_board.forbidden_all &= ~side;
+            node->children[1] = add_or_create(act_board);
+            return node;
+        }
+        
+        
+    }
+
+    /*
     if(num_common_fields == 4){
         return four_common_fields(act_board, action);
     }
@@ -248,5 +310,5 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
         display(act_board, true);
         std::cout<<num_common_fields<<std::endl;
         assert(0);
-    }
+    }*/
 }

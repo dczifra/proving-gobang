@@ -24,16 +24,41 @@ Play::Play(std::string filename, bool disproof, bool talky, Args* args_):talky(t
     //build_tree();
 }
 
+void side_starts(Board& board){
+    // === LEFT ===
+    //std::vector<int> whites = {1,3,8};
+    //std::vector<int> blacks = {7};
+    std::vector<int> whites = {1,3};
+    std::vector<int> blacks = {};
+
+    // === RIGHT ===
+    //std::vector<int> whites2 = {43,46,48};
+    //std::vector<int> blacks2 = {42};
+    //std::vector<int> whites2 = {46, 48};
+    //std::vector<int> blacks2 = {};
+    // === Middle start ====
+    //a
+    //std::vector<int> whites2 = {42, 46};
+    //std::vector<int> blacks2 = {41, 48};
+    //std::vector<int> whites2 = {41, 48};
+    //std::vector<int> blacks2 = {43, 46};
+    //b
+    //std::vector<int> whites2 = {42, 48};
+    //std::vector<int> blacks2 = {41, 46};
+    std::vector<int> whites2 = {48};
+    std::vector<int> blacks2 = {46};
+
+    for(auto w: whites) board.white |= (1ULL << w);
+    for(auto b: blacks) board.black |= (1ULL << b);
+    for(auto w: whites2) board.white |= (1ULL << w);
+    for(auto b: blacks2) board.black |= (1ULL << b);
+}
+
 NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* args){
     if(disproof) board.move({0,1, ACTION_SIZE-1}, player);
     //board.move({1,4, 5, 2, ROW*COL-3, ROW*COL-8, ROW*COL-7, ROW*COL-2,}, player);
     //board.move({1,5, ROW*COL-7, ROW*COL-11}, player);
     //board.move({6},player);
-
-    //board.move({43, 41}, player);
-    //board.white |= (1ULL << 42);
-    //board.node_type = OR;
-    //board.score_right = 1;
 
     if(args->START > -1) board.move({args->START}, player);
 

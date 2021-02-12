@@ -132,12 +132,12 @@ void PNS_test(Args& args){
     // === Eval all children first ===
     tree.extend_all(node, false);
     // ============================================
-    PNS sol(&args);
-    eval_all_OR_descendents(node, tree, args, 0, sol);
-    sol.stats(node, true);
-    std::cout<<"Trick end\n";
+    //PNS sol(&args);
+    //eval_all_OR_descendents(node, tree, args, 0, sol);
+    //sol.stats(node, true);
+    //std::cout<<"Trick end\n";
     //eval_child(node->children[0]->children[0], tree, args);
-    return;
+    //return;
     // ============================================
     //node = (PNSNode*)node->children[0]->children[0];
     //display(node->get_board(), true);
