@@ -297,6 +297,29 @@ void test_extend(){
     std::cout<<( b1 == b2)<<std::endl;
 }
 
+void test_extend2(){
+    PNS tree(args);
+    Board b;
+    PNSNode* node = new PNSNode(b, args);
+    tree.extend_all(node, false);
+    display(node->board, true);
+
+    for(auto child: node->children){
+        if(!child->is_inner()) display(child->get_board(), true);
+    }
+
+    board_int valids = node->board.get_valids_without_ondegree(tree.heuristic.all_linesinfo);
+    display(valids, true);
+
+    //node = (PNSNode*) node->children[4];
+    //display(node->board, true);
+    //tree.extend_all(node, false);
+
+    //node = (PNSNode*)node->children[0]->children[0];
+    //tree.extend_all((PNSNode*)node, false);
+
+}
+
 Heuristic PNS::heuristic;
 CanonicalOrder PNS::isom_machine;
 Logger* PNS::logger = new Logger();
@@ -318,7 +341,7 @@ int main() {
     //get_valids_test();
     //testPNS2();
     //test_strategy();
-    test_extend();
+    test_extend2();
 
     return 0;
 }

@@ -160,7 +160,7 @@ board_int Board::get_valids_without_ondegree(const std::vector<Line_info> & all_
     // === Delete all 1 degree field from valids ===
     board_int valids = ~(white | black) & FULL_BOARD;
     for(int i=0;i<ACTION_SIZE;i++){
-        if(white & (1ULL << i)) continue;
+        if((white | forbidden_all) & (1ULL << i)) continue;
         else if(degree[i] <= 1){
             //valids = valids ^ ((1ULL) << i);
             valids &= ~(1ULL << i);

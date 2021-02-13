@@ -36,8 +36,10 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
             // Cooperation continues
         }
         else{
+            int defender = (action / ROW)*ROW+2;
+
             act_board.move(action, 1);
-            act_board.move(is_left?7:42, -1);
+            act_board.move(defender, -1);
             // Do we need that? ==> keep in mind the AND case
             if(is_left) act_board.white |= (1ULL << 1) | (1ULL << 3);
             else act_board.white |= (1ULL << 46) | (1ULL << 48);
