@@ -269,15 +269,27 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
         else{
             // Attacker moves to common, defender answers to common
             act_board.move(action, 1);
-            if(action == 2 || action == 42) {
-                act_board.move(action+1, -1);
+            if(action == 2 || action == 42 || action == 7 || action == 47) {
+                bool inner = (side & PNS::heuristic.forbidden_fields_inner & act_board.white);
+                Node* node = new InnerNode(2, inner ? AND : OR);
+                act_board.forbidden_all &= ~side;
+
+                Board child0(act_board);
+                child0.move(action-1, -1);
+                node->children[0] = add_or_create(child0);
+
+                Board child1(act_board);
+                child1.move(action+1, -1);
+                node->children[1] = add_or_create(child1);
+
+                return node;
             }
             else{
                 //act_board.move(is_left?2:42, -1);
                 // The side, which has the first attacker move can choose, where the
                 //   common defender sign will go.
                 // The other side cannot choose.
-                bool inner = (side & PNS::heuristic.forbidden_fields_inner);
+                bool inner = (side & PNS::heuristic.forbidden_fields_inner & act_board.white);
                 Node* node = new InnerNode(4, inner ? AND : OR);
 
                 board_int free_common = side & ~(act_board.black | act_board.white);
@@ -297,9 +309,6 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
                 tree->update_node(node);
                 return node;
             }
-
-            act_board.forbidden_all &= ~side;
-            return add_or_create(act_board);
         }
     }
 
