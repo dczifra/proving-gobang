@@ -131,6 +131,7 @@ void PNS_test(Args& args){
     tree.init_PN_search(node);
     // === Eval all children first ===
     tree.extend_all(node, false);
+    //node = (PNSNode*)node->children[1];
     // ============================================
     //PNS sol(&args);
     //eval_all_OR_descendents(node, tree, args, 0, sol);

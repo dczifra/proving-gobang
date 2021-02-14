@@ -304,18 +304,18 @@ void test_extend2(){
     tree.extend_all(node, false);
     display(node->board, true);
 
-    for(auto child: node->children){
-        if(!child->is_inner()) display(child->get_board(), true);
-    }
+    //for(auto child: node->children){
+    //    if(!child->is_inner()) display(child->get_board(), true);
+    //}
 
-    board_int valids = node->board.get_valids_without_ondegree(tree.heuristic.all_linesinfo);
-    display(valids, true);
+    node = (PNSNode*) node->children[4];
+    display(node->board, true);
+    tree.extend_all(node, false);
+    //std::cout<<node->children[0]->is_inner()<<std::endl;
+    //display(node->board.forbidden_all, true);
 
-    //node = (PNSNode*) node->children[4];
-    //display(node->board, true);
-    //tree.extend_all(node, false);
-
-    //node = (PNSNode*)node->children[0]->children[0];
+    node = (PNSNode*)node->children[0]->children[0];
+    display(node->board, true);
     //tree.extend_all((PNSNode*)node, false);
 
 }

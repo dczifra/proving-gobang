@@ -28,8 +28,8 @@ void side_starts(Board& board){
     // === LEFT ===
     //std::vector<int> whites = {1,3,8};
     //std::vector<int> blacks = {7};
-    std::vector<int> whites = {1,3};
-    std::vector<int> blacks = {};
+    //std::vector<int> whites = {1,3};
+    //std::vector<int> blacks = {};
 
     // === RIGHT ===
     //std::vector<int> whites2 = {43,46,48};
@@ -45,8 +45,15 @@ void side_starts(Board& board){
     //b
     //std::vector<int> whites2 = {42, 48};
     //std::vector<int> blacks2 = {41, 46};
-    std::vector<int> whites2 = {48};
-    std::vector<int> blacks2 = {46};
+    //std::vector<int> whites2 = {48};
+    //std::vector<int> blacks2 = {46};
+
+    std::vector<int> whites = {3,8,7,11};
+    std::vector<int> blacks = {1,2,6,12};
+    std::vector<int> whites2 = {46,48};
+    std::vector<int> blacks2 = {47};
+
+    board.forbidden_all = 0;
 
     for(auto w: whites) board.white |= (1ULL << w);
     for(auto b: blacks) board.black |= (1ULL << b);
@@ -194,6 +201,10 @@ void Play::play_with_solution(){
         //std::cout<<"Childnum: "<<act_node->child_num<<std::endl;
         //tree.evaluate_node_with_PNS(act_node, true, false);
         //printf("PN: %f, DN: %f\n", act_node->pn, act_node->dn);
+        if(!act_node->is_inner()){
+            //std::cout<<act_node->get_board().white<<" "<<act_node->get_board().black<<std::endl;
+            //display(act_node->get_board().forbidden_all, true);
+        }
 
         std::vector<int> color;
         act = -1;

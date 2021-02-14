@@ -41,8 +41,8 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
             act_board.move(action, 1);
             act_board.move(defender, -1);
             // Do we need that? ==> keep in mind the AND case
-            if(is_left) act_board.white |= (1ULL << 1) | (1ULL << 3);
-            else act_board.white |= (1ULL << 46) | (1ULL << 48);
+            if(is_left) act_board.white |= (1ULL << 1) | (1ULL << 3); // also 2
+            else act_board.white |= (1ULL << 46) | (1ULL << 48);      // also 47
             act_board.forbidden_all &= ~side;
             
         }
@@ -267,27 +267,43 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
             return add_or_create(act_board);
         }
         else{
-            Node* node = new InnerNode(2, OR);
-
-            // Neighbour defender get the other 2 fielsd
-            Board child0(act_board);
-            child0.black |= (1ULL << action);
-            child0.white &= (side & ~(child0.white | child0.black));
-            node->children[0] = add_or_create(child0);
-
             // Attacker moves to common, defender answers to common
             act_board.move(action, 1);
-            if(action == 2 || action == 42)  act_board.move(action+1, -1);
-            else act_board.move(is_left?2:42, -1);
+            if(action == 2 || action == 42) {
+                act_board.move(action+1, -1);
+            }
+            else{
+                //act_board.move(is_left?2:42, -1);
+                // The side, which has the first attacker move can choose, where the
+                //   common defender sign will go.
+                // The other side cannot choose.
+                bool inner = (side & PNS::heuristic.forbidden_fields_inner);
+                Node* node = new InnerNode(4, inner ? AND : OR);
+
+                board_int free_common = side & ~(act_board.black | act_board.white);
+                for(int i=0;i<3;i++){
+                    int act = __builtin_ctzl(free_common); // get first nonzero bit
+                    free_common &= ~(1ULL << act);
+                    Board child(act_board);
+                    child.move(act, -1);
+                    child.forbidden_all &= ~side;
+                    node->children[i] = add_or_create(child);
+                }
+
+                act_board.node_type = inner?AND:OR;
+                node->children[3] = add_or_create(act_board);
+
+
+                tree->update_node(node);
+                return node;
+            }
+
             act_board.forbidden_all &= ~side;
-            node->children[1] = add_or_create(act_board);
-            return node;
+            return add_or_create(act_board);
         }
-        
-        
     }
 
-    /*
+/*
     if(num_common_fields == 4){
         return four_common_fields(act_board, action);
     }
@@ -312,5 +328,6 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
         display(act_board, true);
         std::cout<<num_common_fields<<std::endl;
         assert(0);
-    }*/
+    }
+*/
 }
