@@ -21,10 +21,15 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
     bool is_left = (1ULL << action) & PNS::heuristic.forbidden_fields_left;
     board_int side = is_left ? PNS::heuristic.forbidden_fields_left : PNS::heuristic.forbidden_fields_right;
 
-
     if(act_board.node_type == AND){
-        if(is_left) act_board.white |= (1ULL << 1) | (1ULL << 2) | (1ULL << 3);
-        else act_board.white |= (1ULL << 46) | (1ULL << 47) | (1ULL << 48);
+        if(is_left){
+            act_board.white |= (1ULL << 1) | (1ULL << 3); // also 2
+            act_board.black |= (1ULL << 2);
+        }
+        else{
+            act_board.white |= (1ULL << 46) | (1ULL << 48);      // also 47
+            act_board.black |= (1ULL << 47);
+        }
         act_board.move(is_left?7:42, -1);
         act_board.forbidden_all &= ~side;
     }
@@ -32,7 +37,12 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
         // Center
         if(action == 7 || action == 2 || action == 42 || action == 47){
             act_board.move(action, 1);
-            act_board.move(action-1, -1);
+            if(PNS::heuristic.forbidden_fields_inner & (1ULL << action)){
+                //act_board.node_type = AND;
+                act_board.move(is_left?11:36,-1);
+            }
+            else act_board.node_type = OR;
+            act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
             // Cooperation continues
         }
         else{
@@ -41,8 +51,14 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
             act_board.move(action, 1);
             act_board.move(defender, -1);
             // Do we need that? ==> keep in mind the AND case
-            if(is_left) act_board.white |= (1ULL << 1) | (1ULL << 3); // also 2
-            else act_board.white |= (1ULL << 46) | (1ULL << 48);      // also 47
+            if(is_left){
+                act_board.white |= (1ULL << 1) | (1ULL << 3); // also 2
+                act_board.black |= (1ULL << 2);
+            }
+            else{
+                act_board.white |= (1ULL << 46) | (1ULL << 48);      // also 47
+                act_board.black |= (1ULL << 47);
+            }
             act_board.forbidden_all &= ~side;
             
         }
@@ -262,56 +278,32 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
     }
     else{
         if(act_board.node_type == AND){
-            act_board.move(action, -1);
+            // The whole columsn is free, move to center:
+            int defender = (action / ROW)*ROW+2;
+            act_board.move(defender, -1);
+            // In not inner, lose fields (not neccessary)
+            //if(!(PNS::heuristic.forbidden_fields_inner & (1ULL << action))){
+            //    act_board |= (1ULL << defender-1) | (1ULL << defender+1);
+            //}
             act_board.forbidden_all &= ~side;
             return add_or_create(act_board);
         }
         else{
-            // Attacker moves to common, defender answers to common
             act_board.move(action, 1);
-            if(action == 2 || action == 42 || action == 7 || action == 47) {
-                bool inner = (side & PNS::heuristic.forbidden_fields_inner & act_board.white);
-                Node* node = new InnerNode(2, inner ? AND : OR);
-                act_board.forbidden_all &= ~side;
-
-                Board child0(act_board);
-                child0.move(action-1, -1);
-                node->children[0] = add_or_create(child0);
-
-                Board child1(act_board);
-                child1.move(action+1, -1);
-                node->children[1] = add_or_create(child1);
-
-                return node;
+            if(action == 2 || action == 47){
+                act_board.node_type = OR;
+            }
+            else if(action == 7 || action == 42){
+                act_board.node_type = AND;
             }
             else{
-                //act_board.move(is_left?2:42, -1);
-                // The side, which has the first attacker move can choose, where the
-                //   common defender sign will go.
-                // The other side cannot choose.
-                bool inner = (side & PNS::heuristic.forbidden_fields_inner & act_board.white);
-                Node* node = new InnerNode(4, inner ? AND : OR);
-
-                board_int free_common = side & ~(act_board.black | act_board.white);
-                for(int i=0;i<3;i++){
-                    int act = __builtin_ctzl(free_common); // get first nonzero bit
-                    free_common &= ~(1ULL << act);
-                    Board child(act_board);
-                    child.move(act, -1);
-                    child.forbidden_all &= ~side;
-                    node->children[i] = add_or_create(child);
-                }
-
-                act_board.node_type = inner?AND:OR;
-                node->children[3] = add_or_create(act_board);
-
-
-                tree->update_node(node);
-                return node;
+                int defender = (action / ROW)*ROW+2;
+                act_board.move(defender, -1);
             }
+            act_board.forbidden_all &= ~side;
+            return add_or_create(act_board);
         }
     }
-
 /*
     if(num_common_fields == 4){
         return four_common_fields(act_board, action);

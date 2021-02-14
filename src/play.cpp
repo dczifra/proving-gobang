@@ -48,12 +48,15 @@ void side_starts(Board& board){
     //std::vector<int> whites2 = {48};
     //std::vector<int> blacks2 = {46};
 
-    std::vector<int> whites = {1, 7};
+    std::vector<int> whites = {1, 7,3};
     std::vector<int> blacks = {2, 11};
+    //std::vector<int> whites2 = {41, 47};
+    //std::vector<int> blacks2 = {42};
+    
     //std::vector<int> whites2 = {47,42};
     //std::vector<int> blacks2 = {37};
-    std::vector<int> whites2 = {46,48};
-    std::vector<int> blacks2 = {47};
+    std::vector<int> whites2 = {46,48, 42};
+    std::vector<int> blacks2 = {47, 36};
     board.forbidden_all = 0;
 
     for(auto w: whites) board.white |= (1ULL << w);
@@ -69,6 +72,7 @@ NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* ar
     //board.move({6},player);
 
     //side_starts(board);
+    //board.move({7,11}, player);
 
     if(args->START > -1) board.move({args->START}, player);
 
