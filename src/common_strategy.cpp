@@ -41,7 +41,11 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
                 //act_board.node_type = AND;
                 act_board.move(is_left?12:37,-1);
             }
-            else act_board.node_type = OR;
+            else{
+                act_board.node_type = OR;
+                act_board.white ^= (1ULL << (is_left?0:45));
+	            act_board.black |= (1ULL << (is_left?0:45));
+            }
             act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
             // Cooperation continues
         }
@@ -278,35 +282,34 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
     }
     else{
         if(act_board.node_type == AND){
-            // The whole column is free, move to center:
-            int defender = (action / ROW)*ROW+2;
-            act_board.move(defender, -1);
-            // In not inner, lose fields (not neccessary)
-            //if(!(PNS::heuristic.forbidden_fields_inner & (1ULL << action))){
-            //    act_board |= (1ULL << defender-1) | (1ULL << defender+1);
-            //}
-            act_board.forbidden_all &= ~side;
-            return add_or_create(act_board);
+            act_board.move(action, -1);
+        }
+        else if(action == 7 || action == 2 || action == 42 || action == 47){
+            act_board.move(action, 1);
+            if(PNS::heuristic.forbidden_fields_inner & (1ULL << action)){
+                //act_board.node_type = AND;
+                act_board.move(is_left?12:37,-1);
+            }
+            else act_board.node_type = OR;
+            // Cooperation continues
         }
         else{
-            act_board.move(action, 1);
-            if(action == 2 || action == 47){
-                // two 2-line is left
-                act_board.node_type = OR;
+            int att = action, def, give_up;
+            def = (att/ROW)*ROW+4-(att%ROW);
+		    give_up = (att/ROW)*ROW+2;
+
+            // If the action is outer, give_up one field
+            if(!(PNS::heuristic.forbidden_fields_inner & (1ULL << action))){
+                act_board.white |= (1ULL << give_up);
             }
-            else if(action == 7 || action == 42){
-                // two two line is left
-                act_board.move(is_left?12:37, -1);
-            }
-            else{
-                // The other player can get the other two field 
-                int defender = (action / ROW)*ROW+2;
-                act_board.move(defender, -1);
-                act_board.white |= (1ULL << defender-1) | (1ULL << defender+1);
-            }
-            act_board.forbidden_all &= ~side;
-            return add_or_create(act_board);
+            //std::cout<<att<<" "<<def<<" "<<give_up<<std::endl;
+            //display(act_board, true);
+            act_board.move(att, 1);
+            act_board.move(def, -1);
         }
+
+        act_board.forbidden_all &= ~side;
+        return add_or_create(act_board);
     }
 /*
     if(num_common_fields == 4){
