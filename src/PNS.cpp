@@ -72,12 +72,15 @@ bool PNS::keep_only_one_child(Node* node){
 }
 
 bool PNS::game_ended(const Board& b){
+    // === White wins, if it can collect a line ===
     if(b.white_win(heuristic.all_linesinfo)){
         return true;
     }
+    // === Black wins, if potential goes under 1 ===
     else if((b.node_type == AND) && b.heuristic_stop(heuristic.all_linesinfo)){
         return true;
     }
+    // === There is no active line, black wins (Shouldn't call it) ===
     else if(b.white == 0 && b.black == FULL_BOARD){
         return true;
     }
@@ -87,31 +90,16 @@ bool PNS::game_ended(const Board& b){
     return false;
 }
 
-void PNS::defender_get_favour_points(Board& next_state, int last_action){
-    if(next_state.node_type == OR){
-        int reward = Node::is_empty_side(last_action, next_state) ? 0 : licit.cover_forbiden_reward;
-        // === The last action was a defender move ===
-        if(heuristic.forbidden_fields_left & (1ULL <<last_action)){
-            next_state.score_left += reward;
-            next_state.score_left = clip(next_state.score_left, -licit.max_score, licit.max_score);
-        }
-        else if(heuristic.forbidden_fields_right & (1ULL <<last_action)){
-            next_state.score_right += reward;
-            next_state.score_right = clip(next_state.score_right, -licit.max_score, licit.max_score);
-        }
-    }
-}
-
-Node* PNS::licit_for_defender_move(const Board& act_board, int action){
-    return new AttackerOnForbidden(this, act_board, action);
-}
-
 void PNS::simplify_board(Board& next_state){
+    // === Iterate simlification ===
     while(!game_ended(next_state)){
         if(next_state.node_type == OR){ // Last move: black
+            // === The attacker cannot win with this lines, he can delete them ===
             next_state.remove_lines_with_two_ondegree(heuristic.all_linesinfo, heuristic.forbidden_all);
             next_state.remove_2lines_all(heuristic.all_linesinfo, heuristic.forbidden_all);
         }
+        // === The defender has to move to lines, which has only one free fields,
+        //     otherwise he loses ===
         int temp_act = next_state.one_way(heuristic.all_linesinfo);
         if(temp_act > -1 && !((1ULL << temp_act) & heuristic.forbidden_all)){
             next_state.move(temp_act, next_state.node_type== OR ? 1 : -1);
@@ -124,6 +112,11 @@ void PNS::simplify_board(Board& next_state){
 }
 
 PNSNode* PNS::create_and_eval_node(Board& board, bool eval){
+// Description:
+//  * Looks for the board in the previously seen states, and if
+//    does not exists, creates.
+//  * if eval true, evaluates the node immediatly
+
     PNSNode* node;
 
     node = get_states(board);
@@ -141,6 +134,7 @@ PNSNode* PNS::create_and_eval_node(Board& board, bool eval){
     return node;
 }
 
+// NOT USED currently
 PNSNode* PNS::evaluate_components(Board& base_board){
     assert(base_board.node_type == OR);
     bool delete_comps = true;
@@ -250,15 +244,10 @@ void PNS::extend_all(PNSNode* node, bool fast_eval){
 
 void PNS::extend(PNSNode* node, unsigned int action, unsigned int slot,
 		  bool fast_eval){
-    if((1ULL << action) & node->board.forbidden_all){
-        node->children[slot] = strategy.move_on_common(node->board, action);
-        //if(node->children[slot]->is_inner()) update_node(node->children[slot]);
-        //update_node(node->children[slot]);
-        return;
-    }
     Board next_state(node->board, action, get_player(node->type));
     simplify_board(next_state);
 
+    // === Look for previously seen states ===
     PNSNode* child = get_states(next_state);
     if(child != nullptr){
         node->children[slot] = child;
@@ -266,25 +255,12 @@ void PNS::extend(PNSNode* node, unsigned int action, unsigned int slot,
         return;
     }
     else{
+        // === Not seen yet, create ===
         assert(node->children[slot] == nullptr);
-        int moves_before = next_state.get_valids_num();
 
-        // 2-connected components, if not ended
-        if(0 && !fast_eval && next_state.node_type == OR && !game_ended(next_state) && moves_before >= EVAL_TRESHOLD){ 
-            child = evaluate_components(next_state);
-            node->children[slot] = child;
-        }
-        else{
-            child = new PNSNode(next_state, args);
-            add_board(next_state, child);
-            if(!fast_eval && moves_before < EVAL_TRESHOLD){
-                evaluate_node_with_PNS(child, false, true);
-            }
-            node->children[slot] = child;
-        }
-        int moves_after = child->board.white != -1 ? child->board.get_valids_num() : 0;
-    
-        component_cut[moves_before][moves_before - moves_after] += 1;
+        child = new PNSNode(next_state, args);
+        add_board(next_state, child);
+        node->children[slot] = child;
     }
 }
 
@@ -310,8 +286,6 @@ void PNS::delete_and_log(Node* node){
 
 void PNS::PN_search(Node* node, bool fast_eval){
     assert(node != nullptr);
-    // display_node(node);
-    //if(print) display(node->board, true, {}, true);
     if(node->pn == 0 || node->dn == 0) return;
 
     // if we are in a leaf, we extend it
@@ -323,10 +297,12 @@ void PNS::PN_search(Node* node, bool fast_eval){
         }
     }
     else{
+        // === Search on in the most promising child ===
         unsigned int min_ind = get_min_children_index(node, node->type == OR?PN:DN);
         if (min_ind != -1){
             PN_search(node->children[min_ind], fast_eval);
         }
+        // === Update pn and dn after the search
         update_node(node);
     }
     // If PN or DN is 0, delete all unused descendents
@@ -336,9 +312,6 @@ void PNS::PN_search(Node* node, bool fast_eval){
 }
 
 void PNS::update_node(Node* node){
-  // std::cout<<"updating from:"<<node->pn<<" "<<node->dn<<std::endl;
-        
-
   // === Update PN and DN in node ===
   if(node->type == OR){
     node->pn = get_min_children(node, PN);
@@ -360,7 +333,6 @@ void PNS::delete_all(Node* node){
     }
     else{
         for(int i=0;i<node->child_num;i++){
-            //          std::cout<<"child "<<i<<std::endl;
             delete_all(node->children[i]);
             node->children[i]=nullptr;
         }

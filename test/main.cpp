@@ -51,103 +51,21 @@ std::string Args::get_filename(){
     return folder + filename;
 }
 
-void add_proven_nodes(PNS& tree, std::string folder){
-    //std::cout<<"";
-    DIR *dir;
-    struct dirent *ent;
-    if((dir=opendir(folder.c_str())) != NULL){
-        while((ent=readdir(dir)) != NULL){
-            if(ent->d_name[0] == 'c'){
-                std::string filename = folder + "/"+(std::string) ent->d_name;
-                Play::read_solution(filename, tree);
-                std::cout<<ent->d_name<<" processed\n";
-            }
-        }
-    }
-}
-
-void eval_child(Node* node, PNS& tree, Args& args){
-    if(!node->extended) tree.extend_all((PNSNode*) node, false);
-    for(int i=0; i<node->children.size(); i++){
-        std::cout<<"Child "<<i<<std::endl;
-        //if(!node->children[i]->is_inner()) display(node->children[i]->get_board(), true);
-        tree.evaluate_node_with_PNS(node->children[i], args.log, false);
-        tree.stats(node->children[i], true);
-        PNS::logger->log_node(node->children[i],
-                              "../data/final/child_"+std::to_string(i)+".sol");
-        tree.delete_all(node->children[i]);
-    }
-}
-
-void eval_all_OR_descendents(Node* node, PNS& tree, Args& args, int depth, PNS& sol){
-    if(!node->extended) tree.extend_all((PNSNode*) node, false);
-    if(!node->is_inner()){
-        if(sol.get_states(node->get_board()) != nullptr){
-            return;
-        }
-        else{
-            sol.add_board(node->get_board(), new PNSNode(node->get_board()));
-        }
-    }
-
-    for(int i=0;i<node->children.size();i++){
-        //std::cout<<"I "<<i<<std::endl;
-        Node* child = node->children[i];
-        if(child==nullptr) assert(0);
-        if(child->is_inner() || (child->type == OR && depth < 1)){
-            eval_all_OR_descendents(child, tree, args, depth+1, sol);
-        }
-        else{
-            assert(!child->is_inner());
-            const Board act_board(child->get_board());
-            if(sol.get_states(act_board) == nullptr){
-                sol.add_board(act_board, new PNSNode(act_board));
-                tree.evaluate_node_with_PNS(child, args.log, false);
-                tree.stats(child, true);
-                display(act_board, true);
-                PNS::logger->log_node(child,
-                                    "../data/board_sol/"+act_board.to_string()+".sol");
-            }
-        }
-
-        tree.delete_all(child);
-        node->children[i]=nullptr;
-    }
-}
-
 void PNS_test(Args& args){
     Board b;
     int player = 1;
+    // Initialize the base board
     Play::choose_problem(b,player, args.disproof, &args);
     if(args.show_lines){
         display(b, true);
     }
     
     PNS tree(&args);
-    //add_proven_nodes(tree, "../data/final");
     PNSNode* node = new PNSNode(b, &args);
     std::cout<<"Root node heuristic value: "<<node->heuristic_value<<std::endl;
 
     tree.init_PN_search(node);
-    // === Eval all children first ===
-    tree.extend_all(node, false);
-    //node = (PNSNode*)node->children[1];
-    // ============================================
-    //PNS sol(&args);
-    //eval_all_OR_descendents(node, tree, args, 0, sol);
-    //sol.stats(node, true);
-    //std::cout<<"Trick end\n";
-    //eval_child(node->children[0]->children[0], tree, args);
-    //return;
-    // ============================================
-    //node = (PNSNode*)node->children[0]->children[0];
-    //display(node->get_board(), true);
-    //tree.extend_all(node, false);
-    //node = (PNSNode*)node->children[0]->children[1]->children[1];
-    //std::cout<<node->is_inner()<<std::endl;
-    //display(node->get_board(), true);
-    //std::cout<<node->get_board().white<<" "<<node->get_board().black<<" "<<node->get_board().node_type<<" "<<node->get_board().forbidden_all<<"\n";
-    
+
     if(args.PNS_square){
         std::cout<<"PNS2"<<std::endl;
         tree.evaluate_node_with_PNS_square(node, args.log, false);

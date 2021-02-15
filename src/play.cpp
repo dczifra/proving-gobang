@@ -20,61 +20,13 @@ Play::Play(std::string filename, bool disproof, bool talky, Args* args_):talky(t
     else{
         human_player = (tree.get_states(board)->pn == 0 ? 1:-1);
     }
-
-    //build_tree();
-}
-
-void side_starts(Board& board){
-    // === LEFT ===
-    //std::vector<int> whites = {1,3,8};
-    //std::vector<int> blacks = {7};
-    std::vector<int> whites = {1,3};
-    std::vector<int> blacks = {2};
-
-    // === RIGHT ===
-    //std::vector<int> whites2 = {43,46,48};
-    //std::vector<int> blacks2 = {42};
-    //std::vector<int> whites2 = {46, 48};
-    //std::vector<int> blacks2 = {};
-    // === Middle start ====
-    //a
-    //std::vector<int> whites2 = {42, 46};
-    //std::vector<int> blacks2 = {41, 48};
-    //std::vector<int> whites2 = {41, 48};
-    //std::vector<int> blacks2 = {43, 46};
-    //b
-    //std::vector<int> whites2 = {42, 48};
-    //std::vector<int> blacks2 = {41, 46};
-    //std::vector<int> whites2 = {48};
-    //std::vector<int> blacks2 = {46};
-
-    //std::vector<int> whites = {1, 7,3};
-    //std::vector<int> blacks = {2, 11};
-    //std::vector<int> whites2 = {41, 47};
-    //std::vector<int> blacks2 = {42};
-    
-    //std::vector<int> whites2 = {47,42};
-    //std::vector<int> blacks2 = {37};
-    //std::vector<int> whites2 = {47, 42};
-    //std::vector<int> blacks2 = {37};
-    std::vector<int> whites2 = {46,48, 42};
-    std::vector<int> blacks2 = {47, 36};
-    board.forbidden_all = 0;
-
-    for(auto w: whites) board.white |= (1ULL << w);
-    for(auto b: blacks) board.black |= (1ULL << b);
-    for(auto w: whites2) board.white |= (1ULL << w);
-    for(auto b: blacks2) board.black |= (1ULL << b);
 }
 
 NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* args){
-    if(disproof) board.move({0,1, ACTION_SIZE-1}, player);
-    //board.move({1,4, 5, 2, ROW*COL-3, ROW*COL-8, ROW*COL-7, ROW*COL-2,}, player);
-    //board.move({1,5, ROW*COL-7, ROW*COL-11}, player);
-    //board.move({6},player);
-
-    side_starts(board);
-    //board.move({7,11}, player);
+    // === Example for taking some legal steps
+    //board.move({6,7}, player);
+    // === Example for taking some illegal steps ===
+    //board.black |= (1ULL << 6);
 
     if(args->START > -1) board.move({args->START}, player);
 
@@ -103,13 +55,6 @@ void Play::read_solution(std::string filename, PNS& mytree){
             node->pn = pn;
             node->dn = dn;
             mytree.add_board(b, node);
-            //display(b, true);
-            //std::cout<<node->get_board().white<<" "<<node->get_board().black<<" "<<node->get_board().node_type<<" "<<node->get_board().forbidden_all<<"\n";
-   
-        }
-        else{
-            //printf("Duplicated state:\n");
-            //display(b, true);
         }
     }
 }
@@ -140,23 +85,6 @@ int get_action(int base_slot, Board board){
     assert(0); // base_slot out of range
     return -1;
 }
-
-// void Play::build_node(Board b){
-//     PNS new_tree(args);
-//     int slot = 0;
-    
-//     board_int valids = b.get_valids_without_ondegree(PNS::heuristic.all_linesinfo);
-//     for(int i=0;i<ACTION_SIZE;i++){
-//         if(valids & (1ULL << i)){
-//             Board next = new_tree.extend(tree.get_states(b), i, slot, false);
-//             PNSNode* child = tree.get_states(next);
-//             if(child != nullptr){
-//                 tree.get_states(b)->children[slot] = child;
-//             }
-//             slot++;
-//         }
-//     }
-// }
 
 void Play::build_node2(PNSNode* base_node){
     PNS new_tree(args);
@@ -207,14 +135,6 @@ void Play::play_with_solution(){
     Node* act_node = new PNSNode(base_board, tree.args);
     int act = -1;
     while(act_node->is_inner() || !tree.game_ended(act_node->get_board())){
-        //std::cout<<"Childnum: "<<act_node->child_num<<std::endl;
-        //tree.evaluate_node_with_PNS(act_node, true, false);
-        //printf("PN: %f, DN: %f\n", act_node->pn, act_node->dn);
-        if(!act_node->is_inner()){
-            //std::cout<<act_node->get_board().white<<" "<<act_node->get_board().black<<std::endl;
-            //display(act_node->get_board().forbidden_all, true);
-        }
-
         std::vector<int> color;
         act = -1;
         if(!act_node->is_inner()) build_node2((PNSNode*)act_node);
@@ -255,7 +175,6 @@ void Play::play_with_solution(){
         color.push_back(act);
 
         if(act_node->is_inner()){
-            //std::cout<<"Inner node\n";
             player = get_player(act_node->type);
         }
         else{
@@ -264,13 +183,8 @@ void Play::play_with_solution(){
             if(talky){
                 printf("Action: %d pn: %d\n", act, (int)tree.get_states(board)->pn);
                 display(board, true, color);
-                //std::cout<<"Scores: "<<board.score_left<<" "<<board.score_right<<std::endl;
             }
-            //std::cout<<"[DIFF] "<<board.white<<" "<<board.black<<std::endl;
-            //print_board(board.white);
-            //print_board(board.black);
         }
-        //std::cout<<"next done\n";
     }
     std::cout<<"[END]\n";
 }
