@@ -39,7 +39,7 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
             act_board.move(action, 1);
             if(PNS::heuristic.forbidden_fields_inner & (1ULL << action)){
                 //act_board.node_type = AND;
-                act_board.move(is_left?11:36,-1);
+                act_board.move(is_left?12:37,-1);
             }
             else act_board.node_type = OR;
             act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
@@ -278,7 +278,7 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
     }
     else{
         if(act_board.node_type == AND){
-            // The whole columsn is free, move to center:
+            // The whole column is free, move to center:
             int defender = (action / ROW)*ROW+2;
             act_board.move(defender, -1);
             // In not inner, lose fields (not neccessary)
@@ -291,14 +291,18 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
         else{
             act_board.move(action, 1);
             if(action == 2 || action == 47){
+                // two 2-line is left
                 act_board.node_type = OR;
             }
             else if(action == 7 || action == 42){
-                act_board.node_type = AND;
+                // two two line is left
+                act_board.move(is_left?12:37, -1);
             }
             else{
+                // The other player can get the other two field 
                 int defender = (action / ROW)*ROW+2;
                 act_board.move(defender, -1);
+                act_board.white |= (1ULL << defender-1) | (1ULL << defender+1);
             }
             act_board.forbidden_all &= ~side;
             return add_or_create(act_board);

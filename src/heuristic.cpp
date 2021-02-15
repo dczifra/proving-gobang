@@ -332,7 +332,7 @@ void Heuristic::generate_lines(){
     //classical_board(lines);
     //zsolts_board(lines);
     read_lines_from_file(lines);
-    if(1){
+    if(0){
         std::vector<int> lefts = {1,2,3,6,7,8};
         std::vector<int> rights = {41,42,43,46,47,48};
         std::vector<int> inner = {6,7,8,41,42,43};
