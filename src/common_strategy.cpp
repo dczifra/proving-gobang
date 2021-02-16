@@ -37,24 +37,15 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
         // Center
         if(action == 7 || action == 2 || action == 42 || action == 47){
             act_board.move(action, 1);
-            if(PNS::heuristic.forbidden_fields_inner & (1ULL << action)){
-                //act_board.node_type = AND;
-                act_board.move(is_left?12:37,-1);
-            }
-            else{
-                act_board.node_type = OR;
-                act_board.white ^= (1ULL << (is_left?0:45));
-	            act_board.black |= (1ULL << (is_left?0:45));
-            }
-            act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
+            act_board.move(action-1, -1);
             // Cooperation continues
+            act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
         }
         else{
             int defender = (action / ROW)*ROW+2;
 
             act_board.move(action, 1);
             act_board.move(defender, -1);
-            // Do we need that? ==> keep in mind the AND case
             if(is_left){
                 act_board.white |= (1ULL << 1) | (1ULL << 3); // also 2
                 act_board.black |= (1ULL << 2);
@@ -64,8 +55,9 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
                 act_board.black |= (1ULL << 47);
             }
             act_board.forbidden_all &= ~side;
-            
+            // Cooperation is over
         }
+
     }
     return add_or_create(act_board);
 }
@@ -286,28 +278,20 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
         }
         else if(action == 7 || action == 2 || action == 42 || action == 47){
             act_board.move(action, 1);
-            if(PNS::heuristic.forbidden_fields_inner & (1ULL << action)){
-                //act_board.node_type = AND;
-                act_board.move(is_left?12:37,-1);
-            }
-            else act_board.node_type = OR;
-            // Cooperation continues
+            act_board.move(action+1, -1);
+            //act_board.white |= (1ULL << action-1);
         }
         else{
+            // O O X || X O O 
             int att = action, def, give_up;
             def = (att/ROW)*ROW+4-(att%ROW);
 		    give_up = (att/ROW)*ROW+2;
 
-            // If the action is outer, give_up one field
-            if(!(PNS::heuristic.forbidden_fields_inner & (1ULL << action))){
-                act_board.white |= (1ULL << give_up);
-            }
-            //std::cout<<att<<" "<<def<<" "<<give_up<<std::endl;
-            //display(act_board, true);
             act_board.move(att, 1);
-            act_board.move(def, -1);
+            act_board.move(give_up, -1);
+            //act_board.white |= (1ULL << def);
         }
-
+        //act_board.white |= (side & ~(act_board.white | act_board.black) & ~PNS::heuristic.forbidden_fields_inner);
         act_board.forbidden_all &= ~side;
         return add_or_create(act_board);
     }
