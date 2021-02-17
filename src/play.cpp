@@ -80,10 +80,12 @@ NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* ar
     if(disproof) board.move({0,1, ACTION_SIZE-1}, player);
     //board.move({7,11}, player);
 
-    side_starts(board);
-    //board.white |= (1ULL << 0) | (1ULL << 45);
-    board.white |= (1ULL << 45);
-    board.black |= (1ULL << 0);
+    //side_starts(board);
+    board.white |= (1ULL << 0) | (1ULL << 45);
+    board.white |= (1ULL << 5) | (1ULL << 40);
+
+    //board.white |= (1ULL << 45);
+    //board.black |= (1ULL << 0);
 
     if(args->START > -1) board.move({args->START}, player);
 
