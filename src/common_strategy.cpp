@@ -281,6 +281,19 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
         if(act_board.node_type == AND){
             act_board.move(action, -1);
         }
+        else if(act_board.black & side){
+            act_board.move(action, 1);
+            Node* node = new InnerNode(4, AND);
+            board_int free_common = side & ~(act_board.white | act_board.black); 
+            for(int i=0;i<4;i++){
+                int act = __builtin_ctzl(free_common);
+                free_common ^= (1ULL << act);
+                Board child(act_board);
+                child.move(act, -1);
+                node->children[i]=add_or_create(child);
+            }
+            return node;
+        }
         else if(action == 7 || action == 42){
             // We have to cover the center line
             act_board.move(action, 1);
@@ -298,7 +311,7 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
             // The attacker moves to the edge of the column, we answer to center
             int att = action, opposite, center;
             opposite = (att/ROW)*ROW+4-(att%ROW);
-		    center = (att/ROW)*ROW+2;
+            center = (att/ROW)*ROW+2;
             act_board.move(att, 1);
             if(act_board.black & (1ULL << center)) act_board.node_type = AND;
             else act_board.move(center, -1);
