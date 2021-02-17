@@ -46,7 +46,7 @@ Args::Args(int argc, char* argv[]){
 }
 
 std::string Args::get_filename(){
-    std::string folder = (disproof ? "../data/disproof/" : "../data/proof/");
+    std::string folder = (disproof ? "data/disproof/" : "data/proof/");
     std::string filename =  std::to_string(ROW)+"x"+std::to_string(COL)+".csv";
     return folder + filename;
 }
