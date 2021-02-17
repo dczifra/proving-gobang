@@ -22,15 +22,9 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
     board_int side = is_left ? PNS::heuristic.forbidden_fields_left : PNS::heuristic.forbidden_fields_right;
 
     if(act_board.node_type == AND){
-        if(is_left){
-            act_board.white |= (1ULL << 1) | (1ULL << 3); // also 2
-            act_board.black |= (1ULL << 2);
-        }
-        else{
-            act_board.white |= (1ULL << 46) | (1ULL << 48);      // also 47
-            act_board.black |= (1ULL << 47);
-        }
-        act_board.move(is_left?7:42, -1);
+        act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
+        //act_board.move(is_left?7:42, -1);
+        act_board.move(action, -1);
         act_board.forbidden_all &= ~side;
     }
     else{
