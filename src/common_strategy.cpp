@@ -25,7 +25,7 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
         act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
         //act_board.move(is_left?7:42, -1);
         act_board.move(action, -1);
-        act_board.forbidden_all &= ~side;
+        //act_board.forbidden_all &= ~side;
     }
     else{
         // Center
@@ -42,7 +42,7 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
         }
         if(action == 7 || action == 42){
             act_board.move(action, 1);
-            act_board.move(is_left?11:36, -1);
+            act_board.move(is_left?11:36, -1); // TODO if not empty
             // Cooperation continues
             act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
         }
@@ -283,11 +283,13 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
         }
         else if(act_board.black & side){
             act_board.move(action, 1);
+            act_board.forbidden_all &= ~side;
+            
             Node* node = new InnerNode(4, AND);
             board_int free_common = side & ~(act_board.white | act_board.black); 
             for(int i=0;i<4;i++){
                 int act = __builtin_ctzl(free_common);
-                free_common ^= (1ULL << act);
+                free_common &= ~(1ULL << act);
                 Board child(act_board);
                 child.move(act, -1);
                 node->children[i]=add_or_create(child);

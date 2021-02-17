@@ -106,7 +106,7 @@ void eval_all_OR_descendents(Node* node, PNS& tree, Args& args, int depth, PNS& 
                 tree.stats(child, true);
                 display(act_board, true);
                 PNS::logger->log_node(child,
-                                    "../data/board_sol/"+act_board.to_string()+".sol");
+                                    "data/board_sol/"+act_board.to_string()+".sol");
             }
         }
 
@@ -133,11 +133,11 @@ void PNS_test(Args& args){
     tree.extend_all(node, false);
     //node = (PNSNode*)node->children[1];
     // ============================================
-    //PNS sol(&args);
-    //eval_all_OR_descendents(node, tree, args, 0, sol);
-    //sol.stats(node, true);
-    //std::cout<<"Trick end\n";
-    //eval_child(node->children[0]->children[0], tree, args);
+    PNS sol(&args);
+    eval_all_OR_descendents(node, tree, args, 0, sol);
+    sol.stats(node, true);
+    std::cout<<"Trick end\n";
+    //eval_child(node, tree, args);
     //return;
     // ============================================
     //node = (PNSNode*)node->children[0]->children[0];
