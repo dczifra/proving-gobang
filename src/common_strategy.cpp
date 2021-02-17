@@ -35,9 +35,14 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
     }
     else{
         // Center
-        if(action == 7 || action == 2 || action == 42 || action == 47){
+        if(action == 2 || action == 47){
             act_board.move(action, 1);
-            act_board.move(action-1, -1);
+            act_board.node_type = OR;
+            act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
+        }
+        if(action == 7 || action == 42){
+            act_board.move(action, 1);
+            act_board.move(is_left?11:36, -1);
             // Cooperation continues
             act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
         }
@@ -282,14 +287,34 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
             //act_board.white |= (1ULL << action-1);
         }
         else{
+            // The inner player can choose
             // O O X || X O O 
-            int att = action, def, give_up;
-            def = (att/ROW)*ROW+4-(att%ROW);
-		    give_up = (att/ROW)*ROW+2;
-
+            int att = action, opposite, center;
+            opposite = (att/ROW)*ROW+4-(att%ROW);
+		    center = (att/ROW)*ROW+2;
             act_board.move(att, 1);
-            act_board.move(give_up, -1);
-            //act_board.white |= (1ULL << def);
+
+            bool can_choose = !(PNS::heuristic.forbidden_fields_inner & (1ULL << action));
+            Node* node = new InnerNode(2,can_choose?AND:OR);
+
+            Board child0(act_board);
+            child0.move(center,-1);
+            if(!can_choose) child0.white |= (side & child0.get_valids());
+            child0.forbidden_all &= ~side;
+            node->children[0] = add_or_create(child0);
+
+            Board child1(act_board);
+            child1.move(opposite,-1);
+            if(can_choose) child1.white |= (side & child1.get_valids());
+            child1.forbidden_all &= ~side;
+            node->children[1] = add_or_create(child1);
+
+            //display(act_board, true);
+            //display({child0, child1}, true);
+            //std::cout<<att<<" "<<opposite<<" "<<center<<std::endl;
+            
+            tree->update_node(node);
+            return node;
         }
         //act_board.white |= (side & ~(act_board.white | act_board.black) & ~PNS::heuristic.forbidden_fields_inner);
         act_board.forbidden_all &= ~side;
