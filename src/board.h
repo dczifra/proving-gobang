@@ -38,7 +38,7 @@ struct Board{
     void move(const int action, const int player);
     void move(std::vector<int> actions, int& player);
     void set_black(const int action);
-    unsigned int find_empty(Line_info& line, int skip_field);
+    unsigned int find_empty(const Line_info& line, int skip_field);
     bool is_valid(const int action) const;
     board_int get_valids() const;
 
@@ -111,7 +111,7 @@ inline void Board::init(){
 // === ACTION FUNCTIONS ===
 inline void Board::move(const int action, const int player){
     assert(player == get_player(node_type));
-    
+
     if(player == 1) white |= ((1ULL)<<action);
     else if (player == -1) black |= ((1ULL)<<action);
     else{

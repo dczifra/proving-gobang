@@ -81,7 +81,7 @@ Board::Board(const Board& b, int action, int player){
 bool Board::operator==(const Board& b) const{
     return (white == b.white) && (black == b.black) && (node_type == b.node_type) &&
         (score_left == b.score_left) && (score_right == b.score_right) &&
-        (forbidden_all == b.forbidden_all); 
+        (forbidden_all == b.forbidden_all);
 }
 
 void Board::move(std::vector<int> actions, int& player){
@@ -91,7 +91,7 @@ void Board::move(std::vector<int> actions, int& player){
     }
 }
 
-unsigned int Board::find_empty(Line_info& line, int skip_field){
+unsigned int Board::find_empty(const Line_info& line, int skip_field){
     for(auto field: line.points){
         if(field == skip_field) continue;
 
@@ -106,7 +106,7 @@ unsigned int Board::find_empty(Line_info& line, int skip_field){
 
 int Board::get_active_line_num(const std::vector<Line_info> & lines) const{
     int sum = 0;
-    for(auto line: lines){
+    for(auto &line: lines){
         bool is_free = !(line.line_board & black);
         if(is_free) ++sum;
     }
@@ -115,7 +115,7 @@ int Board::get_active_line_num(const std::vector<Line_info> & lines) const{
 
 // === GAME OVER FUNCTIONS===
 bool Board::white_win(const std::vector<Line_info> & lines) const {
-    for(auto line: lines){
+    for(auto &line: lines){
         bool blocked = (line.line_board & black);
         if(!blocked && (__builtin_popcountll(line.line_board & white)==line.size)){
             return true;
@@ -135,7 +135,7 @@ int Board::get_winner(const std::vector<Line_info>& lines) const {
 
 // === TODO with saved constant array ===
 bool Board::no_free_lines(const std::vector<Line_info>& all_lines) const{
-    for(auto line: all_lines){
+    for(auto &line: all_lines){
         bool is_free = !(line.line_board & black);
         if(is_free) return false;
     }
@@ -145,7 +145,7 @@ bool Board::no_free_lines(const std::vector<Line_info>& all_lines) const{
 board_int Board::get_valids_without_ondegree(const std::vector<Line_info> & all_lines) const{
     std::vector<int> degree(ACTION_SIZE, 0);
     // === Compute degree for all fields ===
-    for (auto line : all_lines){
+    for (auto &line : all_lines){
         bool is_free = !(line.line_board & black);
         if (!is_free) continue;
         else{
@@ -165,7 +165,7 @@ board_int Board::get_valids_without_ondegree(const std::vector<Line_info> & all_
             //valids = valids ^ ((1ULL) << i);
             valids &= ~(1ULL << i);
         }
-        
+
     }
 
     return valids;
@@ -174,9 +174,9 @@ board_int Board::get_valids_without_ondegree(const std::vector<Line_info> & all_
 bool Board::heuristic_stop(const std::vector<Line_info> &all_lines) const{
     // If there is a forbidden field, which is not empty:
     if(forbidden_all & (white | black) != forbidden_all) return false;
-    
+
     double sum = 0;
-    for (auto line : all_lines){
+    for (auto &line : all_lines){
         bool is_free = !(line.line_board & black);
         if (!is_free)
             continue;
@@ -195,7 +195,7 @@ bool Board::heuristic_stop(const std::vector<Line_info> &all_lines) const{
 double Board::heuristic_value(const std::vector<Line_info> &all_lines) const
 {
     double sum = 0;
-    for (auto line : all_lines)
+    for (auto &line : all_lines)
     {
         bool is_free = !(line.line_board & black);
         if (!is_free)
@@ -212,7 +212,7 @@ double Board::heuristic_value(const std::vector<Line_info> &all_lines) const
 
 std::string Board::heuristic_layers(const std::vector<Line_info>& all_lines) const{
     std::vector<int> layers(LAYERNUM+1, 0);
-    for (auto line : all_lines){
+    for (auto &line : all_lines){
         bool is_free = !(line.line_board & black);
         if (!is_free)
             continue;
@@ -281,7 +281,7 @@ std::array<float, ACTION_SIZE> Board::heuristic_mtx(const std::vector<Line_info>
     // Returns a heuristic value for every possible action
     std::array<float, ACTION_SIZE> mtx = {0};
 
-    for (auto line : lines)
+    for (auto &line : lines)
     {
         bool is_free = !(line.line_board & black);
         if (!is_free)
@@ -304,7 +304,7 @@ std::array<float, ACTION_SIZE> Board::heuristic_mtx(const std::vector<Line_info>
 int Board::one_way(const std::vector<Line_info> &all_lines) const{
     std::vector<bool> two_line(ACTION_SIZE, 0);
 
-    for (auto line : all_lines){
+    for (auto &line : all_lines){
         bool is_free = !(line.line_board & black);
         if (!is_free)
             continue;
@@ -338,7 +338,7 @@ int Board::one_way(const std::vector<Line_info> &all_lines) const{
 void Board::remove_dead_fields_all(const std::vector<Line_info> &all_line, board_int forbidden){
     std::vector<bool> dead(ACTION_SIZE, true);
     // === For all lines, which cross the action ===
-    for (auto line : all_line){
+    for (auto &line : all_line){
         //  === Skip for not empty line (empty: except action) ===
         if (line.line_board & black) continue;
         // === For every field on the line ===
@@ -356,7 +356,7 @@ void Board::remove_dead_fields_all(const std::vector<Line_info> &all_line, board
 void Board::remove_2lines_all(const std::vector<Line_info> &all_line, board_int forbidden){
     std::vector<unsigned int> degree(ACTION_SIZE, 0);
 
-    for (auto line : all_line){
+    for (auto &line : all_line){
         bool is_free = !(line.line_board & black);
         if(is_free){
             for(auto field : line.points){
@@ -366,7 +366,7 @@ void Board::remove_2lines_all(const std::vector<Line_info> &all_line, board_int 
     }
 
     bool rerun = false;
-    for(auto line : all_line){
+    for(auto &line : all_line){
         bool is_free = !(line.line_board & black);
         int emptynum = line.size - __builtin_popcountll(line.line_board & white);
         if (is_free && (emptynum == 2)){
@@ -394,7 +394,7 @@ void Board::remove_lines_with_two_ondegree(const std::vector<Line_info> &all_lin
 {
     std::vector<unsigned int> degree(ACTION_SIZE, 0);
 
-    for (auto line : all_line){
+    for (auto &line : all_line){
         bool is_free = !(line.line_board & black);
         if (is_free){
             for (auto field : line.points){
@@ -404,7 +404,7 @@ void Board::remove_lines_with_two_ondegree(const std::vector<Line_info> &all_lin
     }
 
     bool rerun = false;
-    for (auto line : all_line){
+    for (auto &line : all_line){
         bool is_free = !(line.line_board & black);
         int emptynum = line.size - __builtin_popcountll(line.line_board & white);
         if (is_free){
