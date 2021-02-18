@@ -7,6 +7,7 @@
 #include "licit.h"
 #include "node.h"
 #include "common_strategy.h"
+#include "robin_hood.h"
 
 #include <map>
 #include <unordered_map>
@@ -71,18 +72,18 @@ public:
     // === DFPN Helper ===
     unsigned int update_threshhold(PNSNode* node);
     var get_min_delta_index(PNSNode* node, int& second) const;
-    
+
     inline std::vector<Line_info> get_lines(unsigned int action) const {
         return heuristic.linesinfo_per_field[action];
     }
-    
+
     inline std::vector<Line_info> get_all_lines() const{
         return heuristic.all_linesinfo;
     }
 
     void stats(Node* node, bool end = false);
     void component_stats();
-    
+
     // === MAP ===
     //bool has_board(const Board& board);
     void add_board(const Board& board, PNSNode* node);
@@ -96,12 +97,12 @@ public:
 
     int total_state_size = 0;
     int get_states_size(){return states.size();}
-    
+
 private :
     #if ISOM
     std::unordered_map<std::vector<uint64_t>, PNSNode*, Vector_Hash> states;
     #else
-    std::unordered_map<Board, PNSNode*, Board_Hash> states;
+    robin_hood::unordered_map<Board, PNSNode*, Board_Hash> states;
     #endif
 
     Args* args;
