@@ -5,7 +5,7 @@ project(AMOBA)
 
 set(CMAKE_CXX_STANDARD 14)
 #set(CMAKE_CXX_FLAGS "-g")
-set(CMAKE_CXX_FLAGS "-O3")
+set(CMAKE_CXX_FLAGS "-O3 -ffast-math")
 file(GLOB AMOBA_FILES src/*.cpp src/*.hpp)
 add_library(amoba ${AMOBA_FILES})
 
