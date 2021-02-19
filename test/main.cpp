@@ -94,7 +94,7 @@ void eval_all_OR_descendents(Node* node, PNS& tree, Args& args, int depth, PNS& 
         //std::cout<<"I "<<i<<std::endl;
         Node* child = node->children[i];
         if(child==nullptr) assert(0);
-        if(child->is_inner() || (child->type == OR && depth < 1)){
+        if(child->is_inner() || (child->type == OR && depth < 0)){
             eval_all_OR_descendents(child, tree, args, depth+1, sol);
         }
         else{
@@ -183,8 +183,8 @@ int main(int argc, char* argv[]){
     PNS::logger->init(args.disproof);
 
     if(args.test){
-        //Play game("../data/final/child_0.sol", args.disproof, args.talky, &args);
-        Play game(args.get_filename(), args.disproof, args.talky, &args);
+        Play game("data/board_sol/36283883716651_4_0_0.sol", args.disproof, args.talky, &args);
+        //Play game(args.get_filename(), args.disproof, args.talky, &args);
         game.play_with_solution();
     }
     else{

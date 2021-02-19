@@ -35,8 +35,8 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
             act_board.node_type = OR;
             
             // In return we dont have to cover the upper line
-            act_board.white ^= (1ULL << (is_left?5:40));
-            act_board.black |= (1ULL << (is_left?5:40));
+            act_board.white ^= (1ULL << (is_left?0:45));
+            act_board.black |= (1ULL << (is_left?0:45));
 
             act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
         }
@@ -59,6 +59,11 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
                 act_board.white |= (1ULL << 46) | (1ULL << 48);      // also 47
                 act_board.black |= (1ULL << 47);
             }
+            if(!(PNS::heuristic.forbidden_fields_inner & (1ULL << action))){
+                act_board.white ^= (1ULL << (is_left?0:45));
+                act_board.black |= (1ULL << (is_left?0:45));
+            }
+
             act_board.forbidden_all &= ~side;
             // Cooperation is over
         }
@@ -282,18 +287,29 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
             act_board.move(action, -1);
         }
         else if(act_board.black & side){
+            // TODO: other side
             act_board.move(action, 1);
             act_board.forbidden_all &= ~side;
+
+            if(action == 47 || action == 2){
+                board_int line = (1ULL << 3) | (1ULL << 8) | (1ULL << 13); 
+                if(act_board.black & (is_left?line:(line<<30))){
+                    //act_board.move(is_left?12:37, -1);
+                    return add_or_create(act_board);
+                }
+            }
             
-            Node* node = new InnerNode(4, AND);
-            board_int free_common = side & ~(act_board.white | act_board.black); 
-            for(int i=0;i<4;i++){
+            board_int free_common = side & ~(act_board.white | act_board.black);
+            int childnum = __builtin_popcountll(free_common);
+            Node* node = new InnerNode(childnum, AND);
+            for(int i=0;i<childnum;i++){
                 int act = __builtin_ctzl(free_common);
                 free_common &= ~(1ULL << act);
                 Board child(act_board);
                 child.move(act, -1);
                 node->children[i]=add_or_create(child);
             }
+            tree->update_node(node);
             return node;
         }
         else if(action == 7 || action == 42){
@@ -306,8 +322,8 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
             act_board.move(action, 1);
             act_board.node_type = OR;
             // In return we dont have to cover the center line
-            act_board.white ^= (1ULL << (is_left?0:45));
-            act_board.black |= (1ULL << (is_left?0:45));
+            act_board.white ^= (1ULL << (is_left?5:40));
+            act_board.black |= (1ULL << (is_left?5:40));
         }
         else{
             // The attacker moves to the edge of the column, we answer to center

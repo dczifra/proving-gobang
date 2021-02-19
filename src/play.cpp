@@ -14,12 +14,14 @@ Play::Play(std::string filename, bool disproof, bool talky, Args* args_):talky(t
     read_solution(filename, tree);
     printf("Proof/disproof tree size: %zu\n", tree.states.size());
     printf("Isommap size: %zu\n", isom_map.size());
+    /*
     if(board.node_type == OR){
         human_player = (tree.get_states(board)->pn == 0 ? -1:1);
     }
     else{
         human_player = (tree.get_states(board)->pn == 0 ? 1:-1);
-    }
+        }*/
+    human_player = -1;
 
     //build_tree();
 }
@@ -83,6 +85,7 @@ NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* ar
     //side_starts(board);
     board.white |= (1ULL << 0) | (1ULL << 45);
     board.white |= (1ULL << 5) | (1ULL << 40);
+    board.white |= (1ULL << 10) | (1ULL << 35);
 
     //board.white |= (1ULL << 45);
     //board.black |= (1ULL << 0);
@@ -216,6 +219,9 @@ void Play::play_with_solution(){
     Board base_board;
     choose_problem(base_board, player, false, args); // TODO
     Node* act_node = new PNSNode(base_board, tree.args);
+    //tree.extend_all((PNSNode*)act_node, false);
+    //act_node = act_node->children[0];
+    
     int act = -1;
     while(act_node->is_inner() || !tree.game_ended(act_node->get_board())){
         //std::cout<<"Childnum: "<<act_node->child_num<<std::endl;

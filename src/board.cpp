@@ -226,9 +226,9 @@ std::string Board::heuristic_layers(const std::vector<Line_info>& all_lines) con
     for(int i=0;i<LAYERNUM+1;i++) ret += std::to_string(layers[i])+" ";
     return ret;
 }
-
+/*
 void Board::flip(){
-    board_int w = 0, b = 0;
+    board_int w = 0, b = 0, f = 0;
     for(int row=0; row<5; row++){
         //std::cout<<row<<" "<<4-row<<std::endl;
         //display((white & (flip_base << row)), true);
@@ -236,45 +236,50 @@ void Board::flip(){
         if(shift >= 0){
             w |= ((white & (flip_base << row)) << shift);
             b |= ((black & (flip_base << row)) << shift);
+            f |= ((forbidden_all & (flip_base << row)) << shift);
         }
         else{
             w |= ((white & (flip_base << row)) >> -shift);
             b |= ((black & (flip_base << row)) >> -shift);
+            f |= ((forbidden_all & (flip_base << row)) >> -shift);
         }
     }
     white = w;
     black = b;
+    forbidden_all = f;
 }
-
-/*
-void Board::flip()
-{
-    board_int w = 0, b = 0;
+*/
+void Board::flip(){
+    board_int w = 0, b = 0, f=0;
     board_int col = 0x0f;
 
-    for (int i = 0; i < COL; i++)
-    {
+    for (int i = 0; i < COL; i++){
         board_int old_w = (white & (col << (4 * i)));
         board_int old_b = (black & (col << (4 * i)));
+        board_int old_f = (forbidden_all & (col << (4 * i)));
         int move = (COL - 2 * (i + 1) + 1) * 4;
-        if (move >= 0)
-        {
+        if (move >= 0){
             w |= (old_w << move);
             b |= (old_b << move);
+            f |= (old_f << move);
         }
-        else
-        {
+        else{
             move = -move;
             w |= (old_w >> move);
             b |= (old_b >> move);
+            f |= (old_f >> move);
         }
     }
     white = w;
     black = b;
+    forbidden_all = f;
+
+    int temp = score_right;
+    score_right = score_left;
+    score_left = temp;
     //white = static_cast<board_int>(flip_bit(white))>>FLIP_SIZE;
     //black = static_cast<board_int>(flip_bit(black))>>FLIP_SIZE;
 }
-*/
 
 std::array<float, ACTION_SIZE> Board::heuristic_mtx(const std::vector<Line_info> &lines) const
 {

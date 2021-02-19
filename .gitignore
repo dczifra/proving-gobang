@@ -1,4 +1,4 @@
-build
+build*
 main
 *.csv
 nauty27r1
