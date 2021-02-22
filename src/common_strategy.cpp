@@ -25,49 +25,49 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
         act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
         //act_board.move(is_left?7:42, -1);
         act_board.move(action, -1);
-        //act_board.forbidden_all &= ~side;
+        act_board.forbidden_all &= ~side; // TODO !!!!!
     }
     else{
         // Center
-        if(action == 2 || action == 47){
-            // We cannot answer
+        if(action == 7 || action == 47){
             act_board.move(action, 1);
-            act_board.node_type = OR;
+            //act_board.move(action-1, -1);
             
-            // In return we dont have to cover the upper line
-            act_board.white ^= (1ULL << (is_left?0:45));
-            act_board.black |= (1ULL << (is_left?0:45));
-
+            if(is_left) act_board.move(11, -1);
+            else{
+                // Dont have to cover upper line
+                act_board.white ^= (1ULL << 40);
+                act_board.black ^= (1ULL << 40);
+            }
             act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
         }
-        if(action == 7 || action == 42){
+        else if(action == 2 || action == 42){
             act_board.move(action, 1);
-            act_board.move(is_left?11:36, -1); // TODO if not empty
-            // Cooperation continues
-            act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
+            act_board.move(action+6, -1);
+            //act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
+            act_board.forbidden_all &= ~side;
         }
         else{
-            int defender = (action / ROW)*ROW+2;
-
+            // action is the classic 4 common
             act_board.move(action, 1);
-            act_board.move(defender, -1);
-            if(is_left){
-                act_board.white |= (1ULL << 1) | (1ULL << 3); // also 2
-                act_board.black |= (1ULL << 2);
+            act_board.move(is_left?7:47, -1);
+            //if(action == 1 || action == 3 || action == 41 || action == 43){
+            //    act_board.forbidden_all &= ~side;
+            //}
+            if(PNS::heuristic.forbidden_fields_inner & (1ULL << action)){
+                act_board.forbidden_all &= ~side;
             }
-            else{
-                act_board.white |= (1ULL << 46) | (1ULL << 48);      // also 47
-                act_board.black |= (1ULL << 47);
+            else if(action != 7 && action != 47){
+                int opposite = (action/ROW)*ROW+4-(action%ROW);
+                if(is_left){
+                    act_board.white |= (1ULL << 1) | (1ULL << 3);
+                    act_board.black |= (1ULL << 2);
+                }
+                else act_board.white|= (1ULL << opposite);
+                act_board.forbidden_all &= ~side;
             }
-            if(!(PNS::heuristic.forbidden_fields_inner & (1ULL << action))){
-                act_board.white ^= (1ULL << (is_left?0:45));
-                act_board.black |= (1ULL << (is_left?0:45));
-            }
-
-            act_board.forbidden_all &= ~side;
-            // Cooperation is over
+            else act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
         }
-
     }
     return add_or_create(act_board);
 }
@@ -283,61 +283,42 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
         return six_common_fields(act_board, action);
     }
     else{
+        //board_int free_common = side & ~(act_board.white | act_board.black);
+        //int childnum = __builtin_popcountll(free_common);
+        int last_att_act = __builtin_ctzl(side & act_board.white);
+        int last_def_act = __builtin_ctzl(side & act_board.black);
+
         if(act_board.node_type == AND){
             act_board.move(action, -1);
-        }
-        else if(act_board.black & side){
-            // TODO: other side
-            act_board.move(action, 1);
-            act_board.forbidden_all &= ~side;
-
-            if(action == 47 || action == 2){
-                board_int line = (1ULL << 3) | (1ULL << 8) | (1ULL << 13); 
-                if(act_board.black & (is_left?line:(line<<30))){
-                    //act_board.move(is_left?12:37, -1);
-                    return add_or_create(act_board);
-                }
-            }
-            
-            board_int free_common = side & ~(act_board.white | act_board.black);
-            int childnum = __builtin_popcountll(free_common);
-            Node* node = new InnerNode(childnum, AND);
-            for(int i=0;i<childnum;i++){
-                int act = __builtin_ctzl(free_common);
-                free_common &= ~(1ULL << act);
-                Board child(act_board);
-                child.move(act, -1);
-                node->children[i]=add_or_create(child);
-            }
-            tree->update_node(node);
-            return node;
-        }
-        else if(action == 7 || action == 42){
-            // We have to cover the center line
-            act_board.move(action, 1);
-            act_board.move(is_left?12:37, -1);
-        }
-        else if(action == 2 || action == 47){
-            // We cannot move
-            act_board.move(action, 1);
-            act_board.node_type = OR;
-            // In return we dont have to cover the center line
-            act_board.white ^= (1ULL << (is_left?5:40));
-            act_board.black |= (1ULL << (is_left?5:40));
+            // TODO: move to specific fields
         }
         else{
-            // The attacker moves to the edge of the column, we answer to center
+            act_board.move(action, 1);
+            if(action == 2 || action == 42) act_board.move(action+1, -1);
+            else if(!is_left) act_board.node_type = OR;
+
+        }
+        /*
+        if(last_att_act == 2 || last_att_act == 42){
+            int opposite = (action/ROW)*ROW+4-(action%ROW);
+            act_board.move(action, 1);
+            act_board.move(opposite, -1);
+        }
+        else if(last_att_act == 7 || last_att_act == 47){
+            act_board.move(action, 1);
+            if(!is_left) act_board.node_type = OR;
+        }
+        else{
             int att = action, opposite, center;
             opposite = (att/ROW)*ROW+4-(att%ROW);
             center = (att/ROW)*ROW+2;
-            act_board.move(att, 1);
-            if(act_board.black & (1ULL << center)) act_board.node_type = AND;
-            else act_board.move(center, -1);
 
-            if(PNS::heuristic.forbidden_fields_inner & (1ULL << action)){
-                act_board.white |= (1ULL << opposite);
+            act_board.move(action, 1);
+            if(action == center){
+                act_board.move(action-1, -1);
             }
-        }
+            else act_board.move(opposite, -1);
+        }*/
         //act_board.white |= (side & ~(act_board.white | act_board.black) & ~PNS::heuristic.forbidden_fields_inner);
         act_board.forbidden_all &= ~side;
         return add_or_create(act_board);

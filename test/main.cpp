@@ -133,10 +133,10 @@ void PNS_test(Args& args){
     tree.extend_all(node, false);
     //node = (PNSNode*)node->children[1];
     // ============================================
-    PNS sol(&args);
-    eval_all_OR_descendents(node, tree, args, 0, sol);
-    sol.stats(node, true);
-    std::cout<<"Trick end\n";
+    //PNS sol(&args);
+    //eval_all_OR_descendents(node, tree, args, 0, sol);
+    //sol.stats(node, true);
+    //std::cout<<"Trick end\n";
     //eval_child(node, tree, args);
     //return;
     // ============================================
@@ -183,8 +183,8 @@ int main(int argc, char* argv[]){
     PNS::logger->init(args.disproof);
 
     if(args.test){
-        Play game("data/board_sol/36283883716651_4_0_0.sol", args.disproof, args.talky, &args);
-        //Play game(args.get_filename(), args.disproof, args.talky, &args);
+        //Play game("data/board_sol/36283883716651_4_0_0.sol", args.disproof, args.talky, &args);
+        Play game(args.get_filename(), args.disproof, args.talky, &args);
         game.play_with_solution();
     }
     else{
