@@ -41,6 +41,12 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
             }
             act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
         }
+        else if(action == 2 || action == 42){
+            act_board.move(action, 1);
+            act_board.move(action+6, -1);
+            //act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
+            act_board.forbidden_all &= ~side;
+        }
         else{
             // action is the classic 4 common
             act_board.move(action, 1);
