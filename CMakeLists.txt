@@ -5,7 +5,10 @@ project(AMOBA)
 
 set(CMAKE_CXX_STANDARD 14)
 #set(CMAKE_CXX_FLAGS "-g")
-set(CMAKE_CXX_FLAGS "-O3 -ffast-math")
+set(CMAKE_CXX_FLAGS "-O3 -ffast-math -march=native")
+# -ffast-math speeds up power operations, -march=native speeds up bitcount on some systems
+# -ltcmalloc gives around 10% speedup due to more efficient memory allocation, needs `google-perftools`
+
 file(GLOB AMOBA_FILES src/*.cpp src/*.hpp)
 add_library(amoba ${AMOBA_FILES})
 
