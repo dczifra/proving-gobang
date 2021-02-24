@@ -70,11 +70,11 @@ void eval_child(Node* node, PNS& tree, Args& args){
     if(!node->extended) tree.extend_all((PNSNode*) node, false);
     for(int i=0; i<node->children.size(); i++){
         std::cout<<"Child "<<i<<std::endl;
-        //if(!node->children[i]->is_inner()) display(node->children[i]->get_board(), true);
-        tree.evaluate_node_with_PNS(node->children[i], args.log, false);
+        if(!node->children[i]->is_inner()) display(node->children[i]->get_board(), true);
+        tree.evaluate_node_with_PNS_square((PNSNode*)node->children[i], args.log, false);
         tree.stats(node->children[i], true);
         PNS::logger->log_node(node->children[i],
-                              "../data/final/child_"+std::to_string(i)+".sol");
+                              "data/final/child_"+std::to_string(i)+".sol");
         tree.delete_all(node->children[i]);
     }
 }
@@ -137,8 +137,8 @@ void PNS_test(Args& args){
     //eval_all_OR_descendents(node, tree, args, 0, sol);
     //sol.stats(node, true);
     //std::cout<<"Trick end\n";
-    //eval_child(node, tree, args);
-    //return;
+    eval_child(node, tree, args);
+    return;
     // ============================================
     //node = (PNSNode*)node->children[0]->children[0];
     //display(node->get_board(), true);
