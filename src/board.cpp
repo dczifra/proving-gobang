@@ -6,6 +6,13 @@
 // ==============================================
 //                 EXTRA
 // ==============================================
+
+// === GLOBAL VARIABLES TO AVOID REALLOCATING ===
+std::vector<u_int8_t> degree(ACTION_SIZE, 0);
+std::vector<bool> dead(ACTION_SIZE, false);
+std::vector<bool> two_line(ACTION_SIZE, false);
+// ==============================================
+
 NodeType operator!(const NodeType &type)
 {
     return (type == OR ? AND : OR);
@@ -81,7 +88,7 @@ Board::Board(const Board& b, int action, int player){
 bool Board::operator==(const Board& b) const{
     return (white == b.white) && (black == b.black) && (node_type == b.node_type) &&
         (score_left == b.score_left) && (score_right == b.score_right) &&
-        (forbidden_all == b.forbidden_all); 
+        (forbidden_all == b.forbidden_all);
 }
 
 void Board::move(std::vector<int> actions, int& player){
@@ -143,7 +150,7 @@ bool Board::no_free_lines(const std::vector<Line_info>& all_lines) const{
 }
 
 board_int Board::get_valids_without_ondegree(const std::vector<Line_info> & all_lines) const{
-    std::vector<int> degree(ACTION_SIZE, 0);
+    degree.assign(degree.size(), 0);
     // === Compute degree for all fields ===
     for (auto& line : all_lines){
         bool is_free = !(line.line_board & black);
@@ -165,7 +172,7 @@ board_int Board::get_valids_without_ondegree(const std::vector<Line_info> & all_
             //valids = valids ^ ((1ULL) << i);
             valids &= ~(1ULL << i);
         }
-        
+
     }
 
     return valids;
@@ -174,7 +181,7 @@ board_int Board::get_valids_without_ondegree(const std::vector<Line_info> & all_
 bool Board::heuristic_stop(const std::vector<Line_info> &all_lines) const{
     // If there is a forbidden field, which is not empty:
     if(forbidden_all & (white | black) != forbidden_all) return false;
-    
+
     double sum = 0;
     for (auto& line : all_lines){
         bool is_free = !(line.line_board & black);
@@ -307,7 +314,7 @@ std::array<float, ACTION_SIZE> Board::heuristic_mtx(const std::vector<Line_info>
 //                 SIMPLIFY BOARD
 // ==============================================
 int Board::one_way(const std::vector<Line_info> &all_lines) const{
-    std::vector<bool> two_line(ACTION_SIZE, 0);
+    two_line.assign(two_line.size(), false);
 
     for (auto& line : all_lines){
         bool is_free = !(line.line_board & black);
@@ -341,7 +348,7 @@ int Board::one_way(const std::vector<Line_info> &all_lines) const{
 }
 
 void Board::remove_dead_fields_all(const std::vector<Line_info> &all_line, board_int forbidden){
-    std::vector<bool> dead(ACTION_SIZE, true);
+    dead.assign(dead.size(), true);
     // === For all lines, which cross the action ===
     for (auto& line : all_line){
         //  === Skip for not empty line (empty: except action) ===
@@ -359,7 +366,7 @@ void Board::remove_dead_fields_all(const std::vector<Line_info> &all_line, board
 }
 
 void Board::remove_2lines_all(const std::vector<Line_info> &all_line, board_int forbidden){
-    std::vector<unsigned int> degree(ACTION_SIZE, 0);
+    degree.assign(degree.size(), 0);
 
     for (auto& line : all_line){
         bool is_free = !(line.line_board & black);
@@ -397,7 +404,7 @@ void Board::remove_2lines_all(const std::vector<Line_info> &all_line, board_int 
 
 void Board::remove_lines_with_two_ondegree(const std::vector<Line_info> &all_line, board_int forbidden)
 {
-    std::vector<unsigned int> degree(ACTION_SIZE, 0);
+    degree.assign(degree.size(), 0);
 
     for (auto& line : all_line){
         bool is_free = !(line.line_board & black);
