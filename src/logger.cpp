@@ -32,26 +32,33 @@ void Logger::log(Node* node, Heuristic& h){
     logstream<<std::endl;
 }
 
-void Logger::log_solution_min(Node* node, std::ofstream& file, std::set<Board>& logged){
+void Logger::log_solution_min(Node* node, std::ofstream& file, std::string& filebuffer, std::set<Board>& logged){
     if(node == nullptr) return;
     else if(node->is_inner() || logged.find(node->get_board()) == logged.end()){
         if(!node->is_inner()){
             Board act_board (node->get_board());
             logged.insert(act_board);
-            file<<act_board.white<<" "<<act_board.black<<" "<<(act_board.node_type==OR?0:1)<<" "<<
-                act_board.score_left<<" "<<act_board.score_right<<" "<<
-                act_board.forbidden_all<<" "<<node->pn<<" "<<node->dn<<std::endl;
+            if (filebuffer.length() + 1 >= 100*1024*1024) // 100 MiB
+            {
+                file<<filebuffer;
+                filebuffer.resize(0);
+            }
+
+            filebuffer.append(std::to_string(act_board.white) + " " + std::to_string(act_board.black) + " " + (act_board.node_type==OR?"0":"1") + " " +
+                std::to_string(act_board.score_left) + " " + std::to_string(act_board.score_right) + " " +
+                std::to_string(act_board.forbidden_all) + " " + std::to_string(node->pn) + " " + std::to_string(node->dn) + "\n");
+
         }
 
         if(PNS::keep_only_one_child(node)){
             ProofType proof_type = (node->pn == 0 ? PN:DN);
             unsigned int min_ind = PNS::get_min_children_index(node, proof_type);
             if (min_ind == UINT_MAX) return; // node is a leaf
-            else log_solution_min(node->children[min_ind], file, logged);
+            else log_solution_min(node->children[min_ind], file, filebuffer, logged);
         }
         else{
             for(int i=0;i<node->child_num;i++){
-                log_solution_min(node->children[i], file, logged);
+                log_solution_min(node->children[i], file, filebuffer, logged);
             }
         }
     }
@@ -60,7 +67,10 @@ void Logger::log_solution_min(Node* node, std::ofstream& file, std::set<Board>& 
 
 void Logger::log_node(Node* node, std::string filename){
     std::ofstream file(filename.c_str());
+    std::string filebuffer;
+    filebuffer.reserve(100*1024*1024); // 100 MiB
     std::set<Board> logged;
-    log_solution_min(node, file, logged);
+    log_solution_min(node, file, filebuffer, logged);
+    file<<filebuffer;
     file.close();
 }
