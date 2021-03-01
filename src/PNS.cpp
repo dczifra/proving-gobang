@@ -477,6 +477,16 @@ void PNS::display_node(PNSNode* node){
     }
 }
 
+void PNS::copy_states(PNS& tree){
+    for(auto& s: states){
+        const Board& b(s.first);
+        bool proved = s.second->pn*s.second->dn == 0;
+        if(__builtin_popcountll(~(b.white | b.black)) > LOG_CUT_DEPTH && proved){
+            if(tree.get_states(b)==nullptr) tree.add_board(b, new PNSNode(b));
+        }
+    }
+}
+
 // ============================================
 //                   STATS
 // ============================================

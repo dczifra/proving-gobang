@@ -97,7 +97,7 @@ public:
 
     int total_state_size = 0;
     int get_states_size(){return states.size();}
-
+    void copy_states(PNS& tree);
 private :
     #if ISOM
     std::unordered_map<std::vector<uint64_t>, PNSNode*, Vector_Hash> states;

@@ -97,7 +97,7 @@ NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* ar
 
 void Play::read_solution(std::string filename, PNS& mytree){
     Args temp_args;
-    std::ifstream file(filename.c_str());
+    std::ifstream file(filename.c_str(), std::ifstream::in | std::ifstream::binary);
     if(file.is_open()){
         std::cout<<"Processing file...\n";
     }
@@ -106,20 +106,18 @@ void Play::read_solution(std::string filename, PNS& mytree){
     }
 
     std::string s;
-    while(std::getline (file, s)){
-        var pn, dn;
+    while(!file){
+        int pn,dn;
         Board b;
-        std::stringstream sstream(s);
-        sstream>>b.white>>b.black>>b.node_type>>b.score_left>>b.score_right>>b.forbidden_all>>pn>>dn;
+        file.read((char*) &b, sizeof(Board));
+        file.read((char*) &pn, sizeof(int));
+        file.read((char*) &dn, sizeof(int));
         if(mytree.get_states(b)==nullptr){
             
             PNSNode* node = new PNSNode(b, &temp_args);
             node->pn = pn;
             node->dn = dn;
             mytree.add_board(b, node);
-            //display(b, true);
-            //std::cout<<node->get_board().white<<" "<<node->get_board().black<<" "<<node->get_board().node_type<<" "<<node->get_board().forbidden_all<<"\n";
-   
         }
         else{
             //printf("Duplicated state:\n");
