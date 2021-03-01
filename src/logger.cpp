@@ -55,8 +55,8 @@ void Logger::log_solution_min(Node* node, std::ofstream& file, std::string& file
             std::string dn((char*) &node->dn, sizeof(int));
             line+=pn+dn;
             filebuffer.append(line);
-
-            if(__builtin_popcountll(~(act_board.white | act_board.black)) < LOG_CUT_DEPTH){
+            board_int common = PNS::heuristic.forbidden_all;
+            if(__builtin_popcountll(~(act_board.white | act_board.black) & ~(common)) <= LOG_CUT_DEPTH){
                 return;
             }
         }
