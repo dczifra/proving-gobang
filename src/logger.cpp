@@ -77,7 +77,7 @@ void Logger::log_solution_min(Node* node, std::ofstream& file, std::string& file
 
 
 void Logger::log_node(Node* node, std::string filename){
-    std::ofstream file(filename.c_str());
+    std::ofstream file(filename.c_str(), std::ofstream::out | std::ofstream::binary);
     std::string filebuffer;
     filebuffer.reserve(100*1024*1024); // 100 MiB
     std::set<Board> logged;

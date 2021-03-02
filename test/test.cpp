@@ -320,6 +320,45 @@ void test_extend2(){
 
 }
 
+
+void parallel_search(Node* node, PNS& tree, int depth, int maxdepth,
+                    std::map<Board, std::pair<int,int>>& ors,
+                    std::map<Board, std::pair<int,int>>& ands){
+    if(!node->extended) tree.extend_all((PNSNode*) node, false);
+
+    for(int i=0;i<node->children.size();i++){
+        Node* child = node->children[i];
+        if(child==nullptr) assert(0);
+
+        Board act_board(child->get_board());
+        //if(depth==0) display(act_board, true);
+
+        if(child->is_inner() || (child->type == OR && depth < maxdepth)){
+            parallel_search(child, tree, depth+1, maxdepth, ors, ands);
+            if(act_board.node_type == OR){
+                if(ors.find(act_board) != ors.end()) ors[act_board].second+=1;
+                else ors[act_board] = {depth,1};
+            }
+            else{
+                if(ands.find(act_board) != ands.end()) ands[act_board].second+=1;
+                else ands[act_board] = {depth,1};
+            }
+        }
+        else{
+            assert(!child->is_inner());
+            if(act_board.node_type == OR){
+                if(ors.find(act_board) != ors.end()) ors[act_board].second+=1;
+                else ors[act_board] = {depth,1};
+            }
+            else{
+                if(ands.find(act_board) != ands.end()) ands[act_board].second+=1;
+                else ands[act_board] = {depth,1};
+            }
+        }
+    }
+}
+
+
 Heuristic PNS::heuristic;
 CanonicalOrder PNS::isom_machine;
 Logger* PNS::logger = new Logger();
@@ -341,7 +380,35 @@ int main() {
     //get_valids_test();
     //testPNS2();
     //test_strategy();
-    test_extend2();
+    //test_extend2();
+
+    PNS tree(args);
+    Board b;
+    PNSNode* node = new PNSNode(b, args);
+    tree.extend_all(node, false);
+    //node = (PNSNode*)node->children[0];
+    std::map<Board, std::pair<int,int>> ors, ands;
+    parallel_search(node, tree, 0, 2, ors,ands);
+    std::cout<<ors.size()<<" "<<ands.size()<<std::endl;
+    std::cout<<tree.get_states_size()<<std::endl;
+
+
+    std::ofstream or_file("../ors.txt");
+    or_file<<"white black common depth intersection\n";
+    for(auto& p: ors){
+        const Board& b(p.first);
+        or_file<<b.white<<" "<<b.black<<" "<<b.forbidden_all<<" "<<p.second.first<<" "<<p.second.second<<std::endl;
+    }
+    or_file.close();
+
+    std::ofstream and_file("../ands.txt");
+    and_file<<"white black common depth intersection\n";
+    for(auto& p: ands){
+        const Board& b(p.first);
+        and_file<<b.white<<" "<<b.black<<" "<<b.forbidden_all<<" "<<p.second.first<<" "<<p.second.second<<std::endl;
+    }
+    and_file.close();
+    
 
     return 0;
 }
