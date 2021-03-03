@@ -15,12 +15,14 @@ void add_descendents(Node* node, PNS& tree, int depth, int maxdepth,
         if(child->is_inner() || (child->type == OR && depth < maxdepth)){
             add_descendents(child, tree, depth+1, maxdepth, ors, ands);
         }
-        else assert(!child->is_inner());
+        else{
+            assert(!child->is_inner());
 
-        // === Add to the discovered nodes ===
-        std::map<Board, std::pair<int,int>>& discovered = (act_board.node_type == OR) ? ors:ands;
-        if(discovered.find(act_board) != discovered.end()) discovered[act_board].second+=1;
-        else discovered[act_board] = {depth,1};
+            // === Add to the discovered nodes ===
+            std::map<Board, std::pair<int,int>>& discovered = (act_board.node_type == OR) ? ors:ands;
+            if(discovered.find(act_board) != discovered.end()) discovered[act_board].second+=1;
+            else discovered[act_board] = {depth,1};
+        }
     }
 }
 
@@ -40,7 +42,6 @@ void prove_node(Args& args){
 
     PNS::logger->log_node(node, "data/board_sol/"+b.to_string()+".sol");
     tree.stats(node, true);
-
 }
 
 void generate_roots_descendents(Args& args, int depth = 3){
