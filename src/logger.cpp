@@ -34,7 +34,7 @@ void Logger::log(Node* node, Heuristic& h){
     logstream<<std::endl;
 }
 
-void Logger::log_solution_min(Node* node, std::ofstream& file, std::string& filebuffer, std::set<Board>& logged){
+void Logger::log_solution_min(Node* node, std::ofstream& file, std::string& filebuffer, std::set<Board>& logged, int depth){
     if(node == nullptr) return;
     else if(node->is_inner() || logged.find(node->get_board()) == logged.end()){
         if(!node->is_inner()){
@@ -56,7 +56,7 @@ void Logger::log_solution_min(Node* node, std::ofstream& file, std::string& file
             line+=pn+dn;
             filebuffer.append(line);
             board_int common = PNS::heuristic.forbidden_all;
-            if(__builtin_popcountll(~(act_board.white | act_board.black) & ~(common)) <= LOG_CUT_DEPTH){
+            if(depth > LOG_CUT_DEPTH){
                 return;
             }
         }
@@ -65,11 +65,11 @@ void Logger::log_solution_min(Node* node, std::ofstream& file, std::string& file
             ProofType proof_type = (node->pn == 0 ? PN:DN);
             unsigned int min_ind = PNS::get_min_children_index(node, proof_type);
             if (min_ind == UINT_MAX) return; // node is a leaf
-            else log_solution_min(node->children[min_ind], file, filebuffer, logged);
+            else log_solution_min(node->children[min_ind], file, filebuffer, logged, depth);
         }
         else{
             for(int i=0;i<node->child_num;i++){
-                log_solution_min(node->children[i], file, filebuffer, logged);
+                log_solution_min(node->children[i], file, filebuffer, logged, depth+1);
             }
         }
     }
@@ -81,7 +81,7 @@ void Logger::log_node(Node* node, std::string filename){
     std::string filebuffer;
     filebuffer.reserve(100*1024*1024); // 100 MiB
     std::set<Board> logged;
-    log_solution_min(node, file, filebuffer, logged);
+    log_solution_min(node, file, filebuffer, logged, 0);
     file<<filebuffer;
     file.close();
 }

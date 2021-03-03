@@ -18,6 +18,7 @@
 #include "canonicalorder.h"
 #include "logger.h"
 #include "node.h"
+#include "parallel.h"
 
 Args::Args(int argc, char* argv[]){
     int i=0;
@@ -28,6 +29,8 @@ Args::Args(int argc, char* argv[]){
         else if((std::string) argv[i] == "--test") test = true;
         else if((std::string) argv[i] == "--disproof") disproof = true;
         else if((std::string) argv[i] == "--lines") show_lines = true;
+        else if((std::string) argv[i] == "--generate_parallel") generate_parallel = true;
+        else if((std::string) argv[i] == "--parallel") parallel = true;
         else if((std::string) argv[i] == "-start"){
             START = std::stoi(argv[++i]);
         }
@@ -96,7 +99,7 @@ void eval_child(Node* node, PNS& tree, Args& args){
     for(int i=0; i<node->children.size(); i++){
         std::cout<<"Child "<<i<<std::endl;
         if(!node->children[i]->is_inner()) display(node->children[i]->get_board(), true);
-        tree.evaluate_node_with_PNS_square((PNSNode*)node->children[i], args.log, false);
+        tree.evaluate_node_with_PNS_square(node->children[i], args.log, false);
         tree.stats(node->children[i], true);
         PNS::logger->log_node(node->children[i],
                               "data/final/child_"+std::to_string(i)+".sol");
@@ -204,7 +207,13 @@ int main(int argc, char* argv[]){
     PNS::logger = new Logger();
     PNS::logger->init(args.disproof);
 
-    if(args.test){
+    if(args.parallel){
+        prove_node(args);
+    }
+    else if(args.generate_parallel){
+        generate_roots_descendents(args, 2);
+    }
+    else if(args.test){
         //Play game("data/board_sol/36283883716651_4_0_0.sol", args.disproof, args.talky, &args);
         Play game(args.get_filename(), args.disproof, args.talky, &args);
         game.play_with_solution();

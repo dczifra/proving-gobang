@@ -28,7 +28,7 @@
 #define ISOM false
 #define HEURISTIC true
 #define PNS2_START 250000000
-#define LOG_CUT_DEPTH 24
+#define LOG_CUT_DEPTH 2
 
 #if HEURISTIC
     #define var float
@@ -69,6 +69,8 @@ struct Args{
     bool disproof = false;
     bool show_lines = false;
     bool PNS_square = false;
+    bool parallel = false;
+    bool generate_parallel = false;
     float A = 200000000000.0;
     float B = 15000000000.0;
     int potencial_n = 128;

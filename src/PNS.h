@@ -43,7 +43,7 @@ public:
 
     PNSNode* create_and_eval_node(Board& board, bool eval);
     void evaluate_node_with_PNS(Node* node, bool log, bool fast_eval);
-    void evaluate_node_with_PNS_square(PNSNode* node, bool log, bool fast_eval);
+    void evaluate_node_with_PNS_square(Node* node, bool log, bool fast_eval);
     PNSNode* evaluate_components(Board& base_board);
     void search_and_keep_one_layer(Node* node, bool fast_eval, int iter = -1);
 

@@ -1,7 +1,7 @@
 #include "PNS.h"
 
 
-void PNS::evaluate_node_with_PNS_square(PNSNode* node, bool log, bool fast_eval){
+void PNS::evaluate_node_with_PNS_square(Node* node, bool log, bool fast_eval){
     int i=0;
     while(node->pn*node->dn != 0){
         PN_search_square(node, fast_eval);
