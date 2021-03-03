@@ -22,7 +22,8 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
     board_int side = is_left ? PNS::heuristic.forbidden_fields_left : PNS::heuristic.forbidden_fields_right;
 
     if(act_board.node_type == AND){
-        act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
+        int center = (action/ROW)*ROW+2;
+        act_board.forbidden_all ^= (1ULL << center-1) | (1ULL << center) | (1ULL << center+1);
         //act_board.move(is_left?7:42, -1);
         act_board.move(action, -1);
         act_board.forbidden_all &= ~side; // TODO !!!!!
@@ -48,7 +49,7 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
             act_board.move(action, 1);
             act_board.move(action != center?center:action-1, -1);
             // TODO: left losis the third field
-            act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
+            act_board.forbidden_all ^= (1ULL << center-1) | (1ULL << center) | (1ULL << center+1);
         }
     }
     return add_or_create(act_board);

@@ -27,7 +27,7 @@ void add_descendents(Node* node, PNS& tree, int depth, int maxdepth,
 void prove_node(Args& args){
     int depth, times;
     Board b;
-    std::cin>>b.white>>b.black>>b.node_type>>b.forbidden_all>>b.score_left>>b.score_right>>depth>>times;
+    std::cin>>b.white>>b.black>>b.score_left>>b.score_right>>b.node_type>>b.forbidden_all>>depth>>times;
     display(b, true);   
     PNS tree(&args);
     PNSNode* node = new PNSNode(b, &args);
