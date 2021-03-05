@@ -4,38 +4,48 @@ import os
 import sys
 import random
 import multiprocessing
+import subprocess
 
 import resource
 
-def run_board(b, ulimit):
+def get_lic_virt_mem(ulimit):
     def limit_virtual_memory():
         resource.setrlimit(resource.RLIMIT_AS, (ulimit*(1024**3), resource.RLIM_INFINITY))
+    return limit_virtual_memory
 
+def run_board(b, ulimit):
 
-    p = Popen(["./AMOBA","--parallel", "--log"], preexec_fn=limit_virtual_memory,
+    try:
+        p = Popen(["./AMOBA","--parallel", "--log"], preexec_fn=get_lic_virt_mem(ulimit),
                 stdout=PIPE, stdin=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True)
 
-    out,err = p.communicate(b)
-    
-    if(out.split('PN: ')[1][0]=='0'): return "PN"
-    elif(out.split('PN: ')[1][0]=='0'): return "DN"
-    else: return "fail"
+        out,err = p.communicate(b)
 
-def print_res(result):
+        if(out.split('PN: ')[1][0]=='0'): return "PN",b
+        elif(out.split('PN: ')[1][0]=='0'): return "DN",b
+        else: return "fail",b
+
+    except subprocess.SubprocessError as e:
+        print(e)
+        return "err",b
+
+def print_res(arg):
+    result,b = arg
     log[result]+=1
-    print("\r{}/{} [failed: {}] [proof: {}]".format(log["DN"], log["all"], log["fail"], log["PN"]), flush=True, end=" ")
+    if(result == "PN"):
+        print("Proof", b)
+    elif(result == "fail"):
+        print("Fail", b)
+    else:
+        print("\r{}/{} [failed: {}] [proof: {}]".format(log["DN"], log["all"], log["fail"], log["PN"]), flush=True, end=" ")
 
-def run_all_board(filename, procnum):
-    with open(filename, "r") as file:
-        boards = file.read().split('\n')
-        boards = boards[1:-1]
-        random.shuffle(boards)
-    
+
+def run_all_board(boards, procnum, memory_limit):
     log["all"] = len(boards)
     pool = multiprocessing.Pool(processes=procnum)
     for b in boards:
-        r = pool.apply_async(run_board, args =(b,0.5), callback=print_res)
-
+        r = pool.apply_async(run_board, args =(b,memory_limit), callback=print_res)                                                                                  
+        #print_res(run_board(b, memory_limit))
     pool.close()
     pool.join()
 
@@ -44,8 +54,17 @@ log={
     "PN":0,
     "DN":0,
     "fail":0,
-    "all":None
+    "all":None,
+    "again":[],
 }
 
 if(__name__ == "__main__"):
-    run_all_board(sys.argv[1], 2)
+    with open(sys.argv[1], "r") as file:
+        boards = file.read().split('\n')
+        boards = boards[1:-1]
+        random.shuffle(boards)
+
+    print(len(boards))
+
+    run_all_board(boards, 15, 15)
+    run_all_board(boards, 5, 120)
