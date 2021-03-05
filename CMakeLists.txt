@@ -31,7 +31,7 @@ add_executable(TEST test/test.cpp)
 add_executable(NAUTY test/nauty.cpp)
 #set_target_properties(NAUTY PROPERTIES COMPILE_FLAGS "-g")
 
-file(COPY ${CMAKE_BINARY_DIR}/../test/measure.sh  ${CMAKE_BINARY_DIR}/../test/PLAY ${CMAKE_BINARY_DIR}/../test/measure_both.sh ${CMAKE_BINARY_DIR}/../test/parallel.sh
+file(COPY ${CMAKE_BINARY_DIR}/../test/measure.sh  ${CMAKE_BINARY_DIR}/../test/PLAY ${CMAKE_BINARY_DIR}/../test/measure_both.sh ${CMAKE_BINARY_DIR}/../test/PARALLEL.py
   DESTINATION ${CMAKE_BINARY_DIR}
   FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
   GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
