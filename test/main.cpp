@@ -156,22 +156,6 @@ void PNS_test(Args& args){
     tree.extend_all(node, false);
     //node = (PNSNode*)node->children[1];
     // ============================================
-    PNS sol(&args);
-    auto solved = get_proven_boards("data/board_sol");
-    std::cout<<"Solved yet: "<<solved.size()<<std::endl;
-    eval_all_OR_descendents(node, tree, args, sol, 0, solved);
-    sol.stats(node, true);
-    std::cout<<"Trick end\n";
-    //eval_child(node, tree, args);
-    return;
-    // ============================================
-    //node = (PNSNode*)node->children[0]->children[0];
-    //display(node->get_board(), true);
-    //tree.extend_all(node, false);
-    //node = (PNSNode*)node->children[0]->children[1]->children[1];
-    //std::cout<<node->is_inner()<<std::endl;
-    //display(node->get_board(), true);
-    //std::cout<<node->get_board().white<<" "<<node->get_board().black<<" "<<node->get_board().node_type<<" "<<node->get_board().forbidden_all<<"\n";
     
     if(args.PNS_square){
         std::cout<<"PNS2"<<std::endl;

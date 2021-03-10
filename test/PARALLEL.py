@@ -14,20 +14,15 @@ def get_lic_virt_mem(ulimit):
     return limit_virtual_memory
 
 def run_board(b, ulimit):
+    p = Popen(["./AMOBA","--parallel"], preexec_fn=get_lic_virt_mem(ulimit),
+              stdout=PIPE, stdin=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True)
 
-    try:
-        p = Popen(["./AMOBA","--parallel", "--log"], preexec_fn=get_lic_virt_mem(ulimit),
-                stdout=PIPE, stdin=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True)
+    out,err = p.communicate(b)
 
-        out,err = p.communicate(b)
-
-        if(out.split('PN: ')[1][0]=='0'): return "PN",b
-        elif(out.split('PN: ')[1][0]=='0'): return "DN",b
-        else: return "fail",b
-
-    except subprocess.SubprocessError as e:
-        print(e)
-        return "err",b
+    if(len(out.split('PN'))==1): return "fail",b
+    if(out.split('PN: ')[1][0]=='0'): return "PN",b
+    elif(out.split('DN: ')[1][0]=='0'): return "DN",b
+    else: return "fail",b
 
 def print_res(arg):
     result,b = arg
@@ -35,7 +30,8 @@ def print_res(arg):
     if(result == "PN"):
         print("Proof", b)
     elif(result == "fail"):
-        print("Fail", b)
+        #print("Fail", b)
+        log["again"].append(b)
     else:
         print("\r{}/{} [failed: {}] [proof: {}]".format(log["DN"], log["all"], log["fail"], log["PN"]), flush=True, end=" ")
 
@@ -63,8 +59,13 @@ if(__name__ == "__main__"):
         boards = file.read().split('\n')
         boards = boards[1:-1]
         random.shuffle(boards)
+        print(len(boards))
+    
+    run_all_board(boards, 15, 30)
+    print("Summary: {}/{} [failed: {}] [proof: {}]".format(log["DN"], log["all"],
+                                                           log["fail"], log["PN"]))
+    with open("../failed.txt", "w") as f:
+        for b in log["again"]:
+            f.write(b+"\n")
 
-    print(len(boards))
-
-    run_all_board(boards, 15, 15)
-    run_all_board(boards, 5, 120)
+    run_all_board(log["again"], 2, 150)

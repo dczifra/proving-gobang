@@ -8,6 +8,7 @@
 #include "artic_point.h"
 #include "logger.h"
 #include "licit.h"
+#include "parallel.h"
 // =================================================================
 //                     TEST THE BOARD's GOODNESS
 // =================================================================
@@ -385,30 +386,10 @@ int main() {
     PNS tree(args);
     Board b;
     PNSNode* node = new PNSNode(b, args);
-    tree.extend_all(node, false);
-    //node = (PNSNode*)node->children[0];
-    std::map<Board, std::pair<int,int>> ors, ands;
-    parallel_search(node, tree, 0, 2, ors,ands);
-    std::cout<<ors.size()<<" "<<ands.size()<<std::endl;
+
+    //read_descendents(node, tree, 0, 2,"data/board_sol");
+    //Play::read_solution("data/board_sol/9070970929408_586589453435568_0_0.sol", tree);
     std::cout<<tree.get_states_size()<<std::endl;
-
-
-    std::ofstream or_file("../ors.txt");
-    or_file<<"white black common depth intersection\n";
-    for(auto& p: ors){
-        const Board& b(p.first);
-        or_file<<b.white<<" "<<b.black<<" "<<b.forbidden_all<<" "<<p.second.first<<" "<<p.second.second<<std::endl;
-    }
-    or_file.close();
-
-    std::ofstream and_file("../ands.txt");
-    and_file<<"white black common depth intersection\n";
-    for(auto& p: ands){
-        const Board& b(p.first);
-        and_file<<b.white<<" "<<b.black<<" "<<b.forbidden_all<<" "<<p.second.first<<" "<<p.second.second<<std::endl;
-    }
-    and_file.close();
-    
 
     return 0;
 }

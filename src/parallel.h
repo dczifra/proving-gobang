@@ -1,6 +1,7 @@
 #include "common.h"
 #include "board.h"
 #include "PNS.h"
+#include "play.h"
 
 void add_descendents(Node* node, PNS& tree, int depth, int maxdepth,
                     std::map<Board, std::pair<int,int>>& ors,
@@ -29,7 +30,9 @@ void add_descendents(Node* node, PNS& tree, int depth, int maxdepth,
 void prove_node(Args& args){
     int depth, times;
     Board b;
-    std::cin>>b.white>>b.black>>b.score_left>>b.score_right>>b.node_type>>b.forbidden_all>>depth>>times;
+    std::cin>>b.white>>b.black>>b.score_left>>b.score_right>>b.node_type;
+    std::cin>>b.forbidden_all>>depth>>times;
+    
     display(b, true);   
     PNS tree(&args);
     PNSNode* node = new PNSNode(b, &args);
@@ -44,28 +47,37 @@ void prove_node(Args& args){
     tree.stats(node, true);
 }
 
+struct Descendents{
+    std::string filename;
+    std::map<Board, std::pair<int,int>> boards; // Depth and occurance
+    Descendents(std::string fname):filename(fname){
+        
+    }
+};
+
 void generate_roots_descendents(Args& args, int depth = 3){
     PNS tree(&args);
     Board b;
+    int player = 1;
+    Play::choose_problem(b,player,false,&args);
     PNSNode* node = new PNSNode(b, &args);
     //tree.extend_all(node, false);
     //node = (PNSNode*)node->children[0];
 
     // === Add all decendents above the given depth ===
-    std::map<Board, std::pair<int,int>> ors, ands;
-    add_descendents(node, tree, 0, 2, ors, ands);
-    std::cout<<ors.size()<<" "<<ands.size()<<" "<<tree.get_states_size()<<std::endl;
-
+    Descendents ors("../ors.txt");
+    Descendents ands("../ands.txt");
+    add_descendents(node, tree, 0, 2, ors.boards, ands.boards);
+    std::cout<<ors.boards.size()<<" "<<ands.boards.size()<<" "<<tree.get_states_size()<<std::endl;
 
     // === Log the descendents ===
-    std::pair<std::map<Board, std::pair<int,int>>, std::string> logs[2] = {{ors,"../ors.txt"},{ands, "../ands.txt"}};
-    for(auto& log: logs){
-        std::ofstream log_file(log.second);
+    for(auto log: {ors, ands}){
+        std::ofstream log_file(log.filename);
         log_file<<"white black common type score_left score_right depth intersection\n";
-        for(auto& p: log.first){
+        for(auto& p: log.boards){
             const Board& b(p.first);
-            log_file<<b.white<<" "<<b.black<<" "<<b.score_left<<" "<<b.score_right<<" "<<b.node_type<<" "<<b.forbidden_all<<
-            " "<<p.second.first<<" "<<p.second.second<<std::endl;
+            log_file<<b.white<<" "<<b.black<<" "<<b.score_left<<" "<<b.score_right<<" "<<b.node_type;
+            log_file<<" "<<b.forbidden_all<<" "<<p.second.first<<" "<<p.second.second<<std::endl;
         }
         log_file.close();
     }

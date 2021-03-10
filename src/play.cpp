@@ -4,26 +4,44 @@
 #include<sstream>
 #include<fstream>
 
+
+void read_descendents(Node* node, PNS& tree, int depth, int maxdepth, std::string foldername){
+    if(!node->extended) tree.extend_all((PNSNode*) node, false);
+
+    for(Node* child: node->children){
+        if(child==nullptr) assert(0);
+
+        Board act_board(child->get_board());
+        // === Search deeper ===
+        if(child->is_inner() || (child->type == OR && depth < maxdepth)){
+            read_descendents(child, tree, depth+1, maxdepth, foldername);
+        }
+        else{
+            assert(!child->is_inner());
+
+            if(1 || tree.get_states(act_board)==nullptr){
+                std::string filename = foldername+"/"+act_board.to_string()+".sol";
+                Play::read_solution(filename, tree);
+            }
+        }
+    }
+}
+
 Play::Play(std::string filename, bool disproof, bool talky, Args* args_):talky(talky),tree(args_){
     player = 1;
     args = args_;
+
+    // === Read Solution Tree ===
     Board board;
     choose_problem(board, player, disproof, args);
 
-    // === Read Solution Tree ===
-    read_solution(filename, tree);
+    PNSNode* node = new PNSNode(board, args);
+    read_descendents(node, tree, 0, 2,"data/board_sol");
+    //read_solution(filename, tree);
+    
     printf("Proof/disproof tree size: %zu\n", tree.states.size());
     printf("Isommap size: %zu\n", isom_map.size());
-    /*
-    if(board.node_type == OR){
-        human_player = (tree.get_states(board)->pn == 0 ? -1:1);
-    }
-    else{
-        human_player = (tree.get_states(board)->pn == 0 ? 1:-1);
-        }*/
-    human_player = -1;
-
-    //build_tree();
+    human_player = 1;
 }
 
 void side_starts(Board& board){
@@ -99,14 +117,15 @@ void Play::read_solution(std::string filename, PNS& mytree){
     Args temp_args;
     std::ifstream file(filename.c_str(), std::ifstream::in | std::ifstream::binary);
     if(file.is_open()){
-        std::cout<<"Processing file...\n";
+        std::cout<<"\rProcessing file...: "<<filename<<"        "<<std::flush;
     }
     else{
         std::cout<<"File not found: "<<filename<<std::endl;
     }
 
     std::string s;
-    while(!file){
+    while(file){
+        //std::cout<<"www"<<std::endl;
         int pn,dn;
         Board b;
         file.read((char*) &b, sizeof(Board));
@@ -152,23 +171,6 @@ int get_action(int base_slot, Board board){
     assert(0); // base_slot out of range
     return -1;
 }
-
-// void Play::build_node(Board b){
-//     PNS new_tree(args);
-//     int slot = 0;
-    
-//     board_int valids = b.get_valids_without_ondegree(PNS::heuristic.all_linesinfo);
-//     for(int i=0;i<ACTION_SIZE;i++){
-//         if(valids & (1ULL << i)){
-//             Board next = new_tree.extend(tree.get_states(b), i, slot, false);
-//             PNSNode* child = tree.get_states(next);
-//             if(child != nullptr){
-//                 tree.get_states(b)->children[slot] = child;
-//             }
-//             slot++;
-//         }
-//     }
-// }
 
 void Play::build_node2(PNSNode* base_node){
     PNS new_tree(args);
@@ -219,12 +221,11 @@ void Play::play_with_solution(){
     Node* act_node = new PNSNode(base_board, tree.args);
     //tree.extend_all((PNSNode*)act_node, false);
     //act_node = act_node->children[0];
+    display(base_board, true);
     
     int act = -1;
     while(act_node->is_inner() || !tree.game_ended(act_node->get_board())){
         //std::cout<<"Childnum: "<<act_node->child_num<<std::endl;
-        //tree.evaluate_node_with_PNS(act_node, true, false);
-        //printf("PN: %f, DN: %f\n", act_node->pn, act_node->dn);
         if(!act_node->is_inner()){
             //std::cout<<act_node->get_board().white<<" "<<act_node->get_board().black<<std::endl;
             //display(act_node->get_board().forbidden_all, true);
@@ -259,9 +260,12 @@ void Play::play_with_solution(){
 
             if(act == ACTION_SIZE or act == -1){
                 printf("Not found next step %d\n", act);
+                //tree.evaluate_node_with_PNS(act_node, true, false);
+                //printf("PN: %f, DN: %f\n", act_node->pn, act_node->dn);
+                //if(act_node->type == OR) act = tree.get_min_children_index(act_node, PN);
+                //else act = tree.get_min_children_index(act_node, DN);
             }
-            else
-            {
+            else{
                 int true_act = act_node->is_inner() ? act : get_action(act, act_node->get_board());
                 act_node = act_node->children[act];
                 act = true_act;
@@ -285,7 +289,6 @@ void Play::play_with_solution(){
             //print_board(board.white);
             //print_board(board.black);
         }
-        //std::cout<<"next done\n";
     }
     std::cout<<"[END]\n";
 }
