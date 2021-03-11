@@ -294,10 +294,10 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
             int center = (action/ROW)*ROW+2;
             act_board.move(action, 1);
             if(action != center){
-                act_board.move(center, 1);
+                act_board.move(center, -1);
             }
             else{
-                act_board.move(action+1, 1);
+                act_board.move(action+1, -1);
             }
         }
         else if(last_att_act == 6 || last_att_act == 8 || last_att_act == 46 || last_att_act == 48){
