@@ -39,6 +39,7 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
                 // Dont have to cover upper line
                 act_board.white ^= (1ULL << 45);
                 act_board.black ^= (1ULL << 45);
+                //act_board.node_type = OR;
             }
             act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
         }

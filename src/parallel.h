@@ -1,3 +1,5 @@
+#pragma once
+
 #include "common.h"
 #include "board.h"
 #include "PNS.h"
@@ -81,4 +83,44 @@ void generate_roots_descendents(Args& args, int depth = 3){
         }
         log_file.close();
     }
+}
+
+void read_descendents(Node* node, PNS& tree, int depth, int maxdepth, std::string foldername){
+    if(!node->extended) tree.extend_all((PNSNode*) node, false);
+
+    for(Node* child: node->children){
+        if(child==nullptr) assert(0);
+
+        Board act_board(child->get_board());
+        // === Search deeper ===
+        if(child->is_inner() || (child->type == OR && depth < maxdepth)){
+            read_descendents(child, tree, depth+1, maxdepth, foldername);
+        }
+        else{
+            assert(!child->is_inner());
+
+            if(1 || tree.get_states(act_board)==nullptr){
+                std::string filename = foldername+"/"+act_board.to_string()+".sol";
+                Play::read_solution(filename, tree);
+            }
+        }
+    }
+}
+
+void merge_solutions(Args& args, std::string filename){
+    // === Init board ===
+    int player = 1;
+    Board board;
+    Play::choose_problem(board, player, false, &args);
+
+    // === Read and merge ===
+    PNS tree(&args);
+    PNSNode* node = new PNSNode(board, &args);
+    read_descendents(node, tree, 0, 2,"data/board_sol");
+    std::cout<<"\nAll files processed\n";
+    std::cout<<"       Writing the merged file:..."<<std::flush;
+    Logger logger;
+    logger.log_states(tree, filename);
+    std::cout<<"\r[Done]\n";
+
 }

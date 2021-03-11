@@ -19,6 +19,24 @@ cd build
 ./AMOBA
 ```
 
+# The Parallel search:
+
+```
+# Generates the AND/OR descendents, which needs to be proven
+./AMOBA --generate_parallel
+
+# Prove the descendents
+python PARALLEL.py ../ors.txt
+python PARALLEL.py ../ands.txt
+
+# Merge the proven files:
+./AMOBA --merge_solutions
+
+# Play with solution:
+./AMOBA --test
+```
+
+
 This will generate:
 * ./AMOBA
 * ./AMOBA_DEBUG - same as AMOBA but compiled with debug flag

@@ -1,31 +1,9 @@
 #include "play.h"
 #include "artic_point.h"
+#include "logger.h"
 
 #include<sstream>
 #include<fstream>
-
-
-void read_descendents(Node* node, PNS& tree, int depth, int maxdepth, std::string foldername){
-    if(!node->extended) tree.extend_all((PNSNode*) node, false);
-
-    for(Node* child: node->children){
-        if(child==nullptr) assert(0);
-
-        Board act_board(child->get_board());
-        // === Search deeper ===
-        if(child->is_inner() || (child->type == OR && depth < maxdepth)){
-            read_descendents(child, tree, depth+1, maxdepth, foldername);
-        }
-        else{
-            assert(!child->is_inner());
-
-            if(1 || tree.get_states(act_board)==nullptr){
-                std::string filename = foldername+"/"+act_board.to_string()+".sol";
-                Play::read_solution(filename, tree);
-            }
-        }
-    }
-}
 
 Play::Play(std::string filename, bool disproof, bool talky, Args* args_):talky(talky),tree(args_){
     player = 1;
@@ -35,10 +13,7 @@ Play::Play(std::string filename, bool disproof, bool talky, Args* args_):talky(t
     Board board;
     choose_problem(board, player, disproof, args);
 
-    PNSNode* node = new PNSNode(board, args);
-    read_descendents(node, tree, 0, 2,"data/board_sol");
-    //read_solution(filename, tree);
-    
+    read_solution(filename, tree);
     printf("Proof/disproof tree size: %zu\n", tree.states.size());
     printf("Isommap size: %zu\n", isom_map.size());
     human_player = 1;

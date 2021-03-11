@@ -69,3 +69,5 @@ if(__name__ == "__main__"):
             f.write(b+"\n")
 
     run_all_board(log["again"], 2, 150)
+    print("Summary: {}/{} [failed: {}] [proof: {}]".format(log["DN"], log["all"],
+                                                           log["fail"], log["PN"]))

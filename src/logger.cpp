@@ -45,16 +45,10 @@ void Logger::log_solution_min(Node* node, std::ofstream& file, std::string& file
                 file<<filebuffer;
                 filebuffer.resize(0);
             }
-            /*
-            filebuffer.append(std::to_string(act_board.white) + " " + std::to_string(act_board.black) + " " + (act_board.node_type==OR?"0":"1") + " " +
-                std::to_string(act_board.score_left) + " " + std::to_string(act_board.score_right) + " " +
-                std::to_string(act_board.forbidden_all) + " " + std::to_string(node->pn) + " " + std::to_string(node->dn) + "\n");
-            */
             std::string line((char*) &act_board, sizeof(Board));
             std::string pn((char*) &node->pn, sizeof(int));
             std::string dn((char*) &node->dn, sizeof(int));
-            line+=pn+dn;
-            filebuffer.append(line);
+            filebuffer.append(line+pn+dn);
             board_int common = PNS::heuristic.forbidden_all;
             if(depth > LOG_CUT_DEPTH){
                 return;
@@ -75,13 +69,24 @@ void Logger::log_solution_min(Node* node, std::ofstream& file, std::string& file
     }
 }
 
-
 void Logger::log_node(Node* node, std::string filename){
     std::ofstream file(filename.c_str(), std::ofstream::out | std::ofstream::binary);
     std::string filebuffer;
     filebuffer.reserve(100*1024*1024); // 100 MiB
     std::set<Board> logged;
     log_solution_min(node, file, filebuffer, logged, 0);
+    file<<filebuffer;
+    file.close();
+}
+
+void Logger::log_states(PNS& tree, std::string filename){
+    std::ofstream file(filename.c_str(), std::ofstream::out | std::ofstream::binary);
+    std::string filebuffer;
+    filebuffer.reserve(100*1024*1024); // 100 MiB
+    std::set<Board> logged;
+    for(auto& p: tree.states){
+        log_solution_min(p.second, file, filebuffer, logged, 0);
+    }
     file<<filebuffer;
     file.close();
 }

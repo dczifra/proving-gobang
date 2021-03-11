@@ -15,6 +15,7 @@ public:
     void log(Node* node, Heuristic& h);
     void log_solution_min(Node* node, std::ofstream& file, std::string& filebuffer, std::set<Board>& logged, int depth);
     void log_node(Node* node, std::string filename);
+    void log_states(PNS& tree, std::string filename);
 
 private:
     std::ofstream logstream;

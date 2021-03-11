@@ -71,6 +71,7 @@ struct Args{
     bool PNS_square = false;
     bool parallel = false;
     bool generate_parallel = false;
+    bool merge_solutions = false;
     float A = 200000000000.0;
     float B = 15000000000.0;
     int potencial_n = 128;

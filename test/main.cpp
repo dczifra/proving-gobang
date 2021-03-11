@@ -29,8 +29,9 @@ Args::Args(int argc, char* argv[]){
         else if((std::string) argv[i] == "--test") test = true;
         else if((std::string) argv[i] == "--disproof") disproof = true;
         else if((std::string) argv[i] == "--lines") show_lines = true;
-        else if((std::string) argv[i] == "--generate_parallel") generate_parallel = true;
         else if((std::string) argv[i] == "--parallel") parallel = true;
+        else if((std::string) argv[i] == "--generate_parallel") generate_parallel = true;
+        else if((std::string) argv[i] == "--merge_solutions") merge_solutions = true;
         else if((std::string) argv[i] == "-start"){
             START = std::stoi(argv[++i]);
         }
@@ -196,6 +197,9 @@ int main(int argc, char* argv[]){
     }
     else if(args.generate_parallel){
         generate_roots_descendents(args, 2);
+    }
+    else if(args.merge_solutions){
+        merge_solutions(args, args.get_filename());
     }
     else if(args.test){
         //Play game("data/board_sol/36283883716651_4_0_0.sol", args.disproof, args.talky, &args);
