@@ -280,6 +280,7 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
             act_board.move(action, 1);
             if(action == 3 || action == 43){
                 act_board.move(action-1, -1);
+                // TODO: last common
             }
             else{
                 if(action == 2){
@@ -310,6 +311,9 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
             else{
                 act_board.move(action+1, -1);
             }
+            // We get only the inner nodes:
+            board_int free = act_board.get_valids();
+            act_board.white |= (side & ~PNS::heuristic.forbidden_fields_inner & ~free);
         }
         else if(last_att_act == 6 || last_att_act == 8 || last_att_act == 46 || last_att_act == 48){
             int center = (action/ROW)*ROW+2;
@@ -318,6 +322,10 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
             act_board.move(action, 1);
             if(action == center) act_board.move(action-1, -1);
             else act_board.move(opposite, -1);
+            
+            // We get only the inner nodes:
+            board_int free = act_board.get_valids();
+            act_board.white |= (side & ~PNS::heuristic.forbidden_fields_inner & ~free);
         }
         else{
             act_board.move(action, 1);
