@@ -99,9 +99,10 @@ void read_descendents(Node* node, PNS& tree, int depth, int maxdepth, std::strin
         else{
             assert(!child->is_inner());
 
-            if(1 || tree.get_states(act_board)==nullptr){
-                std::string filename = foldername+"/"+act_board.to_string()+".sol";
-                Play::read_solution(filename, tree);
+            if(tree.get_states(act_board)==nullptr){
+                //std::string filename = foldername+"/"+act_board.to_string()+".sol";
+                //Play::read_solution(filename, tree);
+                tree.add_board(act_board, new PNSNode(act_board));
             }
         }
     }

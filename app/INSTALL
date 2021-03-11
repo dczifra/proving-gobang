@@ -1,29 +1,38 @@
 #!/bin/bash
 
-if [ "$1" = "--update" ]; then
-    cd prooving-gobang
-    git pull
-    ./INSTALL Amoba_notricks
-    cd build
-elif [ "$#" = "1" ]; then
-    git clone https://github.com/doma945/prooving-gobang
-    #cp data prooving-gobang/data
-    cd prooving-gobang
-    mkdir build bins
-    ./INSTALL --nauty
-    ./INSTALL Amoba_notricks
-    cd build
-    cmake ..
-fi
+function build_and_copy () {
+    cd ../build
+    make -j4
+    cp AMOBA "../app/bins/$1"
+}
 
-for col in 5 6 7 8 9 10 11 12 13 14
-do
-    sed -i 's/#define COL.*/#define COL '"${col}"'/g' ../src/common.h
-    make -j5
-    mv ./AMOBA "AMOBA_4x${col}"
-    mv "AMOBA_4x${col}" "../bins/AMOBA_4x${col}"
-done
+function pull_and_build () {
+    if [ "$1" = "--update" ]; then
+        cd ..
+        git pull
+        ./INSTALL Amoba_notricks
+        cd build
+    elif [ "$#" = "1" ]; then
+        git clone https://github.com/doma945/prooving-gobang
+        #cp data prooving-gobang/data
+        cd prooving-gobang
+        mkdir build bins
+        ./INSTALL --nauty
+        ./INSTALL Amoba_notricks
+        cd build
+        cmake ..
+    fi
 
-cp -r ../bins ../../
-cp -r ../data ../../
+    for col in 5 6 7 8 9 10 11 12 13 14
+    do
+        sed -i 's/#define COL.*/#define COL '"${col}"'/g' ../src/common.h
+        make -j5
+        mv ./AMOBA "AMOBA_4x${col}"
+        mv "AMOBA_4x${col}" "../bins/AMOBA_4x${col}"
+    done
 
+    cp -r ../bins ../../
+    cp -r ../data ../../
+}
+
+build_and_copy $1

@@ -81,7 +81,7 @@ def build(message):
     print("Build", session_id)
     #os.system("pwd")
     #os.system("ls")
-    p = Popen(['./bins/AMOBA_{}x{}x{}'.format(message["ROW"], message["COL"], message["TYPE"]), '--test', "--quiet"],
+    p = Popen(['./bins/{}'.format(message["binary"]), '--test', "--quiet"],
             stdout=PIPE, stdin=PIPE, stderr=PIPE, encoding='utf8', bufsize=1, universal_newlines=True)
     processes[request.sid] = p
 
@@ -108,6 +108,8 @@ def move(message):
         if(line[:6] == "[DIFF]"):
             whites = p.stdout.readline()[:-2].split(' ')
             blacks = p.stdout.readline()[:-2].split(' ')
+            if("" in whites): whites.remove("")
+            if("" in blacks): blacks.remove("")
             moves["white"].append([w for w in whites])
             moves["black"].append([b for b in blacks])
         elif(line[:5] == "[END]"):

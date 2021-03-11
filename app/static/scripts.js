@@ -13,7 +13,8 @@ var socket = null;
 all_boards = {"white": [], "black": []};
 var players = [["white", "O"], ["black", "X"]];
 var act_board_index = -1;
-var empties = {"0":[], "coop1": [0,5,10,35,40,45,2,47,4,9,14,39,44,49]}
+//var empties = {"0":[], "coop1": []}
+var empties = {"0":[], "coop1": [0,5,10,35,40,45,4,9,14,39,44,49]}
 
 function handleCellClick(clickedCellEvent) {
     // === Get clicked cell index ===
@@ -77,7 +78,7 @@ function handleRestartGame() {
     if(col > 0){
         if(socket != null) socket.close();
         socket = io('/test');
-        socket.emit("build", {"ROW":row, "COL":col, "TYPE":type});
+        socket.emit("build", {"binary":"AMOBA", "TYPE":type});
         socket.on('update_nodes', handleMove);
     }
 }

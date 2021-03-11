@@ -39,7 +39,7 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
                 // Dont have to cover upper line
                 act_board.white ^= (1ULL << 45);
                 act_board.black ^= (1ULL << 45);
-                //act_board.node_type = OR;
+                act_board.node_type = OR;
             }
             act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
         }
@@ -292,6 +292,7 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
         }
         else if(last_att_act == 2 || last_att_act == 42){
             int center = (action/ROW)*ROW+2;
+            act_board.move(action, 1);
             if(action != center){
                 act_board.move(center, 1);
             }

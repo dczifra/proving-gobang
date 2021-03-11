@@ -190,13 +190,20 @@ void print_board(board_int board){
     std::cout<<std::endl;
 }
 
+void info_to_plot(const Board& board){
+    std::cout<<"[DIFF] "<<board.white<<" "<<board.black<<std::endl;
+    print_board(board.white);
+    print_board(board.black);
+}
+
 void Play::play_with_solution(){
     Board base_board;
     choose_problem(base_board, player, false, args); // TODO
     Node* act_node = new PNSNode(base_board, tree.args);
     //tree.extend_all((PNSNode*)act_node, false);
     //act_node = act_node->children[0];
-    display(base_board, true);
+    if(talky) display(base_board, true);
+    else info_to_plot(base_board);
     
     int act = -1;
     while(act_node->is_inner() || !tree.game_ended(act_node->get_board())){
@@ -235,6 +242,12 @@ void Play::play_with_solution(){
 
             if(act == ACTION_SIZE or act == -1){
                 printf("Not found next step %d\n", act);
+                std::string filename = "data/board_sol/"+act_node->get_board().to_string()+".sol";
+                tree.stats(act_node, true);
+                Play::read_solution(filename, tree);
+                tree.stats(act_node, true);
+                //std::cout<<"[END]\n";
+                //return;
                 //tree.evaluate_node_with_PNS(act_node, true, false);
                 //printf("PN: %f, DN: %f\n", act_node->pn, act_node->dn);
                 //if(act_node->type == OR) act = tree.get_min_children_index(act_node, PN);
@@ -260,9 +273,7 @@ void Play::play_with_solution(){
                 display(board, true, color);
                 //std::cout<<"Scores: "<<board.score_left<<" "<<board.score_right<<std::endl;
             }
-            //std::cout<<"[DIFF] "<<board.white<<" "<<board.black<<std::endl;
-            //print_board(board.white);
-            //print_board(board.black);
+            else info_to_plot(board);
         }
     }
     std::cout<<"[END]\n";
