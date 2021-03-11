@@ -282,11 +282,22 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
                 act_board.move(action-1, -1);
             }
             else{
-                board_int free = act_board.get_valids();
-                if(is_left && (free & (1ULL << 8))) act_board.move(8, -1);
-                else if(!is_left && (free & (1ULL << 48))) act_board.move(48, -1);
+                if(action == 2){
+                    act_board.white ^= (1ULL << 5);
+                    act_board.black ^= (1ULL << 5);
+                    act_board.node_type = OR;
+                }
+                else if(action == 42){
+                    // Free move;
+                    act_board.move(action-5, -1);
+                }
                 else{
-                    // TODO: If 2 line not empty, move free
+                    board_int free = act_board.get_valids();
+                    if(is_left && (free & (1ULL << 8))) act_board.move(8, -1);
+                    else if(!is_left && (free & (1ULL << 48))) act_board.move(48, -1);
+                    else{
+                        // TODO: If 2 line not empty, move free
+                    }
                 }
             }
         }
