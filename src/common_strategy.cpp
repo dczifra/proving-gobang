@@ -3,6 +3,8 @@
 #include "common_strategy.h"
 #include "common.h"
 
+#define has(action,board) ((1ULL << action) & board)
+
 Node* CommonStrategy::add_or_create(const Board& board){
     PNSNode* node = tree->get_states(board);
     //display(board, true);
@@ -32,23 +34,32 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
         // Center
         if(action == 7 || action == 47){
             act_board.move(action, 1);
-            //act_board.move(action-1, -1);
+            act_board.move(action-1, -1);
             
-            if(is_left) act_board.move(11, -1);
-            else{
-                // Dont have to cover upper line
-                act_board.white ^= (1ULL << 45);
-                act_board.black ^= (1ULL << 45);
-                act_board.node_type = OR;
-            }
             act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
+        }
+        else if(action == 1 || action == 3 || action == 41 || action == 43 ||
+                action == 6 || action == 8 || action == 46 || action == 48){
+            int defender = (action / ROW)*ROW+2;
+
+            act_board.move(action, 1);
+            act_board.move(defender, -1);
+            if(is_left){
+                act_board.white |= (1ULL << 1) | (1ULL << 3); // also 2
+                act_board.black |= (1ULL << 2);
+            }
+            else{
+                act_board.white |= (1ULL << 46) | (1ULL << 48);      // also 47
+                act_board.black |= (1ULL << 47);
+            }
+            act_board.forbidden_all &= ~side;
         }
         else{
             //int opposite = (action/ROW)*ROW+4-(action%ROW);
             int center = (action/ROW)*ROW+2;
 
             act_board.move(action, 1);
-            act_board.move(action != center?center:action-1, -1);
+            act_board.move(action != center?center:center-1, -1);
             // TODO: left losis the third field
             act_board.forbidden_all ^= (1ULL << center-1) | (1ULL << center) | (1ULL << center+1);
         }
@@ -269,28 +280,94 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
     else{
         //board_int free_common = side & ~(act_board.white | act_board.black);
         //int childnum = __builtin_popcountll(free_common);
+        // TODO: trouble, if 2 line not empty
         int last_att_act = __builtin_ctzl(side & act_board.white);
         int last_def_act = __builtin_ctzl(side & act_board.black);
+
+        board_int white_side = act_board.white & side;
+        board_int black_side = act_board.black;
 
         if(act_board.node_type == AND){
             act_board.move(action, -1);
             // TODO: move to specific fields
         }
-        else if(last_att_act == 7 || last_att_act == 47){
+        else if(has(7,white_side) || has(47,white_side)){
+            act_board.move(action, 1);
+            int center = (action/ROW)*ROW+2;
+            int opposite = (action/ROW)*ROW+4-(action%ROW);
+            if(action != center){
+                //act_board.move(opposite, -1);
+                if(!is_left){
+                    act_board.node_type = OR;
+                    act_board.white ^= (1ULL << 40);
+                    act_board.black |= (1ULL << 40);
+                }
+            }
+            else{
+                act_board.move(action+1, -1);
+            }
+        }
+        else if(has(2,white_side) || has(42,white_side)){
+            act_board.move(action, 1);
+            int center = (action/ROW)*ROW+2;
+            int opposite = (action/ROW)*ROW+4-(action%ROW);
+            if(action != center){
+                //act_board.move(opposite, -1);
+                if(is_left){
+                    act_board.node_type = OR;
+                    act_board.white ^= (1ULL << 5);
+                    act_board.black |= (1ULL << 5);
+                }
+            }
+            else{
+                act_board.move(action+1, -1);
+            }
+        }
+        else if(action == 7 || action == 47){
+            assert(1);
+            act_board.move(action, 1);
+            act_board.move(action+1, -1);
+            /*
+            if(is_left){
+                int next = has(1,white_side)?13:11;
+                //std::cout<<next<<std::endl;
+                //display(black_side, true);
+                if(has(next, black_side)){
+                    // can choose
+                }
+                else{
+                    act_board.move(next, -1);
+                }
+            }
+            else{
+                bool up = has(41,white_side);
+                act_board.white ^= (1ULL << (up?35:45));
+                act_board.black |= (1ULL << (up?35:45));
+                act_board.node_type = OR;
+            }*/
+        }
+        else{
+            act_board.move(action, 1);
+            int center = (action/ROW)*ROW+2;
+            if(action != center){
+                act_board.move(center, -1);
+            }
+            else{
+                act_board.move(action+1, -1);
+            }
+        }
+
+
+        /*
+        else if(has(7,white_side) || has(47,white_side)){
             act_board.move(action, 1);
             if(action == 3 || action == 43){
                 act_board.move(action-1, -1);
                 // TODO: last common
             }
             else{
-                if(action == 2){
-                    act_board.white ^= (1ULL << 5);
-                    act_board.black ^= (1ULL << 5);
-                    act_board.node_type = OR;
-                }
-                else if(action == 42){
-                    // Free move;
-                    act_board.move(action-5, -1);
+                if(action == 2 || action == 42){
+                    act_board.move(action+1, -1);
                 }
                 else{
                     board_int free = act_board.get_valids();
@@ -302,7 +379,7 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
                 }
             }
         }
-        else if(last_att_act == 2 || last_att_act == 42){
+        else if(has(2,white_side) || has(42, white_side)){
             int center = (action/ROW)*ROW+2;
             act_board.move(action, 1);
             if(action != center){
@@ -312,26 +389,31 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
                 act_board.move(action+1, -1);
             }
             // We get only the inner nodes:
-            board_int free = act_board.get_valids();
-            act_board.white |= (side & ~PNS::heuristic.forbidden_fields_inner & ~free);
+            //board_int free = act_board.get_valids();
+            //act_board.white |= (side & ~PNS::heuristic.forbidden_fields_inner & ~free);
         }
-        else if(last_att_act == 6 || last_att_act == 8 || last_att_act == 46 || last_att_act == 48){
-            int center = (action/ROW)*ROW+2;
-            int opposite = (action/ROW)*ROW+4-(action%ROW);
+        else if(has(6,white_side) || has(8,white_side) || has(46,white_side) || has(48,white_side)){
+            if(0){//if(action == 7 || action == 47){
+                act_board.move(action, 1);
+                act_board.move(11, -1);
+            }
+            else{
+                int center = (action/ROW)*ROW+2;
+                int opposite = (action/ROW)*ROW+4-(action%ROW);
 
-            act_board.move(action, 1);
-            if(action == center) act_board.move(action-1, -1);
-            else act_board.move(opposite, -1);
-            
+                act_board.move(action, 1);
+                if(action == center) act_board.move(action-1, -1);
+                else act_board.move(opposite, -1);
+            }
             // We get only the inner nodes:
-            board_int free = act_board.get_valids();
-            act_board.white |= (side & ~PNS::heuristic.forbidden_fields_inner & ~free);
+            //board_int free = act_board.get_valids();
+            //act_board.white |= (side & ~PNS::heuristic.forbidden_fields_inner & ~free);
         }
         else{
             act_board.move(action, 1);
             if(!is_left) act_board.node_type = OR;
-
         }
+        */
         /*
         if(last_att_act == 2 || last_att_act == 42){
             int opposite = (action/ROW)*ROW+4-(action%ROW);
