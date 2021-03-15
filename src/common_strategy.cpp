@@ -32,7 +32,7 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
     }
     else{
         // Center
-        if(action == 7 || action == 47){
+        if(action == 7 || action == 47 || action == 2 || action == 42){
             act_board.move(action, 1);
             act_board.move(action-1, -1);
             
@@ -44,6 +44,26 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
 
             act_board.move(action, 1);
             act_board.move(defender, -1);
+            int give_up1, other_center;
+            if(has(action, PNS::heuristic.forbidden_fields_inner)){
+                give_up1 = is_left?action-5:action+5;
+                other_center = (give_up1/ROW)*ROW+2;
+                act_board.move(give_up1, 1);
+                act_board.move(other_center, -1);
+            }
+            else{
+                give_up1 = is_left?action+5:action-5;
+                other_center = (give_up1/ROW)*ROW+2;
+                if(is_left) act_board.score_left = 1;
+                else act_board.score_right = 1;
+            }
+            act_board.forbidden_all ^= (1ULL << action) | (1ULL << defender);
+            act_board.forbidden_all ^= (1ULL << give_up1) | (1ULL << other_center);
+            //display(act_board, true);
+            //display(act_board.forbidden_all, true);
+            //act_board.forbidden_all &= ~side;
+            // The last two remains a 2 line
+            /*
             if(is_left){
                 act_board.white |= (1ULL << 1) | (1ULL << 3); // also 2
                 act_board.black |= (1ULL << 2);
@@ -53,15 +73,10 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
                 act_board.black |= (1ULL << 47);
             }
             act_board.forbidden_all &= ~side;
+            */
         }
         else{
-            //int opposite = (action/ROW)*ROW+4-(action%ROW);
-            int center = (action/ROW)*ROW+2;
-
-            act_board.move(action, 1);
-            act_board.move(action != center?center:center-1, -1);
-            // TODO: left losis the third field
-            act_board.forbidden_all ^= (1ULL << center-1) | (1ULL << center) | (1ULL << center+1);
+            assert(0);
         }
     }
     return add_or_create(act_board);
@@ -270,14 +285,66 @@ Node* GeneralCommonStrategy::two_common_fields(Board& act_board, board_int side,
 Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
     Board act_board(b);
     bool is_left = (1ULL << action) & PNS::heuristic.forbidden_fields_left;
+    bool is_inner = (1ULL << action) & PNS::heuristic.forbidden_fields_inner;
     int& score = is_left ? act_board.score_left : act_board.score_right;
     board_int side = is_left ? PNS::heuristic.forbidden_fields_left : PNS::heuristic.forbidden_fields_right;
-    int num_common_fields = __builtin_popcountll(side & ~(b.white | b.black));
+    int num_common_fields = __builtin_popcountll(act_board.forbidden_all & side & ~(b.white | b.black));
 
+    //display(act_board, true, {action});
+    //display(act_board.forbidden_all, true);
+    //display(side & ~(b.white | b.black), true);
+    //std::cout<<num_common_fields<<std::endl;
     if(num_common_fields == 6){
         return six_common_fields(act_board, action);
     }
-    else{
+    else if(num_common_fields == 2){
+        if(act_board.node_type == AND){
+            act_board.move(action, -1);
+            // TODO: move to specific fields
+        }
+        else{
+            //display(act_board, true, {action});
+            //assert(act_board.node_type == OR);
+            act_board.move(action, 1);
+            int free = __builtin_ctzl(side & act_board.forbidden_all & ~(act_board.white | act_board.black));
+            
+            if(score == 1){
+                if(!is_inner){
+                    //act_board.move(free, -1)
+                    int center = (action/ROW)*ROW+2;
+                    int line = is_left?5:40;
+                    line += action>center?5:-5;
+                    act_board.white ^= (1ULL << line);
+                    act_board.black |= (1ULL << line);
+                }
+                else{
+                    //move free, but give up the other field
+                    act_board.white |= (1ULL << free);
+                }
+            }
+            else{
+                if(!is_inner){
+                    // Cannot answer, but gets the other field
+                    act_board.node_type = OR;
+                }
+                else{
+                    int def = is_left?action+5:action-5;
+                    if(has(def, act_board.black)){
+                        // Move free
+                    }
+                    else if(!has(def, act_board.white)){
+                        act_board.move(def, -1);
+                    }
+                    else{
+                        act_board.move(free, -1);
+                    }
+                }
+            }
+        }
+        act_board.forbidden_all &= ~side;
+        return add_or_create(act_board);
+    }
+    else if(num_common_fields == 4 || num_common_fields == 3){
         //board_int free_common = side & ~(act_board.white | act_board.black);
         //int childnum = __builtin_popcountll(free_common);
         // TODO: trouble, if 2 line not empty
@@ -287,157 +354,49 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
         board_int white_side = act_board.white & side;
         board_int black_side = act_board.black;
 
+        int center = (action/ROW)*ROW+2;
+        int opposite = (action/ROW)*ROW+4-(action%ROW);
+
         if(act_board.node_type == AND){
             act_board.move(action, -1);
             // TODO: move to specific fields
         }
-        else if(has(7,white_side) || has(47,white_side)){
+        else if(has(action, ~PNS::heuristic.forbidden_fields_inner & side)){
             act_board.move(action, 1);
-            int center = (action/ROW)*ROW+2;
-            int opposite = (action/ROW)*ROW+4-(action%ROW);
-            if(action != center){
-                //act_board.move(opposite, -1);
+            if(action == center){
+                act_board.move(action+1, -1);
+            }
+            else{
+                // Move free
+            }
+        }
+        else if(has(action, PNS::heuristic.forbidden_fields_inner)){
+            act_board.move(action, 1);
+            if(action == center){
+                act_board.move(action+1, -1);
+            }
+            else{
                 if(!is_left){
                     act_board.node_type = OR;
                     act_board.white ^= (1ULL << 40);
                     act_board.black |= (1ULL << 40);
                 }
-            }
-            else{
-                act_board.move(action+1, -1);
-            }
-        }
-        else if(has(2,white_side) || has(42,white_side)){
-            act_board.move(action, 1);
-            int center = (action/ROW)*ROW+2;
-            int opposite = (action/ROW)*ROW+4-(action%ROW);
-            if(action != center){
-                //act_board.move(opposite, -1);
-                if(is_left){
+                else{
                     act_board.node_type = OR;
                     act_board.white ^= (1ULL << 5);
                     act_board.black |= (1ULL << 5);
                 }
-            }
-            else{
-                act_board.move(action+1, -1);
-            }
-        }
-        else if(action == 7 || action == 47){
-            assert(1);
-            act_board.move(action, 1);
-            act_board.move(action+1, -1);
-            /*
-            if(is_left){
-                int next = has(1,white_side)?13:11;
-                //std::cout<<next<<std::endl;
-                //display(black_side, true);
-                if(has(next, black_side)){
-                    // can choose
-                }
-                else{
-                    act_board.move(next, -1);
-                }
-            }
-            else{
-                bool up = has(41,white_side);
-                act_board.white ^= (1ULL << (up?35:45));
-                act_board.black |= (1ULL << (up?35:45));
-                act_board.node_type = OR;
-            }*/
+            } 
         }
         else{
-            act_board.move(action, 1);
-            int center = (action/ROW)*ROW+2;
-            if(action != center){
-                act_board.move(center, -1);
-            }
-            else{
-                act_board.move(action+1, -1);
-            }
+            assert(0);
         }
-
-
-        /*
-        else if(has(7,white_side) || has(47,white_side)){
-            act_board.move(action, 1);
-            if(action == 3 || action == 43){
-                act_board.move(action-1, -1);
-                // TODO: last common
-            }
-            else{
-                if(action == 2 || action == 42){
-                    act_board.move(action+1, -1);
-                }
-                else{
-                    board_int free = act_board.get_valids();
-                    if(is_left && (free & (1ULL << 8))) act_board.move(8, -1);
-                    else if(!is_left && (free & (1ULL << 48))) act_board.move(48, -1);
-                    else{
-                        // TODO: If 2 line not empty, move free
-                    }
-                }
-            }
-        }
-        else if(has(2,white_side) || has(42, white_side)){
-            int center = (action/ROW)*ROW+2;
-            act_board.move(action, 1);
-            if(action != center){
-                act_board.move(center, -1);
-            }
-            else{
-                act_board.move(action+1, -1);
-            }
-            // We get only the inner nodes:
-            //board_int free = act_board.get_valids();
-            //act_board.white |= (side & ~PNS::heuristic.forbidden_fields_inner & ~free);
-        }
-        else if(has(6,white_side) || has(8,white_side) || has(46,white_side) || has(48,white_side)){
-            if(0){//if(action == 7 || action == 47){
-                act_board.move(action, 1);
-                act_board.move(11, -1);
-            }
-            else{
-                int center = (action/ROW)*ROW+2;
-                int opposite = (action/ROW)*ROW+4-(action%ROW);
-
-                act_board.move(action, 1);
-                if(action == center) act_board.move(action-1, -1);
-                else act_board.move(opposite, -1);
-            }
-            // We get only the inner nodes:
-            //board_int free = act_board.get_valids();
-            //act_board.white |= (side & ~PNS::heuristic.forbidden_fields_inner & ~free);
-        }
-        else{
-            act_board.move(action, 1);
-            if(!is_left) act_board.node_type = OR;
-        }
-        */
-        /*
-        if(last_att_act == 2 || last_att_act == 42){
-            int opposite = (action/ROW)*ROW+4-(action%ROW);
-            act_board.move(action, 1);
-            act_board.move(opposite, -1);
-        }
-        else if(last_att_act == 7 || last_att_act == 47){
-            act_board.move(action, 1);
-            if(!is_left) act_board.node_type = OR;
-        }
-        else{
-            int att = action, opposite, center;
-            opposite = (att/ROW)*ROW+4-(att%ROW);
-            center = (att/ROW)*ROW+2;
-
-            act_board.move(action, 1);
-            if(action == center){
-                act_board.move(action-1, -1);
-            }
-            else act_board.move(opposite, -1);
-        }*/
-        //act_board.white |= (side & ~(act_board.white | act_board.black) & ~PNS::heuristic.forbidden_fields_inner);
         act_board.forbidden_all &= ~side;
         return add_or_create(act_board);
+    }
+    else{
+        display(act_board, true, {action});
+        assert(0);
     }
 /*
     if(num_common_fields == 4){

@@ -75,7 +75,7 @@ void generate_roots_descendents(Args& args, int depth = 3){
     // === Log the descendents ===
     for(auto log: {ors, ands}){
         std::ofstream log_file(log.filename);
-        log_file<<"white black common type score_left score_right depth intersection\n";
+        log_file<<"white black score_left score_right type common depth intersection\n";
         for(auto& p: log.boards){
             const Board& b(p.first);
             log_file<<b.white<<" "<<b.black<<" "<<b.score_left<<" "<<b.score_right<<" "<<b.node_type;
