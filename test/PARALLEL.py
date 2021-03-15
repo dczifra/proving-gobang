@@ -54,8 +54,9 @@ log={
     "again":[],
 }
 
-if(__name__ == "__main__"):
-    with open(sys.argv[1], "r") as file:
+def runfile(filename):
+    print(filename)
+    with open(filename, "r") as file:
         boards = file.read().split('\n')
         boards = boards[1:-1]
         random.shuffle(boards)
@@ -64,10 +65,14 @@ if(__name__ == "__main__"):
     run_all_board(boards, 15, 30)
     print("Summary: {}/{} [failed: {}] [proof: {}]".format(log["DN"], log["all"],
                                                            log["fail"], log["PN"]))
-    with open("../failed.txt", "w") as f:
+    with open(filename+".fail", "w") as f:
         for b in log["again"]:
             f.write(b+"\n")
 
     run_all_board(log["again"], 2, 150)
     print("Summary: {}/{} [failed: {}] [proof: {}]".format(log["DN"], log["all"],
                                                            log["fail"], log["PN"]))
+
+if(__name__ == "__main__"):
+    runfile("../ors.txt")
+    runfile("../ands.txt")

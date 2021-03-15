@@ -14,5 +14,5 @@ prezi.py
 boards/forbidden1*
 data/*
 *.tar.gz
-*.txt
+*.txt*
 board_sol
