@@ -313,8 +313,8 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
                     //act_board.move(free, -1)
                     int center = (action/ROW)*ROW+2;
                     int line = is_left?5:40;
-                    line += action>center?5:-5;
-                    act_board.white ^= (1ULL << line);
+                    line += (action>center?5:-5);
+                    act_board.white &= ~(1ULL << line);
                     act_board.black |= (1ULL << line);
                 }
                 else{
@@ -378,12 +378,12 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
             else{
                 if(!is_left){
                     act_board.node_type = OR;
-                    act_board.white ^= (1ULL << 40);
+                    act_board.white &= ~(1ULL << 40);
                     act_board.black |= (1ULL << 40);
                 }
                 else{
                     act_board.node_type = OR;
-                    act_board.white ^= (1ULL << 5);
+                    act_board.white &= ~(1ULL << 5);
                     act_board.black |= (1ULL << 5);
                 }
             } 
