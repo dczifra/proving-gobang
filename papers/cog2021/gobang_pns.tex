@@ -1,0 +1,211 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{Boosting Proof Number Search via Domain Knowledge Incorporation for the Game of Gobang\\
+\thanks{This work was supported by the European Union, co-financed by
+  the European Social Fund (EFOP-3.6.3-VEKOP-16-2017-00002), as well
+  as by the Hungarian National Excellence Grant
+  2018-1.2.1-NKP-00008. It was also supported by the Hungarian Ministry of
+  Innovation and Technology NRDI Office within the framework of the
+  Artificial Intelligence National Laboratory Program.}
+}
+
+
+\author{\IEEEauthorblockN{1\textsuperscript{st} Domonkos Czifra}
+\IEEEauthorblockA{\textit{Alfr\'{e}d R\'{e}nyi Institute of Mathematics} \\
+Budapest, Hungary
+}
+\and
+\IEEEauthorblockN{2\textsuperscript{nd} Endre Cs\'{o}ka}
+\IEEEauthorblockA{\textit{Alfr\'{e}d R\'{e}nyi Institute of
+    Mathematics} \\
+Budapest, Hungary
+}
+\and
+\IEEEauthorblockN{3\textsuperscript{rd} Zsolt Zombori}
+\IEEEauthorblockA{\textit{Alfr\'{e}d R\'{e}nyi Institute of
+    Mathematics} \\
+\textit{E{\"o}tv{\"o}s Lor\'{a}nd University}\\
+Budapest, Hungary
+}
+\and
+\IEEEauthorblockN{4\textsuperscript{th} G\'{e}za Makay}
+\IEEEauthorblockA{\textit{University of Szeged} \\
+Szeged, Hungary
+}
+}
+
+\maketitle
+
+\begin{abstract}
+Part of the current introduction text can come here.
+\end{abstract}
+
+\begin{IEEEkeywords}
+proof number search, gobang, artificial intelligence, game theoretic value
+\end{IEEEkeywords}
+
+\section{Introduction}
+
+Our paper presents a case study of incorporating domain knowledge into
+the Proof Number Search (PNS) method on the generalized
+(m,n,k)-games. PNS and its variants were successfully applied to
+solving the game theoretical value of board games (e.g. Gomoku, Hex,
+and Go) benefiting from the non-uniform branching factor of the AND-OR
+game tree. Enhancing PNS with domain knowledge increases the
+non-uniformity of the branching factor, which reduces the search space
+and increases the computational gain of PNS compared to alpha-beta
+search in many scenarios. 
+
+Our methods can be grouped into three categories. The first category
+concerns the reduction of the search space, such as early recognition
+of winning states, recognition of mandatory moves,  and partitioning
+of the board. The second category is about identifying identical
+(isomorphic) states, i.e. turning the search tree into a directed
+acyclic graph and sharing information between confluent
+branches. Finally, the third category of heuristics guides the
+traversal of the search space by overriding the static initialization
+rule of the proof and disproof number values with heuristic ones. Our
+initialization uses a simple combination of heuristic features and
+parameters learned from previously proven states, foreshadowing the
+potential of using machine learning to further enhance proof
+search. Our paper presents a quantitative evaluation of the effect of
+these changes on the search space.
+
+We demonstrate our results on (m,n,k)-games (a generalization of
+gomoku and tic-tac-toe), in which two players take turns in placing a
+stone of their color on an m×n board (where both m and n can be
+infinite), the winner being the player who first gets k stones of
+their own color in a row, horizontally, vertically, or
+diagonally. There is a weak variant of the game, called the
+maker-breaker game where k-in-a-row by the second player (breaker)
+does not end the game with a second player win, so the aim of the
+breaker is to prevent the maker from winning.
+
+On the theoretical side, we present a tiling technique that can be
+used to prove the draw value of the maker-breaker game on an infinite
+board. This technique partitions the infinite board into finite pieces
+and generalizes the breaker strategy on the small board to the
+infinite one.
+
+As a minor result, we can solve the weak (m, n, 4)-game for every m
+and n, and we demonstrate that we are very close to prove the
+long-standing open conjecture that the weak (inf, inf, 7)-game is a
+draw.
+
+\section{Background}
+0.75 page
+
+\subsection{$(m,n,k)$--games}
+
+\subsection{The $(inf,inf,7)$--game}
+
+\subsection{Proof Number Search}
+
+
+\section{Reduction of the $(inf,inf,7)$--game to a finite
+  $(4,k,4)$--game}
+1 page
+
+Define terms (game theoretic value, solving the game, proof, disproof,
+etc.)
+
+State and prove theorem of reduction
+
+State and prove heuristic stop theorem
+
+
+\section{Proof Number Search for solving the $(4,k,4)$--game}
+2 pages
+
+Naive solution (vanilla PNS) is too slow
+
+Methods to reduce the search space:
+
+Early recognition of winning states
+
+Heuristic stop for disproof
+
+Two crossing 2-lines is a proof
+
+Eliminate branches from the search space
+
+Move into 1-line for black
+
+Eliminate squares with no lines on them
+
+When two squares form a 2-line and nothing else crosses them,
+
+eliminate them (pretend white and then black moved on them
+
+When we have a 2 line with one square not having other lines, force
+
+white to move into the other square
+
+Transition table to avoid creating idential search nodes
+
+Merge identical boards
+
+Merge symmetrical boards
+
+Merge isomorphic boards
+
+Partition the boards
+
+Components
+
+Replace initial PN-DN values with heuristics
+
+Naive, hand crafted
+
+Regression based on accumulated data (include image about
+
+winning-losing state positions on the heuristic landscape)
+
+\section{Experiments}
+2 pages
+
+\subsection{Experiment 1}
+
+Measure time and maximum tree size reduction for each strategy
+separately. Compare against vanilla PNS. Employ 1 hour time
+limit. Present the effect of everything together.
+
+All this is 1 baseline, 12 additions, 1 everything together = 14 rows
+
+\subsection{Experiment 2}
+
+This needs to be figured out.
+
+Make a few starting steps so that we are in the disproof
+region 
+
+Evaluate the best model from Experiment 1.
+
+Give a reason for thinking that we are approaching a disproof.
+
+
+\section{Conclusion and Future Work}
+0.25 page
+
+Cooperation between finite boards
+
+
+\section*{Acknowledgment}
+
+No sponsor here, rather people whom we want to thank.
+
+\bibliography{gobang.bib}
+
+
+\end{document}
