@@ -309,13 +309,20 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
             int free = __builtin_ctzl(side & act_board.forbidden_all & ~(act_board.white | act_board.black));
             
             if(score == 1){
-                if(!is_inner){
+                // If one of the 7 line is covered, can move free
+                int center = is_left?12:37;
+                if(has(center-1, act_board.black) || has(center+1, act_board.black)){
+                    // Move free
+                }
+                else if(!is_inner){
                     //act_board.move(free, -1)
+                    // Cannot move, but does not have to cover the side 5
                     int center = (action/ROW)*ROW+2;
                     int line = is_left?5:40;
                     line += (action>center?5:-5);
                     act_board.white &= ~(1ULL << line);
                     act_board.black |= (1ULL << line);
+                    act_board.node_type = OR;
                 }
                 else{
                     //move free, but give up the other field
@@ -323,6 +330,8 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
                 }
             }
             else{
+                Board child1(act_board);
+                Board child2(act_board);
                 if(!is_inner){
                     // Cannot answer, but gets the other field
                     act_board.node_type = OR;
@@ -339,6 +348,23 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
                         act_board.move(free, -1);
                     }
                 }
+                act_board.forbidden_all &= ~side;
+
+                Node* node = new InnerNode(3,OR);
+                node->children[0] = add_or_create(act_board);
+
+                child1.white &= ~(1ULL << (is_left?0:45));
+                child1.black |= (1ULL << (is_left?0:45));
+                child1.white |= (1ULL << free);
+                node->children[1] = add_or_create(child1);
+
+                child2.white &= ~(1ULL << (is_left?10:35));
+                child2.black |= (1ULL << (is_left?10:35));
+                child2.white |= (1ULL << free);
+                node->children[2] = add_or_create(child2);
+
+                tree->update_node(node);
+                return node;
             }
         }
         act_board.forbidden_all &= ~side;

@@ -13,13 +13,14 @@ void add_descendents(Node* node, PNS& tree, int depth, int maxdepth,
     for(Node* child: node->children){
         if(child==nullptr) assert(0);
 
-        Board act_board(child->get_board());
+        
         // === Search deeper ===
         if(child->is_inner() || (child->type == OR && depth < maxdepth)){
             add_descendents(child, tree, depth+1, maxdepth, ors, ands);
         }
         else{
             assert(!child->is_inner());
+            Board act_board(child->get_board());
 
             // === Add to the discovered nodes ===
             std::map<Board, std::pair<int,int>>& discovered = (act_board.node_type == OR) ? ors:ands;
@@ -91,7 +92,6 @@ void read_descendents(Node* node, PNS& tree, int depth, int maxdepth, std::strin
     for(Node* child: node->children){
         if(child==nullptr) assert(0);
 
-        Board act_board(child->get_board());
         // === Search deeper ===
         if(child->is_inner() || (child->type == OR && depth < maxdepth)){
             read_descendents(child, tree, depth+1, maxdepth, foldername);
@@ -99,6 +99,7 @@ void read_descendents(Node* node, PNS& tree, int depth, int maxdepth, std::strin
         else{
             assert(!child->is_inner());
 
+            Board act_board(child->get_board());
             if(tree.get_states(act_board)==nullptr){
                 //std::string filename = foldername+"/"+act_board.to_string()+".sol";
                 //Play::read_solution(filename, tree);
