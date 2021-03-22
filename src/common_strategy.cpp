@@ -36,7 +36,11 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
             act_board.move(action, 1);
             act_board.move(action-1, -1);
             
-            act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action) | (1ULL << action+1);
+            act_board.forbidden_all ^= (1ULL << action-1) | (1ULL << action);
+            if(has(action, PNS::heuristic.forbidden_fields_inner)){
+                if(is_left) act_board.score_left = 1;
+                else act_board.score_right = 1;
+            }
         }
         else if(action == 1 || action == 3 || action == 41 || action == 43 ||
                 action == 6 || action == 8 || action == 46 || action == 48){
@@ -282,6 +286,28 @@ Node* GeneralCommonStrategy::two_common_fields(Board& act_board, board_int side,
     assert(0);
 }
 
+Node* GeneralCommonStrategy::choose_from(const Board &board, std::vector<int> actions, NodeType type){
+    int sum = 0;
+    for(int action: actions){
+        if(board.is_valid(action)){
+            sum +=1;
+        }
+    }
+
+    Node* node = new InnerNode(sum, type);
+    int ind = 0;
+    for(int action: actions){
+        if(board.is_valid(action)){
+            Board child(board);
+            child.move(action, -1);
+            node->children[ind] = add_or_create(child);
+            ind+=1;
+        }
+    }
+    tree->update_node(node);
+    return node;
+}
+
 Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
     Board act_board(b);
     bool is_left = (1ULL << action) & PNS::heuristic.forbidden_fields_left;
@@ -309,6 +335,7 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
             int free = __builtin_ctzl(side & act_board.forbidden_all & ~(act_board.white | act_board.black));
             
             if(score == 1){
+                score=0;
                 // If one of the 7 line is covered, can move free
                 int center = is_left?12:37;
                 if(has(center-1, act_board.black) || has(center+1, act_board.black)){
@@ -387,16 +414,27 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
             act_board.move(action, -1);
             // TODO: move to specific fields
         }
-        else if(has(action, ~PNS::heuristic.forbidden_fields_inner & side)){
+        else if(score == 1){
+            score = 0;
             act_board.move(action, 1);
             if(action == center){
                 act_board.move(action+1, -1);
             }
             else{
                 // Move free
+                // Should close the middle line
+                act_board.forbidden_all &= ~side;
+                if(is_left){
+                    if(act_board.is_valid(12)) act_board.move(12, -1);
+                    //return choose_from(act_board, {13}, OR);
+                }
+                else{
+                    if(act_board.is_valid(37)) act_board.move(37, -1);
+                    //return choose_from(act_board, {37}, OR);
+                }
             }
         }
-        else if(has(action, PNS::heuristic.forbidden_fields_inner)){
+        else if(score == 0){
             act_board.move(action, 1);
             if(action == center){
                 act_board.move(action+1, -1);
@@ -417,6 +455,7 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
         else{
             assert(0);
         }
+        score = 0;
         act_board.forbidden_all &= ~side;
         return add_or_create(act_board);
     }

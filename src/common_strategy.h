@@ -25,6 +25,7 @@ public:
 
     virtual Node* move_on_common(const Board& b, int action);
     virtual void move_on_common_defender(Board& next_state, int last_action){};
+    Node* choose_from(const Board &board, std::vector<int> actions, NodeType type);
 
     Node* two_common_fields(Board& act_board, board_int side, int score);
     Node* three_common_fields(Board& act_board, int action);
