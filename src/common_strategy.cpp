@@ -471,7 +471,10 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
         else if(action == 1 || action == 41 || action == 6 || action == 46 ||
                 action == 3 || action == 43 || action == 8 || action == 48){
             act_board.move(action, 1);
-            if(action == 6 || action == 46 || action == 8 || action == 48){
+            if(action == 6 || action == 8){
+                act_board.move(center, -1);
+            }
+            else if(action == 6 || action == 46 || action == 8 || action == 48){
                 act_board.move(opposite, -1);
                 if(!is_left) act_board.white |= (1ULL << center);
             }
