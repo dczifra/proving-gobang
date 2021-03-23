@@ -69,10 +69,9 @@ def runfile(filename):
         for b in log["again"]:
             f.write(b+"\n")
 
-    run_all_board(log["again"], 2, 150)
-    print("Summary: {}/{} [failed: {}] [proof: {}]".format(log["DN"], log["all"],
-                                                           log["fail"], log["PN"]))
-
 if(__name__ == "__main__"):
     runfile("../ors.txt")
     runfile("../ands.txt")
+    run_all_board(log["again"], 2, 150)
+    print("Summary: {}/{} [failed: {}] [proof: {}]".format(log["DN"], log["all"],
+                                                           log["fail"], log["PN"]))
