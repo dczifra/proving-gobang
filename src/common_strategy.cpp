@@ -43,9 +43,6 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
     else{
         // Center
         if(action == 7 || action == 47){
-            //act_board.move(action, 1);
-            //act_board.move(action-1, -1);
-            //act_board.forbidden_all ^= (1ULL << action) | (1ULL << action-1);
             act_board.move(action, 1);
             if(is_left){
                 act_board.move(11,-1);
@@ -57,9 +54,6 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
             act_board.forbidden_all ^= (1ULL << action) | (1ULL << action-1) | (1ULL << action+1);
         }
         else if(action == 2 || action == 42){
-            //act_board.move(action, 1);
-            //act_board.move(action+1, -1);
-            //act_board.forbidden_all ^= (1ULL << action) | (1ULL << action+1);
             act_board.move(action, 1);
             if(is_left){
                 act_board.node_type = OR;
@@ -91,21 +85,6 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action){
             }
             act_board.forbidden_all ^= (1ULL << action) | (1ULL << defender);
             act_board.forbidden_all ^= (1ULL << give_up1) | (1ULL << other_center);
-            //display(act_board, true);
-            //display(act_board.forbidden_all, true);
-            //act_board.forbidden_all &= ~side;
-            // The last two remains a 2 line
-            /*
-            if(is_left){
-                act_board.white |= (1ULL << 1) | (1ULL << 3); // also 2
-                act_board.black |= (1ULL << 2);
-            }
-            else{
-                act_board.white |= (1ULL << 46) | (1ULL << 48);      // also 47
-                act_board.black |= (1ULL << 47);
-            }
-            act_board.forbidden_all &= ~side;
-            */
         }
         else{
             assert(0);
@@ -344,10 +323,6 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
     board_int side = is_left ? PNS::heuristic.forbidden_fields_left : PNS::heuristic.forbidden_fields_right;
     int num_common_fields = __builtin_popcountll(act_board.forbidden_all & side & ~(b.white | b.black));
 
-    //display(act_board, true, {action});
-    //display(act_board.forbidden_all, true);
-    //display(side & ~(b.white | b.black), true);
-    //std::cout<<num_common_fields<<std::endl;
     if(num_common_fields == 6){
         return six_common_fields(act_board, action);
     }
@@ -357,8 +332,6 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
             // TODO: move to specific fields
         }
         else{
-            //display(act_board, true, {action});
-            //assert(act_board.node_type == OR);
             act_board.move(action, 1);
             int free = __builtin_ctzl(side & act_board.forbidden_all & ~(act_board.white | act_board.black));
             
@@ -443,9 +416,6 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
             // TODO: move to specific fields
         }
         if(action == 7 || action == 47){
-            //act_board.move(action, 1);
-            //act_board.move(action-1, -1);
-            //act_board.forbidden_all ^= (1ULL << action) | (1ULL << action-1);
             act_board.move(action, 1);
             if(is_left){
                 act_board.move(11,-1);
@@ -456,9 +426,6 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
             }
         }
         else if(action == 2 || action == 42){
-            //act_board.move(action, 1);
-            //act_board.move(action+1, -1);
-            //act_board.forbidden_all ^= (1ULL << action) | (1ULL << action+1);
             act_board.move(action, 1);
             if(is_left){
                 act_board.node_type = OR;
@@ -471,20 +438,6 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
         else if(action == 1 || action == 41 || action == 6 || action == 46 ||
                 action == 3 || action == 43 || action == 8 || action == 48){
             act_board.move(action, 1);
-            //if(action == 6 || action == 8){
-            //    act_board.move(center, -1);
-            //    // The last field must be common
-            //    act_board.forbidden_all &= act_board.get_valids();
-            //    return add_or_create(act_board);
-            //}
-            //else if(action == 46 || action == 48){
-            //    //act_board.move(opposite, -1);
-            //    //if(!is_left) act_board.white |= (1ULL << center);
-            //    act_board.move(center, -1);
-            //    // the last field must be common
-            //    act_board.forbidden_all &= act_board.get_valids();
-            //    return add_or_create(act_board);
-            //}
             if(action == 6 || action == 8){
                 act_board.move(action+5, -1);
                 // TODO if not valid
@@ -507,58 +460,8 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
         act_board.forbidden_all &= ~side;
         return add_or_create(act_board);
     }
-    else if(num_common_fields == 1){
-        assert(0);
-        assert(action == 6 || action == 8 || action == 46 || action == 48);
-
-        if(act_board.node_type == AND){
-            act_board.move(action, -1);
-            // TODO: move to specific fields
-        }
-        else{
-            act_board.move(action, 1);
-            if(is_left){
-                int def = action-5;
-                //if(act_board.is_valid(def)) act_board.move(def,-1);
-                //else act_board.white |= (1ULL << (def));
-            }
-            else{
-                int def = action-5;
-                if(act_board.is_valid(def)) act_board.move(def,-1);
-                //else act_board.white |= (1ULL << (def));
-            }
-        }
-        return add_or_create(act_board);
-    }
     else{
         display(act_board, true, {action});
         assert(0);
     }
-/*
-    if(num_common_fields == 4){
-        return four_common_fields(act_board, action);
-    }
-    else if(num_common_fields == 3){
-        return three_common_fields(act_board, action);
-    }
-    else if(num_common_fields == 2){
-        // This is possible if and only if, the last two field is a 2-line
-        if(act_board.node_type == OR){
-            act_board.white |= (1ULL << action);
-            act_board.black |= ~(act_board.white | act_board.black)  & side;
-        }
-        else{
-            act_board.black |= (1ULL << action);
-            act_board.white |= ~(act_board.white | act_board.black)  & side;
-        }
-        //std::cout<<"==========================\n";
-        //display(act_board, true);
-        return add_or_create(act_board);
-    }
-    else{
-        display(act_board, true);
-        std::cout<<num_common_fields<<std::endl;
-        assert(0);
-    }
-*/
 }

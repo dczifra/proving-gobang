@@ -20,48 +20,12 @@ Play::Play(std::string filename, bool disproof, bool talky, Args* args_):talky(t
 }
 
 void side_starts(Board& board){
-    // === LEFT ===
-    //std::vector<int> whites = {1,3,8};
-    //std::vector<int> blacks = {7};
-    //std::vector<int> whites = {1,3};
-    //std::vector<int> blacks = {2};
-
-    // === RIGHT ===
-    //std::vector<int> whites2 = {43,46,48};
-    //std::vector<int> blacks2 = {42};
-    //std::vector<int> whites2 = {46, 48};
-    //std::vector<int> blacks2 = {};
-    // === Middle start ====
-    //a
-    //std::vector<int> whites2 = {42, 46};
-    //std::vector<int> blacks2 = {41, 48};
-    //std::vector<int> whites2 = {41, 48};
-    //std::vector<int> blacks2 = {43, 46};
-    //b
-    //std::vector<int> whites2 = {42, 48};
-    //std::vector<int> blacks2 = {41, 46};
-    //std::vector<int> whites2 = {48};
-    //std::vector<int> blacks2 = {46};
-
-    //std::vector<int> whites = {1, 7,3};
-    //std::vector<int> blacks = {2, 11};
-    //std::vector<int> whites2 = {41, 47};
-    //std::vector<int> blacks2 = {42};
-    
     std::vector<int> whites = {46,48};
     std::vector<int> blacks = {47};
-    //std::vector<int> whites2 = {47, 42};
-    //std::vector<int> blacks2 = {37};
-    //std::vector<int> whites2 = {2,6};
-    //std::vector<int> blacks2 = {13};
+
     std::vector<int> whites2 = {2,8,6};
     std::vector<int> blacks2 = {7};
     
-    //std::vector<int> whites2 = {8,3,7,11};
-    //std::vector<int> blacks2 = {15,6,13};
-
-    //std::vector<int> whites2 = {2,6,8};
-    //std::vector<int> blacks2 = {7};
     board.forbidden_all = 0;
     //board.node_type = AND;
 
@@ -79,9 +43,6 @@ NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* ar
     board.white |= (1ULL << 0) | (1ULL << 45);
     board.white |= (1ULL << 5) | (1ULL << 40);
     board.white |= (1ULL << 10) | (1ULL << 35);
-
-    //board.white |= (1ULL << 45);
-    //board.black |= (1ULL << 0);
 
     if(args->START > -1) board.move({args->START}, player);
 
