@@ -471,12 +471,26 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
         else if(action == 1 || action == 41 || action == 6 || action == 46 ||
                 action == 3 || action == 43 || action == 8 || action == 48){
             act_board.move(action, 1);
+            //if(action == 6 || action == 8){
+            //    act_board.move(center, -1);
+            //    // The last field must be common
+            //    act_board.forbidden_all &= act_board.get_valids();
+            //    return add_or_create(act_board);
+            //}
+            //else if(action == 46 || action == 48){
+            //    //act_board.move(opposite, -1);
+            //    //if(!is_left) act_board.white |= (1ULL << center);
+            //    act_board.move(center, -1);
+            //    // the last field must be common
+            //    act_board.forbidden_all &= act_board.get_valids();
+            //    return add_or_create(act_board);
+            //}
             if(action == 6 || action == 8){
-                act_board.move(center, -1);
+                act_board.move(action+5, -1);
+                // TODO if not valid
             }
-            else if(action == 6 || action == 46 || action == 8 || action == 48){
-                act_board.move(opposite, -1);
-                if(!is_left) act_board.white |= (1ULL << center);
+            else if(action == 46 || action == 48){
+                deactivate_line(act_board, action==46?45:35);
             }
             else if(action == 1 || action == 41 || action == 3 || action == 43){
                 act_board.move(center, -1);
@@ -485,24 +499,35 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
             else{
                 assert(0);
             }
-            //if(!is_left){
-            //    act_board.white |= (1ULL << 47);
-            //    deactivate_line(act_board, 40);
-            //}
-            //else activate_line(act_board, 4);
+            act_board.forbidden_all &= act_board.get_valids();
         }
-        //else if(action == 1 || action == 41 || action == 6 || action == 46 || action == 3 || action == 43){
-        //    act_board.move(action, 1);
-        //    act_board.move(is_left?8:48, -1);
-        //}
-        //else if(action == 8 || action == 48){
-        //    act_board.move(action, 1);
-        //    act_board.move(is_left?6:46, -1);
-        //}
         else{
             assert(0);
         }
         act_board.forbidden_all &= ~side;
+        return add_or_create(act_board);
+    }
+    else if(num_common_fields == 1){
+        assert(0);
+        assert(action == 6 || action == 8 || action == 46 || action == 48);
+
+        if(act_board.node_type == AND){
+            act_board.move(action, -1);
+            // TODO: move to specific fields
+        }
+        else{
+            act_board.move(action, 1);
+            if(is_left){
+                int def = action-5;
+                //if(act_board.is_valid(def)) act_board.move(def,-1);
+                //else act_board.white |= (1ULL << (def));
+            }
+            else{
+                int def = action-5;
+                if(act_board.is_valid(def)) act_board.move(def,-1);
+                //else act_board.white |= (1ULL << (def));
+            }
+        }
         return add_or_create(act_board);
     }
     else{
