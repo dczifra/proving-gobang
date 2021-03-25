@@ -11,7 +11,7 @@
 // ============================================
 //                BOARD INFOS
 // ============================================
-#define ROW 5
+#define ROW 4
 #define COL 10
 #define LINEINROW 7
 #define LAYERNUM 7
@@ -28,7 +28,7 @@
 #define ISOM false
 #define HEURISTIC true
 #define PNS2_START 250000000
-#define LOG_CUT_DEPTH 2
+#define LOG_CUT_DEPTH 200
 
 #if HEURISTIC
     #define var float

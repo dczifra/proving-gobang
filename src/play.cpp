@@ -16,7 +16,7 @@ Play::Play(std::string filename, bool disproof, bool talky, Args* args_):talky(t
     read_solution(filename, tree);
     printf("Proof/disproof tree size: %zu\n", tree.states.size());
     printf("Isommap size: %zu\n", isom_map.size());
-    human_player = 1;
+    human_player = -1;
 }
 
 void side_starts(Board& board){
@@ -39,10 +39,7 @@ NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* ar
     if(disproof) board.move({0,1, ACTION_SIZE-1}, player);
     //board.move({7,11}, player);
 
-    //side_starts(board);
-    board.white |= (1ULL << 0) | (1ULL << 45);
-    board.white |= (1ULL << 5) | (1ULL << 40);
-    board.white |= (1ULL << 10) | (1ULL << 35);
+    board.forbidden_all = 0;
 
     if(args->START > -1) board.move({args->START}, player);
 
