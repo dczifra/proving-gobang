@@ -99,7 +99,7 @@ public:
     int get_states_size(){return states.size();}
     void copy_states(PNS& tree);
 private :
-    #if ISOM
+    #if ISOMORPHIC_TABLE
     std::unordered_map<std::vector<uint64_t>, PNSNode*, Vector_Hash> states;
     #else
     robin_hood::unordered_map<Board, PNSNode*, Board_Hash> states;

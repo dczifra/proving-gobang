@@ -8,6 +8,8 @@
 #include <iomanip>
 #include <iostream>
 #include <cfloat>
+
+#include "params.h"
 // ============================================
 //                BOARD INFOS
 // ============================================
@@ -25,18 +27,10 @@
 #define LOG false
 
 #define EVAL_TRESHOLD 5
-#define ISOM false
-#define HEURISTIC true
-#define PNS2_START 250000000
 #define LOG_CUT_DEPTH 200
 
-#if HEURISTIC
-    #define var float
-    #define var_MAX FLT_MAX
-#else
-    #define var unsigned int
-    #define var_MAX UINT_MAX
-#endif
+#define var float
+#define var_MAX FLT_MAX
 
 unsigned long long set_full_board();
 

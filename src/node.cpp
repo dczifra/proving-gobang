@@ -44,17 +44,12 @@ PNSNode::PNSNode(const Board& b, Args* args): Node(get_child_num(b)), board(b){
 }
 
 void inline PNSNode::init_pn_dn(){
-#if HEURISTIC
-    int valid_moves = board.get_valids_num();
-    float log_odds = -4.63230495 - 9.67572108 * board.node_type - 0.87216265 * valid_moves + 17.23691808 *heuristic_value;
-    float prob = 1 / (1 + exp(-log_odds));
-    float penalty = (1-prob) * 10;
-    pn = (type==OR ? 1+penalty:child_num*(1+penalty));
-    dn = std::pow(1000, heuristic_value);
-#else
-    pn = (type==OR ? 1:child_num);
-    dn = (type==AND ? 1:child_num);
-#endif
+int valid_moves = board.get_valids_num();
+float log_odds = -4.63230495 - 9.67572108 * board.node_type - 0.87216265 * valid_moves + 17.23691808 *heuristic_value;
+float prob = 1 / (1 + exp(-log_odds));
+float penalty = (1-prob) * 10;
+pn = (type==OR ? 1+penalty:child_num*(1+penalty));
+dn = std::pow(1000, heuristic_value);
 }
 
 InnerNode::InnerNode(int childnum, NodeType t): Node(childnum){

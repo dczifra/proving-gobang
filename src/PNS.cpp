@@ -28,7 +28,6 @@ unsigned int PNS::get_min_children_index(Node* node, const ProofType type){
   for(int i=0;i<node->child_num;i++){
     if (node->children[i] == nullptr) continue;
     var child = get_child_value(node->children[i], type);
-    // std::cout<<"Child: "<<i<<" value: "<<child<< " dn: "<<node->children[i]->dn<< " extended: "<<node->children[i]->extended<<" heur val: "<<node->children[i]->heuristic_value<<std::endl;
 
     if(child < min ){
       min = child;
@@ -78,12 +77,9 @@ bool PNS::game_ended(const Board& b){
     else if((b.node_type == AND) && b.heuristic_stop(heuristic.all_linesinfo)){
         return true;
     }
-    else if(b.white == 0 && b.black == FULL_BOARD){
+    else if((b.white | b.black) == FULL_BOARD){
         return true;
     }
-    //else if((b.node_type == AND) && (b.heuristic_value(heuristic.all_linesinfo)*128 < args->potencial_n-0.000000001)){
-    //    return true;
-    //}
     return false;
 }
 
@@ -120,6 +116,7 @@ void PNS::simplify_board(Board& next_state){
             break;
         }
     }
+
     next_state.remove_dead_fields_all(heuristic.all_linesinfo, heuristic.forbidden_all); // TODO can go out
 }
 
@@ -223,7 +220,6 @@ void PNS::extend_all(PNSNode* node, bool fast_eval){
     }
     node->extended = true;
 
-#if HEURISTIC
     // default DN is not useful in OR nodes, so we update them
     if(node->type == AND){
         float heur_parent = node->heuristic_value;
@@ -242,8 +238,6 @@ void PNS::extend_all(PNSNode* node, bool fast_eval){
             }
         }
     }
-        
-#endif
 
     update_node(node);
 }
@@ -318,9 +312,6 @@ void PNS::PN_search(Node* node, bool fast_eval){
     if(!node->extended){
         PNSNode* heur_node = static_cast<PNSNode*>(node);
         extend_all(heur_node, fast_eval);
-        if(states.size() > PNS2_START && !fast_eval){
-            search_and_keep_one_layer(heur_node, true);
-        }
     }
     else{
         unsigned int min_ind = get_min_children_index(node, node->type == OR?PN:DN);
@@ -403,7 +394,7 @@ void PNS::free_states(){
 //                STORING STATES
 // ============================================
 void PNS::add_board(const Board& board, PNSNode* node){
-    #if ISOM
+    #if ISOMORPHIC_TABLE
         std::vector<uint64_t> isom = isom_machine.get_canonical_graph(board, heuristic.all_linesinfo);
         assert(states.find(isom) == states.end());
         states[isom] = node;
@@ -411,11 +402,11 @@ void PNS::add_board(const Board& board, PNSNode* node){
         assert(states.find(board) == states.end());
         states[board] = node;
     #endif
-        total_state_size+=1;
+    total_state_size+=1;
 }
 
 PNSNode* PNS::get_states(const Board& board){
-    #if ISOM
+    #if ISOMORPHIC_TABLE
         std::vector<uint64_t> isom = isom_machine.get_canonical_graph(board, heuristic.all_linesinfo);
         //assert(states.find(isom) != states.end());
         if(states.find(isom) != states.end()){
@@ -442,7 +433,7 @@ PNSNode* PNS::get_states(const Board& board){
 }
 
 void PNS::delete_from_map(const Board& board){
-    #if ISOM
+    #if ISOMORPHIC_TABLE
         std::vector<uint64_t> isom = isom_machine.get_canonical_graph(board, heuristic.all_linesinfo);
         assert(states.find(isom) != states.end());
         states.erase(isom);
