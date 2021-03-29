@@ -37,7 +37,12 @@ PNSNode::PNSNode(const Board& b, Args* args): Node(get_child_num(b)), board(b){
     //    dn = 0;
     //}
     else{
+        #if HEURISTIC_PN_DN_INIT
         init_pn_dn();
+        #else
+        pn = (type==OR?1:child_num);
+        dn = (type==OR?child_num:1);
+        #endif
     }
 
     parent_num = 1;

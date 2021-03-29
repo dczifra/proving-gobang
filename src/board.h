@@ -126,12 +126,13 @@ struct Board_Hash{
         std::size_t seed = 0;
         std::size_t h1 = robin_hood::hash<uint64_t>{}(b.white);
         std::size_t h2 = robin_hood::hash<uint64_t>{}(b.black);
-        std::size_t h3 = robin_hood::hash<uint64_t>{}(b.score_left);
-        std::size_t h4 = robin_hood::hash<uint64_t>{}(b.score_right);
+        //std::size_t h3 = robin_hood::hash<uint64_t>{}(b.score_left);
+        //std::size_t h4 = robin_hood::hash<uint64_t>{}(b.score_right);
         std::size_t h5 = robin_hood::hash<uint8_t>{}(b.node_type);
-        std::size_t h6 = robin_hood::hash<uint8_t>{}(b.forbidden_all & ~(b.white | b.black));
+        //std::size_t h6 = robin_hood::hash<uint8_t>{}(b.forbidden_all & ~(b.white | b.black));
 
-        return  h1 ^ h2 ^ h3 ^ h4 ^ h5 ^ h6;
+        //return  h1 ^ h2 ^ h3 ^ h4 ^ h5 ^ h6;
+        return  h1 ^ h2 ^ h5;
     }
 };
 

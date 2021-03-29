@@ -103,6 +103,7 @@ private :
     std::unordered_map<std::vector<uint64_t>, PNSNode*, Vector_Hash> states;
     #else
     robin_hood::unordered_map<Board, PNSNode*, Board_Hash> states;
+    //std::unordered_map<Board, PNSNode*, Board_Hash> states;
     #endif
 
     Args* args;

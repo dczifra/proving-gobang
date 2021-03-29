@@ -220,6 +220,7 @@ void PNS::extend_all(PNSNode* node, bool fast_eval){
     }
     node->extended = true;
 
+#if HEURISTIC_PN_DN_INIT
     // default DN is not useful in OR nodes, so we update them
     if(node->type == AND){
         float heur_parent = node->heuristic_value;
@@ -238,6 +239,7 @@ void PNS::extend_all(PNSNode* node, bool fast_eval){
             }
         }
     }
+#endif
 
     update_node(node);
 }
@@ -416,15 +418,15 @@ PNSNode* PNS::get_states(const Board& board){
             return nullptr;
         }
     #else
-        //Board reversed(board);
-        //reversed.flip();
+        Board reversed(board);
+        reversed.flip();
 
         if(states.find(board) != states.end()){
             return states[board];
         }
-        //else if(states.find(reversed) != states.end()){
-        //    return states[reversed];
-        //}
+        else if(states.find(reversed) != states.end()){
+            return states[reversed];
+        }
         else{
             //assert(states.find(board) != states.end());
             return nullptr;
@@ -464,17 +466,6 @@ void PNS::display_node(PNSNode* node){
                 }
             }
             i++;
-        }
-    }
-}
-
-void PNS::copy_states(PNS& tree){
-    board_int common = heuristic.forbidden_all;
-    for(auto& s: states){
-        const Board& b(s.first);
-        bool proved = s.second->pn*s.second->dn == 0;
-        if(__builtin_popcountll(~(b.white | b.black) & ~(common)) >= LOG_CUT_DEPTH && proved){
-            if(tree.get_states(b) == nullptr) tree.add_board(b, new PNSNode(b));
         }
     }
 }

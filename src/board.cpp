@@ -237,6 +237,7 @@ std::string Board::heuristic_layers(const std::vector<Line_info>& all_lines) con
     for(int i=0;i<LAYERNUM+1;i++) ret += std::to_string(layers[i])+" ";
     return ret;
 }
+
 /*
 void Board::flip(){
     board_int w = 0, b = 0, f = 0;
@@ -260,6 +261,8 @@ void Board::flip(){
     forbidden_all = f;
 }
 */
+
+
 void Board::flip(){
     board_int w = 0, b = 0, f=0;
     board_int col = 0x0f;

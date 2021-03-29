@@ -7,6 +7,7 @@ import random
 import multiprocessing
 import subprocess
 import resource
+import pandas
 
 def get_lic_virt_mem(ulimit):
     def limit_virtual_memory():
@@ -41,13 +42,44 @@ def run_experiment(params):
     print("Tree size:", tree_size, "time: ",end-start)
     
     set_param(params,"false")
+    return tree_size, end-start
 
 if(__name__ == "__main__"):
-    params = ["HEURISTIC_STOP", "REMOVE_DEAD_FIELDS", "REMOVE_2_LINE", "REMOVE_LINE_WITH_2x1_DEGREE",
+    base_params = ["HEURISTIC_STOP", "REMOVE_DEAD_FIELDS", "REMOVE_2_LINE", "REMOVE_LINE_WITH_2x1_DEGREE",
               "ONE_WAY", "TRANSPOSITION_TABLE", "ISOMORPHIC_TABLE", "HEURISTIC_PN_DN_INIT"]
 
-    set_col(8)
-    for p in params:
-        run_experiment([p])
+    params = ["HEURISTIC_STOP", "REMOVE_DEAD_FIELDS", "REMOVE_2_LINE", "REMOVE_LINE_WITH_2x1_DEGREE",
+              "ONE_WAY", "TRANSPOSITION_TABLE", "HEURISTIC_PN_DN_INIT"]
+
+    df = pandas.DataFrame(columns = base_params+["col", "time", "tree_size"])
+    for p in base_params:
+        df[p]=False
+
+    print(df.columns)
+    for col in [7,8,9,10]:
+        set_col(col)
+        for p in params:
+            act_params = [p]
+            tree_size, time0 = run_experiment(act_params)
+            args = {"col":col, "tree_size":tree_size, "time":time0}
+            for p in act_params: args[p]=True
+            df = df.append(args, ignore_index=True)
+        
+        #run_experiment(params)
+        tree_size, time0 = run_experiment(params)
+        args = {"col":col, "tree_size":tree_size, "time":time0}
+        for p in params: args[p]=True
+        df = df.append(args, ignore_index=True)
+
+    df.to_csv("results1.csv")
+
+    for col in [7,8,9,10,11,12]:
+        set_col(col)
+        for i in range(len(params)-1):
+            act_params = params[:i]+params[i:]
+            tree_size, time0 = run_experiment(act_params)
+            args = {"col":col, "tree_size":tree_size, "time":time0}
+            for p in act_params: args[p]=True
+            df = df.append(args, ignore_index=True)
     
-    run_experiment(params)
+    df.to_csv("results2.csv")
