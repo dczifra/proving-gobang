@@ -10,8 +10,8 @@ Play::Play(std::string filename, bool disproof, bool talky, Args* args_):talky(t
     args = args_;
 
     // === Read Solution Tree ===
-    Board board;
-    choose_problem(board, player, disproof, args);
+    //Board board;
+    //choose_problem(board, player, disproof, args);
 
     read_solution(filename, tree);
     printf("Proof/disproof tree size: %zu\n", tree.states.size());
@@ -37,8 +37,7 @@ void side_starts(Board& board){
 
 NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* args){
     if(disproof) board.move({0,1, ACTION_SIZE-1}, player);
-    //board.move({7,11}, player);
-
+    
     board.forbidden_all = 0;
 
     if(args->START > -1) board.move({args->START}, player);
@@ -162,6 +161,7 @@ void Play::play_with_solution(){
     //act_node = act_node->children[0];
     if(talky) display(base_board, true);
     else info_to_plot(base_board);
+    std::cout<<base_board.heuristic_value(PNS::heuristic.all_linesinfo)<<std::endl;
     
     int act = -1;
     while(act_node->is_inner() || !tree.game_ended(act_node->get_board())){
@@ -229,6 +229,7 @@ void Play::play_with_solution(){
             if(talky){
                 printf("Action: %d pn: %d\n", act, (int)tree.get_states(board)->pn);
                 display(board, true, color);
+                std::cout<<board.heuristic_value(PNS::heuristic.all_linesinfo)<<std::endl;
                 //std::cout<<"Scores: "<<board.score_left<<" "<<board.score_right<<std::endl;
             }
             else info_to_plot(board);

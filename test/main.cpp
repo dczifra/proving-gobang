@@ -1,5 +1,4 @@
 #define DEBUG false
-#define TRANSPOSITION_TABLE false
 #define RECURSIVE_LINE_SEARCH true
 // this macro does not work
 
@@ -167,7 +166,8 @@ void PNS_test(Args& args){
     }
     
     tree.stats(node, true);
-    PNS::logger->log_node(node, args.get_filename());
+    //PNS::logger->log_node(node, args.get_filename());
+    PNS::logger->log_statistics(node, args.get_filename());
 
     tree.delete_all(node);
     tree.stats(nullptr, true);
