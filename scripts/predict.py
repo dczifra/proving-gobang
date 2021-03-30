@@ -7,52 +7,43 @@ import numpy as np
 
 
 # directory = "logs"
-directory = "/home/doma945/repos/prooving-gobang/logs"
+directory = "/home/doma945/repos/prooving-gobang/build/data"
 
 train_files=[
-    "disproof_4x5.csv",
-    "disproof_4x6.csv",
-    "disproof_4x7.csv",
-    "disproof_4x8.csv",
-    "disproof_4x9.csv",
-    "proof_4x5.csv",
-    "proof_4x6.csv",
-    "proof_4x7.csv",
-    "proof_4x8.csv",
-    "proof_4x9.csv",
-]
-
-train_files2=[
-    "disproof_4x10.csv",
-    "disproof_4x11.csv",
-    "proof_4x10.csv",
-    "proof_4x11.csv",
+    "disproof/4x7.csv",
+    "disproof/4x8.csv",
+    "disproof/4x9.csv",
+    "disproof/4x10.csv",
+    "proof/4x7.csv",
+    "proof/4x8.csv",
+    "proof/4x9.csv",
+    "proof/4x10.csv",
 ]
 
 test_files=[
-    "disproof_4x10.csv",
-#    "disproof_4x11.csv",
-    "proof_4x10.csv",
-    "proof_4x11.csv",
+    "disproof/4x10.csv",
+#    "disproof/4x11.csv",
+    "proof/4x11.csv",
+#    "proof/4x12.csv",
 ]
 
-dfs=[]
-for f in train_files2:
-    filename = os.path.join(directory, f)
-    print("File: ", filename),
-    df = pd.read_csv(filename, sep=' ', index_col=False)
-    dfs.append(df)    
-train_data = pd.concat(dfs)
+def read_files(files):
+    dfs=[]
+    for f in files:
+        filename = os.path.join(directory, f)
+        print("File: ", filename),
+        df = pd.read_csv(filename, sep=' ', header=None, index_col=False, skiprows=1, names = ["white","black","current_player","pn","dn","empty_cells","potential","node_count","l0","l1","l2","l3","l4","l5","l6","l7"], nrows=30000000)
+        dfs.append(df)    
+    data = pd.concat(dfs)
+    return data
 
-dfs=[]
-for f in test_files:
-    filename = os.path.join(directory, f)
-    print("File: ", filename),
-    df = pd.read_csv(filename, sep=' ', index_col=False)
-    dfs.append(df)    
-test_data = pd.concat(dfs)
+train_data = read_files(train_files)
+test_data = read_files(test_files)
+
 
 print("Train Rows: ", len(train_data.index))
+train_data = train_data.drop_duplicates()
+print("Kept : {} rows".format(len(train_data.index)))
 print("Test  Rows: ", len(test_data.index))
 
 # white black current_player pn dn empty_cells potential node_count 
