@@ -37,24 +37,29 @@ PNSNode::PNSNode(const Board& b, Args* args): Node(get_child_num(b)), board(b){
     //    dn = 0;
     //}
     else{
-        #if HEURISTIC_PN_DN_INIT
         init_pn_dn();
-        #else
-        pn = (type==OR?1:child_num);
-        dn = (type==OR?child_num:1);
-        #endif
     }
 
     parent_num = 1;
 }
 
 void inline PNSNode::init_pn_dn(){
-int valid_moves = board.get_valids_num();
-float log_odds = -4.63230495 - 9.67572108 * board.node_type - 0.87216265 * valid_moves + 17.23691808 *heuristic_value;
-float prob = 1 / (1 + exp(-log_odds));
-float penalty = (1-prob) * 10;
-pn = (type==OR ? 1+penalty:child_num*(1+penalty));
-dn = std::pow(1000, heuristic_value);
+    int valid_moves = board.get_valids_num();
+    float log_odds = -4.63230495 - 9.67572108 * board.node_type - 0.87216265 * valid_moves + 17.23691808 *heuristic_value;
+    float prob = 1 / (1 + exp(-log_odds));
+    float penalty = (1-prob) * 10;
+
+#if HEURISTIC_PN_INIT
+    pn = (type==OR ? 1+penalty:child_num*(1+penalty));
+#else
+    pn = (type==OR?1:child_num);
+#endif
+
+#if HEURISTIC_DN_INIT
+    dn = std::pow(1000, heuristic_value);
+#else
+    dn = (type==OR?child_num:1);
+#endif
 }
 
 InnerNode::InnerNode(int childnum, NodeType t): Node(childnum){

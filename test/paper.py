@@ -4,10 +4,11 @@ import os
 import sys
 import time
 import random
-import multiprocessing
-import subprocess
-import resource
 import pandas
+import resource
+import subprocess
+import itertools
+import multiprocessing
 
 def get_lic_virt_mem(ulimit):
     def limit_virtual_memory():
@@ -21,14 +22,13 @@ def set_param(params,value):
 def set_col(col = 8):
     os.system("sed -i 's/#define COL.*/#define COL '{}'/g' ../src/common.h".format(col))
 
-def run_experiment(params):
+def run_experiment(params, args):
     set_param(params,"true")
     
     os.system("make -j8 >/dev/null")
+    #print("Param {} is set to {}".format(params,"true"))
 
-    print("Param {} is set to {}".format(params,"true"))
-
-    p = Popen(["./AMOBA"], preexec_fn=get_lic_virt_mem(8),
+    p = Popen(["./AMOBA", *args], preexec_fn=get_lic_virt_mem(8),
             stdout=PIPE, stdin=PIPE, stderr=STDOUT, bufsize=1)
     
     start = time.time()
@@ -47,45 +47,50 @@ def run_experiment(params):
     set_param(params,"false")
     return tree_size, end-start
 
+def add_to_base(base, extra, cols, args, logfile):
+    file = open(logfile, "w")
+    for col in cols:
+        set_col(col)
+        print("Experiment with base params: {} [COL {}]".format(base, col))
+        print(extra+["all"])
+        file.write("Col: {}\n".format(col))
+        file.write(" ".join([str(a) for a in extra+["all"]])+"\n")
+        tree_sizes = []
+        times = []
+        for p in itertools.chain(*[extra, [extra]]):
+            print('\r', p, end=' ', flush=True)
+            if(type(p)==str): act_params = base+[p]
+            else: act_params = base+p
+            
+            tree_size, time0 = run_experiment(act_params, args)
+            tree_sizes.append(tree_size)
+            times.append(time0)
+
+        # === All ===
+        print("Visited Nodes", tree_sizes)
+        print("Runtimes", times)
+        file.write(" ".join([str(a) for a in tree_sizes])+"\n")
+        file.write(" ".join([str(a) for a in times])+"\n")
+    file.close()
+
 if(__name__ == "__main__"):
-    base_params = ["HEURISTIC_STOP", "REMOVE_DEAD_FIELDS", "REMOVE_2_LINE", "REMOVE_LINE_WITH_2x1_DEGREE",
-              "ONE_WAY", "TRANSPOSITION_TABLE", "ISOMORPHIC_TABLE", "HEURISTIC_PN_DN_INIT"]
+    base_params = ["HEURISTIC_STOP", "REMOVE_DEAD_FIELDS", "REMOVE_2_LINE",
+                   "REMOVE_LINE_WITH_2x1_DEGREE", "ONE_WAY", "TRANSPOSITION_TABLE",
+                   "HEURISTIC_PN_DN_INIT", "HEURISTIC_PN_DN_INIT", "COMPONENTS", "ISOMORPHIC_TABLE"]
 
-    params = ["HEURISTIC_STOP", "REMOVE_DEAD_FIELDS", "REMOVE_2_LINE", "REMOVE_LINE_WITH_2x1_DEGREE",
-              "ONE_WAY", "TRANSPOSITION_TABLE", "HEURISTIC_PN_DN_INIT"]
+    # === Base measure ===
+    params = ["HEURISTIC_STOP", "REMOVE_DEAD_FIELDS", "REMOVE_2_LINE",
+                   "REMOVE_LINE_WITH_2x1_DEGREE", "ONE_WAY", "TRANSPOSITION_TABLE",
+                   "HEURISTIC_PN_DN_INIT", "HEURISTIC_PN_DN_INIT", "COMPONENTS", "ISOMORPHIC_TABLE"]
 
-    df = pandas.DataFrame(columns = base_params+["col", "time", "tree_size"])
-    for p in base_params:
-        df[p]=False
+    add_to_base([], params+["vanilla"], [7,8,9], [], "result_proof.csv")
+    add_to_base([], params+["vanilla"], [7,8,9], ["--disproof"], "result_disproof.csv")
 
-    print(df.columns)
-    for col in [7,8]:
-        set_col(col)
-        for p in params:
-            act_params = [p]
-            tree_size, time0 = run_experiment(act_params)
-            args = {"col":col, "tree_size":tree_size, "time":time0}
-            for p in act_params: args[p]=True
-            df = df.append(args, ignore_index=True)
-        
-        #run_experiment(params)
-        tree_size, time0 = run_experiment(params)
-        args = {"col":col, "tree_size":tree_size, "time":time0}
-        for p in params: args[p]=True
-        df = df.append(args, ignore_index=True)
-        
-        tree_size, time0 = run_experiment([])
-        args = {"col":col, "tree_size":tree_size, "time":time0}
-        df = df.append(args, ignore_index=True)
-    df.to_csv("results1.csv")
 
-    for col in [7,8,9,10,11]:
-        set_col(col)
-        for i in range(len(params)-1):
-            act_params = params[:i]+params[i+1:]
-            tree_size, time0 = run_experiment(act_params)
-            args = {"col":col, "tree_size":tree_size, "time":time0}
-            for p in act_params: args[p]=True
-            df = df.append(args, ignore_index=True)
-    
-    df.to_csv("results2.csv")
+    # === Advanced ===
+    params = ["HEURISTIC_STOP", "REMOVE_DEAD_FIELDS", "TRANSPOSITION_TABLE",
+                   "HEURISTIC_PN_DN_INIT", "HEURISTIC_PN_DN_INIT","ISOMORPHIC_TABLE"]
+    add_to_base(["REMOVE_2_LINE", "REMOVE_LINE_WITH_2x1_DEGREE", "ONE_WAY", "COMPONENTS"],
+            params+["vanilla"], [9,10,11], [], "advaced_proof.csv")
+    add_to_base(["REMOVE_2_LINE", "REMOVE_LINE_WITH_2x1_DEGREE", "ONE_WAY", "COMPONENTS"],
+            params+["vanilla"], [9,10], ["--disproof"], "advanced_disproof.csv")

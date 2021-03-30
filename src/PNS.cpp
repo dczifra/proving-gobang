@@ -220,7 +220,7 @@ void PNS::extend_all(PNSNode* node, bool fast_eval){
     }
     node->extended = true;
 
-#if HEURISTIC_PN_DN_INIT
+#if HEURISTIC_DN_INIT
     // default DN is not useful in OR nodes, so we update them
     if(node->type == AND){
         float heur_parent = node->heuristic_value;
@@ -266,7 +266,7 @@ void PNS::extend(PNSNode* node, unsigned int action, unsigned int slot,
         int moves_before = next_state.get_valids_num();
 
         // 2-connected components, if not ended
-        if(0 && !fast_eval && next_state.node_type == OR && !game_ended(next_state) && moves_before >= EVAL_TRESHOLD){ 
+        if(COMPONENTS && !fast_eval && next_state.node_type == OR && !game_ended(next_state) && moves_before >= EVAL_TRESHOLD){ 
             child = evaluate_components(next_state);
             node->children[slot] = child;
         }

@@ -4,6 +4,7 @@
 #define REMOVE_LINE_WITH_2x1_DEGREE false
 #define ONE_WAY false
 #define TRANSPOSITION_TABLE false
-#define HEURISTIC_PN_DN_INIT false
-
+#define HEURISTIC_PN_INIT false
+#define HEURISTIC_DN_INIT false
+#define COMPONENTS false
 #define ISOMORPHIC_TABLE false

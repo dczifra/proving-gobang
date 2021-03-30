@@ -14,7 +14,7 @@
 //                BOARD INFOS
 // ============================================
 #define ROW 4
-#define COL 10
+#define COL 7
 #define LINEINROW 7
 #define LAYERNUM 7
 
@@ -27,7 +27,7 @@
 #define LOG false
 
 #define EVAL_TRESHOLD 5
-#define LOG_CUT_DEPTH 200
+#define LOG_CUT_DEPTH 2
 
 #define var float
 #define var_MAX FLT_MAX
