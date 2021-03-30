@@ -37,7 +37,10 @@ def run_experiment(params):
 
     out = out.decode('ascii')
     #print(out)
-    tree_size = int(out.split("\n")[-2].split(": ")[-1])
+    if(out.split("\n")[-2].split(": ")[-1] == ' std::bad_alloc'):
+        tree_size = -1
+    else:
+        tree_size = int(out.split("\n")[-2].split(": ")[-1])
 
     print("Tree size:", tree_size, "time: ",end-start)
     
@@ -56,7 +59,7 @@ if(__name__ == "__main__"):
         df[p]=False
 
     print(df.columns)
-    for col in [7,8,9,10]:
+    for col in [7,8]:
         set_col(col)
         for p in params:
             act_params = [p]
@@ -70,13 +73,16 @@ if(__name__ == "__main__"):
         args = {"col":col, "tree_size":tree_size, "time":time0}
         for p in params: args[p]=True
         df = df.append(args, ignore_index=True)
-
+        
+        tree_size, time0 = run_experiment([])
+        args = {"col":col, "tree_size":tree_size, "time":time0}
+        df = df.append(args, ignore_index=True)
     df.to_csv("results1.csv")
 
-    for col in [7,8,9,10,11,12]:
+    for col in [7,8,9,10,11]:
         set_col(col)
         for i in range(len(params)-1):
-            act_params = params[:i]+params[i:]
+            act_params = params[:i]+params[i+1:]
             tree_size, time0 = run_experiment(act_params)
             args = {"col":col, "tree_size":tree_size, "time":time0}
             for p in act_params: args[p]=True
