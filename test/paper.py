@@ -59,7 +59,9 @@ def add_to_base(base, extra, cols, args, logfile):
         times = []
         for p in itertools.chain(*[extra, [extra]]):
             print('\r', p, end=' ', flush=True)
-            if(type(p)==str): act_params = base+[p]
+            if(p == "COMPONENTS"):
+                act_params = base+["COMPONENTS", "REMOVE_DEAD_FIELDS"]
+            elif(type(p)==str): act_params = base+[p]
             else: act_params = base+p
             
             tree_size, time0 = run_experiment(act_params, args)
@@ -88,9 +90,9 @@ if(__name__ == "__main__"):
 
 
     # === Advanced ===
-    params = ["HEURISTIC_STOP", "REMOVE_DEAD_FIELDS", "TRANSPOSITION_TABLE",
+    params = ["HEURISTIC_STOP", "TRANSPOSITION_TABLE", "COMPONENTS",
                    "HEURISTIC_PN_DN_INIT", "HEURISTIC_PN_DN_INIT","ISOMORPHIC_TABLE"]
-    add_to_base(["REMOVE_2_LINE", "REMOVE_LINE_WITH_2x1_DEGREE", "ONE_WAY", "COMPONENTS"],
+    add_to_base(["REMOVE_DEAD_FIELDS", "REMOVE_2_LINE", "REMOVE_LINE_WITH_2x1_DEGREE", "ONE_WAY"],
             params+["vanilla"], [9,10,11], [], "advaced_proof.csv")
-    add_to_base(["REMOVE_2_LINE", "REMOVE_LINE_WITH_2x1_DEGREE", "ONE_WAY", "COMPONENTS"],
+    add_to_base(["REMOVE_DEAD_FIELDS", "REMOVE_2_LINE", "REMOVE_LINE_WITH_2x1_DEGREE", "ONE_WAY"],
             params+["vanilla"], [9,10], ["--disproof"], "advanced_disproof.csv")

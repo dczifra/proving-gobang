@@ -117,8 +117,7 @@ std::tuple<int, Board, Board> Artic_point::get_parts(){
         if (line.line_board & board.black) continue;
 
         // === For every field on the line ===
-        for (auto field : line.points)
-        {
+        for (auto field : line.points){
             if(board.is_valid(field)){
                 node = field;
             }
