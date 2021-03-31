@@ -400,9 +400,11 @@ void PNS::add_board(const Board& board, PNSNode* node){
         std::vector<uint64_t> isom = isom_machine.get_canonical_graph(board, heuristic.all_linesinfo);
         assert(states.find(isom) == states.end());
         states[isom] = node;
-    #else
+    #elif TRANSPOSITION_TABLE
         assert(states.find(board) == states.end());
         states[board] = node;
+    #else
+    
     #endif
     total_state_size+=1;
 }
@@ -417,7 +419,7 @@ PNSNode* PNS::get_states(const Board& board){
         else{
             return nullptr;
         }
-    #else
+    #elif TRANSPOSITION_TABLE
         Board reversed(board);
         reversed.flip();
 
@@ -431,6 +433,8 @@ PNSNode* PNS::get_states(const Board& board){
             //assert(states.find(board) != states.end());
             return nullptr;
         }
+    #else
+        return nullptr;
     #endif
 }
 
@@ -439,9 +443,11 @@ void PNS::delete_from_map(const Board& board){
         std::vector<uint64_t> isom = isom_machine.get_canonical_graph(board, heuristic.all_linesinfo);
         assert(states.find(isom) != states.end());
         states.erase(isom);
-    #else
+    #elif TRANSPOSITION_TABLE
         assert(states.find(board) != states.end());
         states.erase(board);
+    #else
+
     #endif
 }
 

@@ -78,21 +78,20 @@ def add_to_base(base, extra, cols, args, logfile):
 if(__name__ == "__main__"):
     base_params = ["HEURISTIC_STOP", "REMOVE_DEAD_FIELDS", "REMOVE_2_LINE",
                    "REMOVE_LINE_WITH_2x1_DEGREE", "ONE_WAY", "TRANSPOSITION_TABLE",
-                   "HEURISTIC_PN_DN_INIT", "HEURISTIC_PN_DN_INIT", "COMPONENTS", "ISOMORPHIC_TABLE"]
+                   "HEURISTIC_PN_INIT", "HEURISTIC_DN_INIT", "COMPONENTS", "ISOMORPHIC_TABLE"]
 
     # === Base measure ===
     params = ["HEURISTIC_STOP", "REMOVE_DEAD_FIELDS", "REMOVE_2_LINE",
                    "REMOVE_LINE_WITH_2x1_DEGREE", "ONE_WAY", "TRANSPOSITION_TABLE",
-                   "HEURISTIC_PN_DN_INIT", "HEURISTIC_PN_DN_INIT", "COMPONENTS", "ISOMORPHIC_TABLE"]
+                   "HEURISTIC_PN_INIT", "HEURISTIC_DN_INIT", "COMPONENTS", "ISOMORPHIC_TABLE"]
 
     add_to_base([], params+["vanilla"], [7,8,9], [], "result_proof.csv")
     add_to_base([], params+["vanilla"], [7,8,9], ["--disproof"], "result_disproof.csv")
 
-
     # === Advanced ===
-    params = ["HEURISTIC_STOP", "TRANSPOSITION_TABLE", "COMPONENTS",
-                   "HEURISTIC_PN_DN_INIT", "HEURISTIC_PN_DN_INIT","ISOMORPHIC_TABLE"]
-    add_to_base(["REMOVE_DEAD_FIELDS", "REMOVE_2_LINE", "REMOVE_LINE_WITH_2x1_DEGREE", "ONE_WAY"],
-            params+["vanilla"], [9,10,11], [], "advaced_proof.csv")
-    add_to_base(["REMOVE_DEAD_FIELDS", "REMOVE_2_LINE", "REMOVE_LINE_WITH_2x1_DEGREE", "ONE_WAY"],
-            params+["vanilla"], [9,10], ["--disproof"], "advanced_disproof.csv")
+    params = ["HEURISTIC_STOP", "COMPONENTS",
+                   "HEURISTIC_PN_INIT", "HEURISTIC_DN_INIT","ISOMORPHIC_TABLE"]
+    add_to_base(["TRANSPOSITION_TABLE", "REMOVE_DEAD_FIELDS", "REMOVE_2_LINE", "REMOVE_LINE_WITH_2x1_DEGREE", "ONE_WAY"],
+            params+["vanilla"], [7,8,9,10,11], [], "advaced_proof.csv")
+    add_to_base(["TRANSPOSITION_TABLE", "REMOVE_DEAD_FIELDS", "REMOVE_2_LINE", "REMOVE_LINE_WITH_2x1_DEGREE", "ONE_WAY"],
+            params+["vanilla"], [7,8,9,10], ["--disproof"], "advanced_disproof.csv")
