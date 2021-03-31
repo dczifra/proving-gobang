@@ -150,6 +150,10 @@ bool Board::no_free_lines(const std::vector<Line_info>& all_lines) const{
 }
 
 board_int Board::get_valids_without_ondegree(const std::vector<Line_info> & all_lines) const{
+    #if !ONE_WAY
+    return  ~(white | black) & FULL_BOARD
+    #endif
+    
     degree.assign(degree.size(), 0);
     // === Compute degree for all fields ===
     for (auto& line : all_lines){
