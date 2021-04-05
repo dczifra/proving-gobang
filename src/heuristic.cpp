@@ -187,7 +187,7 @@ void classical_board(std::vector<Line>& lines){
     add_horizontal_lines(lines, {0,1,2,3}, {1,COL-8}, 7);
     // === SIDE LINES ===
     add_side_lines(lines, 0, 4);
-    add_side_lines(lines, 1, 7);
+    add_side_lines(lines, 1, 4);
     add_side_lines(lines, 2, 4);
     add_side_lines(lines, 3, 4);
     // === DIAGONAL LINES ===
