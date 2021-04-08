@@ -10,7 +10,7 @@ import itertools
 import subprocess
 import numpy as np
 import multiprocessing
-from PARALLEL import runfile
+from PARALLEL import runfile, run_all_board
 
 convert_map = {
     "HEURISTIC_STOP":"Breaker win stop",
