@@ -19,6 +19,9 @@ def run_board(b, ulimit):
 
     out,err = p.communicate(b)
 
+    #if(out.split('DN: ')[1][0]=='0'):
+    #    print(out)
+    
     if(len(out.split('PN'))==1): return "fail",b
     if(out.split('PN: ')[1][0]=='0'): return "PN",b
     elif(out.split('DN: ')[1][0]=='0'): return "DN",b
@@ -28,12 +31,13 @@ def print_res(arg):
     result,b = arg
     log[result]+=1
     if(result == "PN"):
-        print("Proof", b)
+        pass
+        #print("Proof", b)
     elif(result == "fail"):
         #print("Fail", b)
         log["again"].append(b)
-    else:
-        print("\r{}/{} [failed: {}] [proof: {}]".format(log["DN"], log["all"], log["fail"], log["PN"]), flush=True, end=" ")
+    print("\r{}/{} [failed: {}] [proof: {}]".format(log["DN"], log["all"],
+                                                    log["fail"], log["PN"]), flush=True, end=" ")
 
 
 def run_all_board(boards, procnum, memory_limit):
@@ -54,24 +58,27 @@ log={
     "again":[],
 }
 
-def runfile(filename):
-    print(filename)
+def runfile(filename, procnum, talky=True):
+    if(talky): print(filename)
     with open(filename, "r") as file:
         boards = file.read().split('\n')
         boards = boards[1:-1]
         random.shuffle(boards)
-        print(len(boards))
+        if(talky): print(len(boards))
     
-    run_all_board(boards, 15, 30)
-    print("Summary: {}/{} [failed: {}] [proof: {}]".format(log["DN"], log["all"],
+    run_all_board(boards, 15, procnum)
+    if(talky):
+        print("Summary: {}/{} [failed: {}] [proof: {}]".format(log["DN"], log["all"],
                                                            log["fail"], log["PN"]))
     with open(filename+".fail", "w") as f:
         for b in log["again"]:
             f.write(b+"\n")
 
+    return log["DN"],log["fail"],log["PN"]
+
 if(__name__ == "__main__"):
-    runfile("../ors.txt")
-    runfile("../ands.txt")
+    runfile("../ors.txt", 10)
+    runfile("../ands.txt", 10)
     run_all_board(log["again"], 2, 150)
     print("Summary: {}/{} [failed: {}] [proof: {}]".format(log["DN"], log["all"],
                                                            log["fail"], log["PN"]))

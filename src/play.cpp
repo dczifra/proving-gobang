@@ -36,7 +36,7 @@ void side_starts(Board& board){
 }
 
 NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* args){
-    if(disproof) board.move({0,1, ACTION_SIZE-1}, player);
+    if(disproof) board.move({0,1, 3}, player);
     
     board.forbidden_all = 0;
 

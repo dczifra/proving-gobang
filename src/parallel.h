@@ -70,7 +70,7 @@ void generate_roots_descendents(Args& args, int depth = 3){
     // === Add all decendents above the given depth ===
     Descendents ors("../ors.txt");
     Descendents ands("../ands.txt");
-    add_descendents(node, tree, 0, 2, ors.boards, ands.boards);
+    add_descendents(node, tree, 0, depth, ors.boards, ands.boards);
     std::cout<<ors.boards.size()<<" "<<ands.boards.size()<<" "<<tree.get_states_size()<<std::endl;
 
     // === Log the descendents ===
@@ -85,6 +85,38 @@ void generate_roots_descendents(Args& args, int depth = 3){
         log_file.close();
     }
 }
+
+/*
+// 2 weak step and 1 strong
+void generate_roots_descendents(Args& args, int depth = 3){
+    PNS tree(&args);
+    Board base;
+    int player = 1;
+    Play::choose_problem(base,player,false,&args);
+
+    Descendents log("../ors.txt");
+    std::ofstream log_file(log.filename);
+    log_file<<"white black score_left score_right type common depth intersection\n";
+    int sum = 0;
+    for(int i=0;i<ACTION_SIZE/2;i++){
+        for(int j=i+1;j<ACTION_SIZE;j++){
+            Board b(base);
+            int def = i==1?4:1;
+            
+            if(j==def) continue;
+            sum++;
+            b.move(i, 1);
+            b.move(def, -1);            
+            b.move(j, 1);
+            
+            log_file<<b.white<<" "<<b.black<<" "<<b.score_left<<" "<<b.score_right<<" "<<b.node_type;
+            log_file<<" "<<b.forbidden_all<<" "<<0<<" "<<0<<std::endl;
+        }
+    }
+    log_file.close();
+    std::cout<<"Sum: "<<sum<<std::endl;
+}
+*/
 
 void read_descendents(Node* node, PNS& tree, int depth, int maxdepth, std::string foldername){
     if(!node->extended) tree.extend_all((PNSNode*) node, false);

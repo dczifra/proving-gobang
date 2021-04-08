@@ -112,7 +112,7 @@ int main(int argc, char* argv[]){
         prove_node(args);
     }
     else if(args.generate_parallel){
-        generate_roots_descendents(args, 2);
+        generate_roots_descendents(args, 200);
     }
     else if(args.merge_solutions){
         merge_solutions(args, args.get_filename());
