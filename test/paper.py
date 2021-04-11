@@ -45,7 +45,7 @@ def run_experiment(params, args):
     os.system("make -j8 >/dev/null")
     #print("Param {} is set to {}".format(params,"true"))
 
-    p = Popen(["./AMOBA", *args], preexec_fn=get_lic_virt_mem(8),
+    p = Popen(["./AMOBA", *args], preexec_fn=get_lic_virt_mem(30),
             stdout=PIPE, stdin=PIPE, stderr=STDOUT, bufsize=1)
     
     start = time.time()
@@ -119,7 +119,10 @@ def remove_from_base(base, cols, args):
             act_params = base[:i]+base[i+1:]
             if(base[i] == "REMOVE_DEAD_FIELDS"):
                 act_params.remove("COMPONENTS")
-
+            elif(base[i] == "REMOVE_2_LINE"):
+                act_params.remove("REMOVE_LINE_WITH_2x1_DEGREE")
+            elif(base[i] == "REMOVE_LINE_WITH_2x1_DEGREE"):
+                act_params.remove("REMOVE_2_LINE")
             #print(act_params)
             
             tree_size, time0 = run_experiment(act_params, args)
@@ -138,9 +141,10 @@ def remove_from_base(base, cols, args):
         print("{}".format(convert_map[p]), end = ' ')
         for col in res[p]:
             #print("{:.2f} & {:.2f} &".format(res[p][col][0], res[p][col][1]), end = ' ')
-            print("& {:.2f} & {:.2f} ".format(
-                res[p][col][0]/res['all'][col][0], res[p][col][1]/res['all'][col][1]), end = ' ')
-        print('\\')
+            time_proc = res[p][col][0]/res['all'][col][0]
+            size_proc = res[p][col][1]/res['all'][col][1]
+            print("& {:.2f} & {:.2f} ".format(time_proc, size_proc), end=' ')
+        print('\\\\')
 
 def table1():
     base = ["TRANSPOSITION_TABLE"]
@@ -165,7 +169,7 @@ def table_all():
                    "REMOVE_LINE_WITH_2x1_DEGREE", "ONE_WAY",
                    "HEURISTIC_PN_INIT", "HEURISTIC_DN_INIT", "all"]
     
-    remove_from_base(base_params, [7, 11, 12], [])
+    remove_from_base(base_params, [11, 12], [])
     remove_from_base(base_params, [8,9], ["--disproof"])
 
 def table3():
@@ -174,7 +178,7 @@ def table3():
                    "HEURISTIC_PN_INIT", "HEURISTIC_DN_INIT", "COMPONENTS"]
 
     maxProof = 13
-    maxDisProof = 10
+    maxDisProof = 11
     for cols, args in [(range(7,maxProof+1), []), (range(7,maxDisProof+1), ["--disproof"])]:
         sizes = []
         times = []
@@ -182,7 +186,7 @@ def table3():
         for col in cols:
             print("[{}]".format(col), end=' ')
             set_col(col)
-            tree_size, time0 = run_experiment(base_params, [])
+            tree_size, time0 = run_experiment(base_params, args)
             sizes.append(tree_size)
             times.append(time0)
 
@@ -234,6 +238,6 @@ if(__name__ == "__main__"):
 
     #table1()
     #table2()
-    #table_all()
+    table_all()
     #table3()
-    table4()
+    #table4()
