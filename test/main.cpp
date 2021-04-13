@@ -204,7 +204,7 @@ int main(int argc, char* argv[]){
     else if(args.test){
         //Play game("data/board_sol/36283883716651_4_0_0.sol", args.disproof, args.talky, &args);
         Play game(args.get_filename(), args.disproof, args.talky, &args);
-        game.play_with_solution();
+        game.play_with_solution_split();
     }
     else{
         //DFPNS_test(args);

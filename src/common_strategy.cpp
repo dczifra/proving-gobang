@@ -341,6 +341,7 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
                 int center = is_left?12:37;
                 if(has(center-1, act_board.black) || has(center+1, act_board.black)){
                     // Move free
+                    act_board.white |= (1ULL << free);
                 }
                 else if(!is_inner){
                     //act_board.move(free, -1)
@@ -358,6 +359,7 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
                 }
             }
             else{
+                act_board.forbidden_all &= ~side;
                 Board child1(act_board);
                 Board child2(act_board);
                 if(!is_inner){
@@ -376,19 +378,21 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
                         act_board.move(free, -1);
                     }
                 }
-                act_board.forbidden_all &= ~side;
+                
 
                 Node* node = new InnerNode(3,OR);
                 node->children[0] = add_or_create(act_board);
 
                 child1.white &= ~(1ULL << (is_left?0:45));
                 child1.black |= (1ULL << (is_left?0:45));
-                child1.white |= (1ULL << free);
+                //child1.white |= (1ULL << free);
+                child1.node_type = OR;
                 node->children[1] = add_or_create(child1);
 
                 child2.white &= ~(1ULL << (is_left?10:35));
                 child2.black |= (1ULL << (is_left?10:35));
-                child2.white |= (1ULL << free);
+                //child2.white |= (1ULL << free);
+                child2.node_type = OR;
                 node->children[2] = add_or_create(child2);
 
                 tree->update_node(node);

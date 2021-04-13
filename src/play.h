@@ -11,7 +11,8 @@ struct Args;
 class Play{
 public:
     Play(std::string filename, bool disproof, bool talky, Args* args_);
-    void play_with_solution();
+    Board play_with_solution(Board base_board);
+    void play_with_solution_split();
 
     void build_tree();
     void build_node(Board b);

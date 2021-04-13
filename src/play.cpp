@@ -1,6 +1,7 @@
 #include "play.h"
 #include "artic_point.h"
 #include "logger.h"
+#include "parallel.h"
 
 #include<sstream>
 #include<fstream>
@@ -157,9 +158,31 @@ void info_to_plot(const Board& board){
     print_board(board.black);
 }
 
-void Play::play_with_solution(){
+void Play::play_with_solution_split(){
     Board base_board;
     choose_problem(base_board, player, false, args); // TODO
+
+    //PNS tree(args);
+    PNSNode* node = new PNSNode(base_board, args);
+    //read_descendents(node, tree, 0, 2,"data/board_sol");
+    read_solution("data/5x10.csv", tree);
+    Board board = play_with_solution(base_board);
+    display(board, true);
+    std::cout<<(board.node_type==OR)<<std::endl;
+
+    delete node;
+    node = new PNSNode(board, args);
+    tree.evaluate_node_with_PNS(node, true, false);
+
+    //std::string filename = "data/board_sol/"+board.to_string()+".sol";
+    //Play::read_solution(filename, tree);
+
+    player = -1;
+    play_with_solution(board);
+}
+
+Board Play::play_with_solution(Board base_board){
+    
     Node* act_node = new PNSNode(base_board, tree.args);
     //tree.extend_all((PNSNode*)act_node, false);
     //act_node = act_node->children[0];
@@ -168,12 +191,6 @@ void Play::play_with_solution(){
     
     int act = -1;
     while(act_node->is_inner() || !tree.game_ended(act_node->get_board())){
-        //std::cout<<"Childnum: "<<act_node->child_num<<std::endl;
-        if(!act_node->is_inner()){
-            //std::cout<<act_node->get_board().white<<" "<<act_node->get_board().black<<std::endl;
-            //display(act_node->get_board().forbidden_all, true);
-        }
-
         std::vector<int> color;
         act = -1;
         if(!act_node->is_inner()) build_node2((PNSNode*)act_node);
@@ -203,6 +220,8 @@ void Play::play_with_solution(){
 
             if(act == ACTION_SIZE or act == -1){
                 printf("Not found next step %d\n", act);
+                return act_node->get_board();
+
                 std::string filename = "data/board_sol/"+act_node->get_board().to_string()+".sol";
                 tree.stats(act_node, true);
                 Play::read_solution(filename, tree);
@@ -238,4 +257,6 @@ void Play::play_with_solution(){
         }
     }
     std::cout<<"[END]\n";
+    
+    return act_node->get_board();
 }
