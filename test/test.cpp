@@ -391,5 +391,9 @@ int main() {
     //Play::read_solution("data/board_sol/9070970929408_586589453435568_0_0.sol", tree);
     std::cout<<tree.get_states_size()<<std::endl;
 
+    b.white = 36318243980297;
+    b.black = 581091895296564;
+    display(b, true);
+
     return 0;
 }

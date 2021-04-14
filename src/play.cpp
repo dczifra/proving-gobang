@@ -45,6 +45,14 @@ NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* ar
     board.white |= (1ULL << 5) | (1ULL << 40);
     board.white |= (1ULL << 10) | (1ULL << 35);
 
+    //board.white = 105588549747721ULL;
+    //board.black = 722928895279668ULL;
+    //board.score_left = 1;
+    //board.score_right = 1;
+    //board.node_type = AND;
+    //board.forbidden_all = 290271069732930ULL;
+    //player = -1;
+
     if(args->START > -1) board.move({args->START}, player);
 
     return (player==1?OR:AND);

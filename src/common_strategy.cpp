@@ -339,9 +339,19 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
                 score=0;
                 // If one of the 7 line is covered, can move free
                 int center = is_left?12:37;
+                int opposite = (action/ROW)*ROW+4-(action%ROW);
                 if(is_inner & (has(center-1, act_board.black) || has(center+1, act_board.black))){
                     // Move free
-                    act_board.white |= (1ULL << free);
+                    //act_board.white |= (1ULL << free);
+                    if(has(center-1, act_board.black) && has(center+1, act_board.black)){
+                        // move free
+                    }
+                    else if(has(opposite, act_board.black)){
+                        // move free
+                    }
+                    else{
+                        act_board.white |= (1ULL << free);
+                    }
                 }
                 else if(!is_inner){
                     //act_board.move(free, -1)
@@ -356,6 +366,8 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
                 else{
                     //move free, but give up the other field
                     //act_board.white |= (1ULL << free);
+                    //act_board.move(free, -1);
+
                     int def = is_left?action+5:action-5;
                     if(act_board.is_valid(def)){
                         act_board.move(def, -1);
