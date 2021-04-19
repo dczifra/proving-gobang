@@ -350,7 +350,8 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
                         // move free
                     }
                     else{
-                        act_board.white |= (1ULL << free);
+                        // === CHEAT ===:
+                        //act_board.white |= (1ULL << free);
                     }
                 }
                 else if(!is_inner){
@@ -368,12 +369,30 @@ Node* GeneralCommonStrategy::move_on_common(const Board& b, int action){
                     //act_board.white |= (1ULL << free);
                     //act_board.move(free, -1);
 
-                    int def = is_left?action+5:action-5;
-                    if(act_board.is_valid(def)){
-                        act_board.move(def, -1);
-                        act_board.white |= (1ULL << free);
+                    if(has(opposite, act_board.black)){
+                        // move free
                     }
-                    else act_board.move(free, -1);
+                    else{
+                        act_board.forbidden_all &= ~side;
+                        std::vector<int> def_choices = {center-1, center+1, opposite, free};
+
+                        int i=0;
+                        Node* node = new InnerNode(4, AND);
+                        for(auto def: def_choices){
+                            Board child(act_board);
+                            if(child.is_valid(def)){
+                                child.move(def, -1);
+                                if(def != opposite || def != free){
+                                    // === CHEAT ===
+                                    //child.white |= (1ULL << free);
+                                }
+                            }
+                            else child.move(free, -1);
+                            node->children[i++] = add_or_create(child);
+                        }
+                        tree->update_node(node);
+                        return node;
+                    }
                 }
             }
             else{
