@@ -1,1 +1,270 @@
-{}
+@Inbook{Bundy1984,
+author="Bundy, Alan
+and Wallen, Lincoln",
+title="Alpha/Beta Pruning",
+bookTitle="Catalogue of Artificial Intelligence Tools",
+year="1984",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="4--4",
+abstract="A refinement of minimax <145> to determine the optimal move in a game. Nodes that are not needed to evaluate the possible moves of the top node are `pruned'. Suppose that MAX is to move at parent node P. and that it is known from previous calculations that daughter D1 guarantees a minimum gain of say +20 for MAX. Now we start exploring D2 and discover that the opponent can force a maximal gain of +10 by reacting to D2 with D2. 1. In this case there is no need to explore other daughters of D2, because MAX can never gain more than +10 and therefore will always prefer D1. Following this line of reasoning, both from the point of view of MAX and of MIN, large parts of the tree need not be explored and an optimal solution will still be found.",
+isbn="978-3-642-96868-6",
+doi="10.1007/978-3-642-96868-6_7",
+url="https://doi.org/10.1007/978-3-642-96868-6_7"
+}
+
+@inproceedings{hex_8x8,
+  author    = {Philip Henderson and
+               Broderick Arneson and
+               Ryan B. Hayward},
+  title     = {Solving 8x8 Hex},
+  booktitle = {{IJCAI} 2009, Proceedings of the 21st International Joint Conference
+               on Artificial Intelligence, Pasadena, California, USA, July 11-17,
+               2009},
+  pages     = {505--510},
+  year      = {2009},
+  crossref  = {DBLP:conf/ijcai/2009},
+  url       = {http://ijcai.org/Proceedings/09/Papers/091.pdf},
+  timestamp = {Tue, 20 Aug 2019 16:16:46 +0200},
+  biburl    = {https://dblp.org/rec/conf/ijcai/HendersonAH09.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@proceedings{DBLP:conf/ijcai/2009,
+  editor    = {Craig Boutilier},
+  title     = {{IJCAI} 2009, Proceedings of the 21st International Joint Conference
+               on Artificial Intelligence, Pasadena, California, USA, July 11-17,
+               2009},
+  year      = {2009},
+  url       = {http://ijcai.org/proceedings/2009},
+  timestamp = {Sun, 04 Apr 2021 05:26:29 +0200},
+  biburl    = {https://dblp.org/rec/conf/ijcai/2009.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+
+@article{PNS_base,
+title = {Proof-number search},
+journal = {Artificial Intelligence},
+volume = {66},
+number = {1},
+pages = {91-124},
+year = {1994},
+issn = {0004-3702},
+doi = {https://doi.org/10.1016/0004-3702(94)90004-3},
+url = {https://www.sciencedirect.com/science/article/pii/0004370294900043},
+author = {L.Victor Allis and Maarten {van der Meulen} and H.Jaap {van den Herik}}
+}
+
+@article{conspiracy,
+title = {Conspiracy numbers for min-max search},
+journal = {Artificial Intelligence},
+volume = {35},
+number = {3},
+pages = {287-310},
+year = {1988},
+issn = {0004-3702},
+doi = {https://doi.org/10.1016/0004-3702(88)90019-7},
+url = {https://www.sciencedirect.com/science/article/pii/0004370288900197},
+author = {David Allen McAllester}
+}
+
+@incollection{PNS_variants,
+  author    = {H. Jaap van den Herik and
+               Mark H. M. Winands},
+  title     = {Proof-Number Search and Its Variants},
+  booktitle = {Oppositional Concepts in Computational Intelligence},
+  pages     = {91--118},
+  year      = {2008},
+  crossref  = {DBLP:series/sci/2008-155},
+  url       = {https://doi.org/10.1007/978-3-540-70829-2\_6},
+  doi       = {10.1007/978-3-540-70829-2\_6},
+  timestamp = {Fri, 09 Jun 2017 11:04:36 +0200},
+  biburl    = {https://dblp.org/rec/series/sci/HerikW08.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@book{DBLP:series/sci/2008-155,
+  editor    = {Hamid R. Tizhoosh and
+               Mario Ventresca},
+  title     = {Oppositional Concepts in Computational Intelligence},
+  series    = {Studies in Computational Intelligence},
+  volume    = {155},
+  publisher = {Springer},
+  year      = {2008},
+  isbn      = {978-3-540-70826-1},
+  timestamp = {Sun, 04 Apr 2021 05:18:15 +0200},
+  biburl    = {https://dblp.org/rec/series/sci/2008-155.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{HSU202079,
+title = {On solving the 7,7,5-game and the 8,8,5-game},
+journal = {Theoretical Computer Science},
+volume = {815},
+pages = {79-94},
+year = {2020},
+issn = {0304-3975},
+doi = {https://doi.org/10.1016/j.tcs.2020.02.023},
+url = {https://www.sciencedirect.com/science/article/pii/S0304397520301146},
+author = {Wei-Yuan Hsu and Chu-Ling Ko and Jr-Chang Chen and Ting-Han Wei and Chu-Hsuan Hsueh and I-Chen Wu},
+keywords = {-in-a-row games, -games, Positional games, Pairing strategy, Relevancy-zone},
+abstract = {An mnk-game is a kind of k-in-a-row game played on an m×n board, where two players alternatively mark empty squares with their own colors and the first player who gets k-consecutive marks (horizontally, vertically, or diagonally) wins. In this paper, we present an AND/OR search tree algorithm specifically for proving mnk-games. We first propose three novel methods to reduce the branching factor of AND/OR search trees. We also propose a new method to find pairing strategies, which further accelerate the proof of mnk-games. The combined methods drastically speed up the proof for the 7,7,5-game, which is solved in 2.5 seconds. Moreover, this paper is the first to solve the 8,8,5-game, which is proven as a draw within 17.4 hours.}
+}
+
+@article{BECK1981117,
+title = {On positional games},
+journal = {Journal of Combinatorial Theory, Series A},
+volume = {30},
+number = {2},
+pages = {117-133},
+year = {1981},
+issn = {0097-3165},
+doi = {https://doi.org/10.1016/0097-3165(81)90001-7},
+url = {https://www.sciencedirect.com/science/article/pii/0097316581900017},
+author = {József Beck},
+abstract = {Let {Ai} be a family of sets and let S = ∩iAi. By a positional game we shall mean a game played by two players on {Ai}. The players alternately pick elements of S and that player wins who fist has all the elements of one of the Ai. This paper deals with almost disjoint hypergraphs only, i.e., |Ai∪Aj| ⩽ 1 if i ≠ j. Let M∗(n) be the smallest integer for which there is an almost disjoint n-uniform hypergraph |T| = M∗(n), so that the first player has a winning strategy. It is shown that limn [M∗(n)]1n = 4, which was conjectured by Erdös. The same method is applied to prove a conjecture of Hales and Jewett on r-dimensional tick-tack-toe if r is large enough. Finally we prove that for an arbitrary almost disjoint n-uniform hypergraph the second player has such a strategy that the first player unable to win in his mth move if m < (2 − ϵ)n.}
+}
+
+@MISC{Allis1994SearchingFS,
+    author = {Louis Victor Allis},
+    title = {Searching for Solutions in Games and Artificial Intelligence },
+    year = {1994}
+}
+
+
+@article{pns_transposition,
+  author    = {Martin Schijf and
+               L. Victor Allis and
+               Jos W. H. M. Uiterwijk},
+  title     = {Proof-Number Search and Transpositions},
+  journal   = {J. Int. Comput. Games Assoc.},
+  volume    = {17},
+  number    = {2},
+  pages     = {63--74},
+  year      = {1994},
+  url       = {https://doi.org/10.3233/ICG-1994-17203},
+  doi       = {10.3233/ICG-1994-17203},
+  timestamp = {Thu, 16 Apr 2020 13:59:06 +0200},
+  biburl    = {https://dblp.org/rec/journals/icga/SchijfAU94.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+
+@book{BerlekampElwynR1983Wwfy,
+publisher = {Academic},
+isbn = {0120911019},
+year = {1983},
+title = {Winning ways for your mathematical plays / Vol.1, Games in general},
+language = {eng},
+address = {London},
+author = {Berlekamp, Elwyn R},
+keywords = {Mathematical recreations},
+lccn = {81066678},
+}
+
+@article{UITERWIJK200043,
+title = {The advantage of the initiative},
+journal = {Information Sciences},
+volume = {122},
+number = {1},
+pages = {43-58},
+year = {2000},
+issn = {0020-0255},
+doi = {https://doi.org/10.1016/S0020-0255(99)00095-X},
+url = {https://www.sciencedirect.com/science/article/pii/S002002559900095X},
+author = {J.W.H.M. Uiterwijk and H.J. {van den Herik}},
+keywords = {Solving games, Domineering, -in-a-row games, Initiative, Zugzwang},
+abstract = {Recently, the list of solved two-person zero-sum games with perfect information has increased. The state of current knowledge is that many games are a win for the first player, some games are draws, and only a few games are a win for the second player. For games with three outcomes (won, drawn, lost) a game is commonly defined as fair if the theoretical value of the game is drawn. For these games as well as for games with two outcomes (won, lost) we were tempted to examine which concepts characterize the outcome of a game. In this paper, we distinguish two main concepts valid for many two-person games, namely initiative and zugzwang. The initiative is defined as an action of the first player. The notion of zugzwang is adopted from the game of chess. To investigate the impact of the initiative we determine the game-theoretic values of a large number of k-in-a-row games and over 200 Domineering games as a function of the board size. The results indicate that having the initiative is a clear advantage under the condition that the board size is sufficiently large.}
+}
+
+@MastersThesis{gomoku775,
+    author     =     {C.-Y. Chen},
+    title     =     {{The Research of New Rules for Gomoku and the Results of Solving Gomoku with 5x5, 6x6, 7x7 Board Size}},
+    school     =     {National Taiwan
+Normal University},
+    address     =     {Taiwan},
+    year     =     {2013},
+    }
+    
+@article{gobang_inf_inf_9,
+	author = {Lajos Győrffy and Géza Makay and András Pluhár},
+	title = {The pairing strategies of the 9-in-a-row game},
+	journal = {ARS MATHEMATICA CONTEMPORANEA},
+	volume = {16},
+	number = {1},
+	year = {2018},
+	keywords = {Positional games, k-in-a-row game, pairing strategies, symmetries},
+	abstract = {One of the most useful strategies for proving Breaker’s win in Maker-Breaker Positional Games is to find a pairing strategy. In some cases there are no pairing strategies at all, in some cases there are unique or almost unique strategies. For the k-in-a-row game, the case k = 9 is the smallest (sharp) for which there exists a Breaker winning pairing (paving) strategy. One pairing strategy for this game was given by Hales and Jewett.In this paper we show that there are other winning pairings for the 9-in-a-row game, all have a very symmetric torus structure. While describing these symmetries we prove that there are only a finite number of non-isomorphic pairings for the game (around 200 thousand), which can be also listed up by a computer program. In addition, we prove that there are no “irregular”, non-symmetric pairings. At the end of the paper we also show a pairing strategy for a variant of the 3-dimensional k-in-a-row game.},
+	issn = {1855-3974},	pages = {97--109},	doi = {10.26493/1855-3974.1350.990},
+	url = {https://amc-journal.eu/index.php/amc/article/view/1350}
+}
+
+@article{games_solved,
+title = "Games Solved: Now and in the Future",
+keywords = "solving games, search methods, game characteristics, brute-force methods, knowledge-based methods, initiative",
+author = "{van den Herik}, HJ and JWHM Uiterwijk and {van Rjiswijck}, J",
+year = "2002",
+month = jan,
+doi = "10.1016/S0004-3702(01)00152-7",
+language = "English",
+volume = "134",
+pages = "277--311",
+journal = "Artificial Intelligence",
+issn = "0004-3702",
+publisher = "Elsevier Science",
+number = "1-2",
+}
+
+@article{inf_inf_8,
+ title = "Solutions of Problems Dedicated to Emory P. Starke",
+ ISSN = {00029890, 19300972},
+ URL = {http://www.jstor.org/stable/2321433},
+ author = {Richard K. Guy and J. L. Selfridge and T. G. L. Zetters},
+ journal = {The American Mathematical Monthly},
+ number = {7},
+ pages = {575--576},
+ publisher = {Mathematical Association of America},
+ volume = {87},
+ year = {1980}
+}
+
+@Inbook{Hales1987,
+author="Hales, A. W.
+and Jewett, R.I.",
+title="Regularity and Positional Games",
+bookTitle="Classic Papers in Combinatorics",
+year="1987",
+publisher="Birkh{\"a}user Boston",
+address="Boston, MA",
+pages="320--327",
+isbn="978-0-8176-4842-8",
+doi="10.1007/978-0-8176-4842-8_23",
+url="https://doi.org/10.1007/978-0-8176-4842-8_23"
+}
+
+@InProceedings{connect_mnkpq,
+author="Wu, I-Chen
+and Huang, Dei-Yen",
+editor="van den Herik, H. Jaap
+and Hsu, Shun-Chin
+and Hsu, Tsan-sheng
+and Donkers, H. H. L. M. (Jeroen)",
+title="A New Family of k-in-a-Row Games",
+booktitle="Advances in Computer Games",
+year="2006",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="180--194",
+abstract="This paper contains three contributions. First, it introduces a new family of k-in-a-row games, Connect(m,n,k,p,q). In Connect(m,n,k, p,q), two players alternately place p stones on an m {\texttimes}n board in each turn, except for the start when the first player places q stones at her first move. The player who first obtains k consecutive stones of her own first wins. The traditional game five-in-a-row, also called Go-Moku, in the free style is Connect(15,15,5,1,1). For brevity, Connect(k,p,q) denotes the game Connect(∞,∞,k,p,q), played on infinite boards.",
+isbn="978-3-540-48889-7"
+}
+
+@ARTICLE{relevance_zone,
+  author={I. {Wu} and P. {Lin}},
+  journal={IEEE Transactions on Computational Intelligence and AI in Games}, 
+  title={Relevance-Zone-Oriented Proof Search for Connect6}, 
+  year={2010},
+  volume={2},
+  number={3},
+  pages={191-207},
+  doi={10.1109/TCIAIG.2010.2060262}}
+
