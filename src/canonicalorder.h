@@ -4,6 +4,7 @@
 
 #define simple_max(A,B) ((A)<(B)?(B):(A))
 #define MAXN (ROW*COL+2*ROW+3*COL+simple_max(0,COL-8)*ROW+1)
+//#define MAXN (ROW*COL+2*ROW+3*COL+simple_max(0,COL-8)*ROW+1)
 
 #include "../nauty27r1/nauty.h"
 

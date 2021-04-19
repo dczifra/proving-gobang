@@ -80,9 +80,14 @@ def add_to_base(base, extra, cols, args, logfile):
             print('\r', p, end=' ', flush=True)
             if(p == "COMPONENTS"):
                 act_params = base+["COMPONENTS", "REMOVE_DEAD_FIELDS"]
+            elif(p == "REMOVE_2_LINE" or p == "REMOVE_LINE_WITH_2x1_DEGREE"):
+                act_params = base+["REMOVE_LINE_WITH_2x1_DEGREE", "REMOVE_2_LINE"]
+            elif(p == "HEURISTIC_PN_INIT" or p == "HEURISTIC_DN_INIT"):
+                act_params = base+["HEURISTIC_PN_INIT", "HEURISTIC_DN_INIT"]
             elif(type(p)==str): act_params = base+[p]
             else: act_params = base+p
-            
+
+            #print(p,act_params)
             tree_size, time0 = run_experiment(act_params, args)
             tree_sizes.append(tree_size)
             times.append(time0)
@@ -102,10 +107,13 @@ def add_to_base(base, extra, cols, args, logfile):
     file.close()
 
     for p in res:
-        print(p)
+        print("{}".format(convert_map[p]), end = ' ')
         for col in res[p]:
-            print("%.2f & %.2f &".format(res[p][col][0], res[p][col][1]), end = ' ')
-        print('')
+            #print("{:.2f} & {:.2f} &".format(res[p][col][0], res[p][col][1]), end = ' ')
+            time_proc = res[p][col][0]
+            size_proc = res[p][col][1]
+            print("& {:.2f} & {:.2f} ".format(time_proc, size_proc), end=' ')
+        print('\\\\')
 
 def remove_from_base(base, cols, args):
     res = {}
@@ -123,6 +131,10 @@ def remove_from_base(base, cols, args):
                 act_params.remove("REMOVE_LINE_WITH_2x1_DEGREE")
             elif(base[i] == "REMOVE_LINE_WITH_2x1_DEGREE"):
                 act_params.remove("REMOVE_2_LINE")
+            elif(base[i] == "HEURISTIC_PN_INIT"):
+                act_params.remove("HEURISTIC_DN_INIT")
+            elif(base[i] == "HEURISTIC_DN_INIT"):
+                act_params.remove("HEURISTIC_PN_INIT")
             #print(act_params)
             
             tree_size, time0 = run_experiment(act_params, args)
@@ -146,6 +158,14 @@ def remove_from_base(base, cols, args):
             print("& {:.2f} & {:.2f} ".format(time_proc, size_proc), end=' ')
         print('\\\\')
 
+def run_all_param():
+    base_params = ["COMPONENTS", "TRANSPOSITION_TABLE", "HEURISTIC_STOP",
+                   "REMOVE_DEAD_FIELDS", "REMOVE_2_LINE",
+                   "REMOVE_LINE_WITH_2x1_DEGREE", "ONE_WAY",
+                   "HEURISTIC_PN_INIT", "HEURISTIC_DN_INIT"]
+    
+    tree_size, time0 = run_experiment(base_params, ["--log"])
+    
 def table1():
     base = ["TRANSPOSITION_TABLE"]
     params = ["ONE_WAY", "REMOVE_DEAD_FIELDS",
@@ -154,6 +174,16 @@ def table1():
     add_to_base(base, params+["vanilla"], [7,8], [], "table1_proof.csv")
     add_to_base(base, params+["vanilla"], [7,8], ["--disproof"], "table1_disproof.csv")
 
+def table1_all():
+    base = ["TRANSPOSITION_TABLE"]
+    params = ["ONE_WAY", "REMOVE_DEAD_FIELDS",
+              "REMOVE_LINE_WITH_2x1_DEGREE", "REMOVE_2_LINE",
+              "HEURISTIC_STOP", "HEURISTIC_PN_INIT", "HEURISTIC_DN_INIT",
+              "COMPONENTS",]# "ISOMORPHIC_TABLE"]
+
+    add_to_base(base, params+["vanilla"], [7], [], "table1_proof.csv")
+    #add_to_base(base, params+["vanilla"], [7,8], ["--disproof"], "table1_disproof.csv")
+    
 def table2():
     base = ["TRANSPOSITION_TABLE", "REMOVE_DEAD_FIELDS", "REMOVE_2_LINE",
               "REMOVE_LINE_WITH_2x1_DEGREE", "ONE_WAY"]
@@ -237,7 +267,10 @@ if(__name__ == "__main__"):
 
 
     #table1()
+    #table1_all()
     #table2()
     table_all()
     #table3()
     #table4()
+
+    #run_all_param()

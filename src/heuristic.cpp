@@ -160,6 +160,18 @@ void add_vertical_lines(std::vector<Line>& lines, std::pair<int,int> cols){
     }
 }
 
+
+void add_vertical_lines(std::vector<Line>& lines, int start, int length, std::pair<int,int> cols){
+    for(int y = cols.first; y<=cols.second; y++){
+        // === Full columns ===
+        Line l;
+        for(int x = start;x<start+length;x++){
+            l.push_back({y,x});
+        }
+        lines.push_back(l);
+    }
+}
+
 void remove_duplicates(std::vector<Line>& lines){
     // === Remove duplicated lines ===
     std::vector<board_int> comp_lines = get_comp_lines(lines);
@@ -177,9 +189,47 @@ void remove_duplicates(std::vector<Line>& lines){
     }
 }
 
+void chinese_board(std::vector<Line>& lines){
+    for(int i=0;i<ROW;i++){
+        add_horizontal_lines(lines, {i}, {0,COL-5}, 5);
+    }
+    for(int i=0;i<=COL-5;i++){
+        add_vertical_lines(lines, i,5,{0, COL-1});
+    }
+
+    for(int y=0;y<=COL-5;y++){
+        for(int x=0;x<=ROW-5;x++){
+            Line l;
+            for(int i=0;i<5;i++){
+                l.push_back({y+i,x+i});
+            }
+            lines.push_back(l);
+        }
+    }
+
+    for(int y=0;y<=COL-5;y++){
+        for(int x=4;x<=ROW-1;x++){
+            Line l;
+            for(int i=0;i<5;i++){
+                l.push_back({y+i,x-i});
+            }
+            lines.push_back(l);
+        }
+    }
+}
+
+void board884(std::vector<Line>& lines){
+    add_horizontal_lines(lines, {0,1,2,3}, {0,COL-4}, 4);
+    
+    add_diagonal_lines(lines, {0, COL-1});
+    
+    add_vertical_lines(lines, {0, COL-1});
+}
+
 void classical_board(std::vector<Line>& lines){
     // === Extras ===
     classic_2corners(lines);
+    //lines.push_back({{1,0}, {0,1}});
     //replace_2lines_with_inner2lines(lines);
     //many_threelines(lines);
 
@@ -330,6 +380,8 @@ void read_lines_from_file(std::vector<Line>& lines){
 
 void Heuristic::generate_lines(){
     classical_board(lines);
+    //board884(lines);
+    //chinese_board(lines);
     //zsolts_board(lines);
     //read_lines_from_file(lines);
     if(0){
