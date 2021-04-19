@@ -77,7 +77,7 @@ void Play::read_solution(std::string filename, PNS& mytree){
         file.read((char*) &pn, sizeof(int));
         file.read((char*) &dn, sizeof(int));
         if(mytree.get_states(b)==nullptr){
-            
+
             PNSNode* node = new PNSNode(b, &temp_args);
             node->pn = pn;
             node->dn = dn;
@@ -182,10 +182,11 @@ void Play::play_with_solution_split(){
     node = new PNSNode(board, args);
     tree.evaluate_node_with_PNS(node, true, false);
 
+    std::cout<<"==================\n\n\n";
     //std::string filename = "data/board_sol/"+board.to_string()+".sol";
     //Play::read_solution(filename, tree);
 
-    player = -1;
+    player = get_player(node->type);
     play_with_solution(board);
 }
 
@@ -219,6 +220,10 @@ Board Play::play_with_solution(Board base_board){
                 std::cin>>row>>col;
                 act = col*ROW+row;
                 act_node = act_node->children[get_index(act, act_node->get_board())];
+                if(act_node->children[get_index(act, act_node->get_board())] == nullptr){
+                    std::cout<<"Problem...\n";
+                    return act_node->get_board();
+                }
             }
         }
         else{

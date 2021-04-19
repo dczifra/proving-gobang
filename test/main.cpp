@@ -196,13 +196,13 @@ int main(int argc, char* argv[]){
         prove_node(args);
     }
     else if(args.generate_parallel){
-        generate_roots_descendents(args, 2);
+        generate_roots_descendents(args, 3);
     }
     else if(args.merge_solutions){
         merge_solutions(args, args.get_filename());
     }
     else if(args.test){
-        //Play game("data/board_sol/36283883716651_4_0_0.sol", args.disproof, args.talky, &args);
+        //Play game("data/board_sol/36318243455051_581091895297588_0_0.sol", args.disproof, args.talky, &args);
         Play game(args.get_filename(), args.disproof, args.talky, &args);
         game.play_with_solution_split();
     }

@@ -24,7 +24,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/AMOBA_DEBUG",
-            "args": ["--test"],
+            "args": ["--merge_solutions"],
             //"args": ["--log"],
             //"args": [],
             "stopAtEntry": false,

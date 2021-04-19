@@ -89,10 +89,13 @@ void read_descendents(Node* node, PNS& tree, int depth, int maxdepth, std::strin
             assert(!child->is_inner());
 
             Board act_board(child->get_board());
+            //if(!child->extended){
             if(tree.get_states(act_board)==nullptr){
                 //std::string filename = foldername+"/"+act_board.to_string()+".sol";
                 //Play::read_solution(filename, tree);
-                tree.add_board(act_board, new PNSNode(act_board));
+                if(tree.get_states(act_board) == nullptr){
+                    tree.add_board(act_board, new PNSNode(act_board));
+                }
             }
         }
     }
@@ -107,11 +110,12 @@ void merge_solutions(Args& args, std::string filename){
     // === Read and merge ===
     PNS tree(&args);
     PNSNode* node = new PNSNode(board, &args);
-    read_descendents(node, tree, 0, 2,"data/board_sol");
+    read_descendents(node, tree, 0, 3,"data/board_sol");
     std::cout<<"\nAll files processed\n";
     std::cout<<"       Writing the merged file:..."<<std::flush;
     Logger logger;
     logger.log_states(tree, filename);
     std::cout<<"\r[Done]\n";
+    tree.stats(nullptr, true);
 
 }
