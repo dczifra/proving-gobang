@@ -110,7 +110,7 @@ void merge_solutions(Args& args, std::string filename){
     // === Read and merge ===
     PNS tree(&args);
     PNSNode* node = new PNSNode(board, &args);
-    read_descendents(node, tree, 0, 3,"data/board_sol");
+    read_descendents(node, tree, 0, 2,"data/board_sol");
     std::cout<<"\nAll files processed\n";
     std::cout<<"       Writing the merged file:..."<<std::flush;
     Logger logger;

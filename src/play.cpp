@@ -180,14 +180,26 @@ void Play::play_with_solution_split(){
 
     delete node;
     node = new PNSNode(board, args);
-    tree.evaluate_node_with_PNS(node, true, false);
+    player = get_player(node->type);
 
     std::cout<<"==================\n\n\n";
-    //std::string filename = "data/board_sol/"+board.to_string()+".sol";
-    //Play::read_solution(filename, tree);
+    if(0){
+        tree.evaluate_node_with_PNS(node, true, false);
+    }
+    else{
+        std::string filename = "data/board_sol/"+board.to_string()+".sol";
+        Play::read_solution(filename, tree);
+        board = play_with_solution(board);
 
-    player = get_player(node->type);
-    play_with_solution(board);
+        delete node;
+        node = new PNSNode(board, args);
+        player = get_player(node->type);
+        tree.evaluate_node_with_PNS(node, true, false);
+        play_with_solution(board);
+    }
+
+    // TODO: save proved node...
+    
 }
 
 Board Play::play_with_solution(Board base_board){
@@ -219,10 +231,11 @@ Board Play::play_with_solution(Board base_board){
             else{
                 std::cin>>row>>col;
                 act = col*ROW+row;
+                Board last_board(act_node->get_board());
                 act_node = act_node->children[get_index(act, act_node->get_board())];
-                if(act_node->children[get_index(act, act_node->get_board())] == nullptr){
+                if(act_node == nullptr){
                     std::cout<<"Problem...\n";
-                    return act_node->get_board();
+                    return last_board;
                 }
             }
         }
