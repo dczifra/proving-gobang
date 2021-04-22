@@ -169,9 +169,12 @@ Node *GeneralCommonStrategy::move_on_common(const Board &b, int action)
                 act_board.white |= (1ULL << (is_left?2:47));
             }
             else{
-                act_board.move(center, -1);
-                board_int free = side & act_board.forbidden_all & ~(act_board.white | act_board.black);
-                if(is_inner) act_board.white |= free;
+                act_board.move(opposite, -1);
+                act_board.white |= (1ULL << (is_left?2:47));
+                
+                //act_board.move(center, -1);
+                //board_int free = side & act_board.forbidden_all & ~(act_board.white | act_board.black);
+                //if(is_inner) act_board.white |= free;
             }
         }
         act_board.forbidden_all &= ~side;

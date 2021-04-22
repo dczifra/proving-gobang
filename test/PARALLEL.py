@@ -32,8 +32,7 @@ def print_res(arg):
     elif(result == "fail"):
         #print("Fail", b)
         log["again"].append(b)
-    else:
-        print("\r{}/{} [failed: {}] [proof: {}]".format(log["DN"], log["all"], log["fail"], log["PN"]), flush=True, end=" ")
+    print("\r{}/{} [failed: {}] [proof: {}]".format(log["DN"], log["all"], log["fail"], log["PN"]), flush=True, end=" ")
 
 
 def run_all_board(boards, procnum, memory_limit):
@@ -54,7 +53,7 @@ log={
     "again":[],
 }
 
-def runfile(filename):
+def runfile(filename, procnum, memlimit):
     print(filename)
     with open(filename, "r") as file:
         boards = file.read().split('\n')
@@ -62,7 +61,7 @@ def runfile(filename):
         random.shuffle(boards)
         print(len(boards))
     
-    run_all_board(boards, 15, 30)
+    run_all_board(boards, procnum, memlimit)
     print("Summary: {}/{} [failed: {}] [proof: {}]".format(log["DN"], log["all"],
                                                            log["fail"], log["PN"]))
     with open(filename+".fail", "w") as f:
@@ -70,8 +69,8 @@ def runfile(filename):
             f.write(b+"\n")
 
 if(__name__ == "__main__"):
-    runfile("../ors.txt")
-    runfile("../ands.txt")
+    runfile("../ors.txt", 15, 10)
+    runfile("../ands.txt", 15, 10)
     run_all_board(log["again"], 2, 150)
     print("Summary: {}/{} [failed: {}] [proof: {}]".format(log["DN"], log["all"],
                                                            log["fail"], log["PN"]))
