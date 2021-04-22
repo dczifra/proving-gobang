@@ -59,7 +59,7 @@ void generate_roots_descendents(Args& args, int depth){
     // === Add all decendents above the given depth ===
     Descendents ors("../ors.txt");
     Descendents ands("../ands.txt");
-    add_descendents(node, tree, 0, 2, ors.boards, ands.boards);
+    add_descendents(node, tree, 0, depth, ors.boards, ands.boards);
     std::cout<<ors.boards.size()<<" "<<ands.boards.size()<<" "<<tree.get_states_size()<<std::endl;
 
     // === Log the descendents ===
@@ -110,7 +110,7 @@ void merge_solutions(Args& args, std::string filename){
     // === Read and merge ===
     PNS tree(&args);
     PNSNode* node = new PNSNode(board, &args);
-    read_descendents(node, tree, 0, 2,"data/board_sol");
+    read_descendents(node, tree, 0, 3,"data/board_sol");
     std::cout<<"\nAll files processed\n";
     std::cout<<"       Writing the merged file:..."<<std::flush;
     Logger logger;
