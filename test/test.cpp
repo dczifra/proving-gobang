@@ -395,5 +395,7 @@ int main() {
     b.black = 722928895279668;
     display(b, true);
 
+    print_failed("../fail1.txt");
+
     return 0;
 }

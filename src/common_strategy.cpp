@@ -29,22 +29,26 @@ void activate_line(Board& board, int line){
 }
 
 void move_to_center(Board& act_board, int action, bool is_left){
-    if (action == 7 || action == 47){
-        if (is_left){
-            act_board.move(11, -1);
+    if(action == 7 || action == 47){
+        if(is_left){
+            if(((1ULL << 11) & act_board.black) || ((1ULL << 1) & act_board.black)) 0;// Move free
+            // TODO: else if((1ULL << 11) & act_board.white)  act_board.move(6,-1);
+            else act_board.move(11, -1);
         }
         else{
             act_board.node_type = OR;
             deactivate_line(act_board, 45);
         }
     }
-    else if (action == 2 || action == 42){
-        if (is_left){
+    else if(action == 2 || action == 42){
+        if(is_left){
             act_board.node_type = OR;
             deactivate_line(act_board, 5);
         }
         else{
-            act_board.move(37, -1);
+            if((1ULL << 37) & act_board.black) 0;// Move free
+            // TODO: else if((1ULL << 37) & act_board.white)  act_board.move(47,-1);
+            else act_board.move(37, -1);
         }
     }
 }
@@ -64,26 +68,9 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action)
     }
     else{
         // Center
-        if(action == 7 || action == 47){
+        if(action == 7 || action == 47 || action == 2 || action == 42){
             act_board.move(action, 1);
-            if (is_left){
-                act_board.move(11, -1);
-            }
-            else{
-                act_board.node_type = OR;
-                deactivate_line(act_board, 45);
-            }
-            act_board.forbidden_all ^= (1ULL << action) | (1ULL << action - 1) | (1ULL << action + 1);
-        }
-        else if (action == 2 || action == 42){
-            act_board.move(action, 1);
-            if (is_left){
-                act_board.node_type = OR;
-                deactivate_line(act_board, 5);
-            }
-            else{
-                act_board.move(37, -1);
-            }
+            move_to_center(act_board, action, is_left);
             act_board.forbidden_all ^= (1ULL << action) | (1ULL << action - 1) | (1ULL << action + 1);
         }
         else if (action == 1 || action == 3 || action == 41 || action == 43 ||
@@ -198,25 +185,9 @@ Node *GeneralCommonStrategy::move_on_common(const Board &b, int action)
             // TODO: move to specific fields
         }
 
-        if (action == 7 || action == 47){
+        if (action == 7 || action == 47 || action == 2 || action == 42){
             act_board.move(action, 1);
-            if (is_left){
-                act_board.move(11, -1);
-            }
-            else{
-                act_board.node_type = OR;
-                deactivate_line(act_board, 45);
-            }
-        }
-        else if (action == 2 || action == 42){
-            act_board.move(action, 1);
-            if (is_left){
-                act_board.node_type = OR;
-                deactivate_line(act_board, 5);
-            }
-            else{
-                act_board.move(37, -1);
-            }
+            move_to_center(act_board, action, is_left);
         }
         else if (action == 1 || action == 41 || action == 6 || action == 46 ||
                  action == 3 || action == 43 || action == 8 || action == 48){

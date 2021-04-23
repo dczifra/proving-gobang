@@ -101,6 +101,18 @@ void read_descendents(Node* node, PNS& tree, int depth, int maxdepth, std::strin
     }
 }
 
+void print_failed(std::string filename){
+    std::ifstream file(filename, std::ifstream::in);
+    while(file){
+        Board b;
+        int type;
+        int trash;
+        file>>b.white>>b.black>>b.score_left>>b.score_right>>type>>b.forbidden_all>>trash>>trash;
+        b.node_type = (NodeType) type;
+        display(b, true);
+    }
+}
+
 void merge_solutions(Args& args, std::string filename){
     // === Init board ===
     int player = 1;

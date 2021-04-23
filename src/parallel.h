@@ -20,6 +20,8 @@ struct Descendents{
     }
 };
 
+void print_failed(std::string filename);
+
 void generate_roots_descendents(Args& args, int depth = 3);
 
 void read_descendents(Node* node, PNS& tree, int depth, int maxdepth, std::string foldername);

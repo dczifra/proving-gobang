@@ -21,11 +21,11 @@ Play::Play(std::string filename, bool disproof, bool talky, Args* args_):talky(t
 }
 
 void side_starts(Board& board){
-    std::vector<int> whites = {46,48};
-    std::vector<int> blacks = {47};
+    std::vector<int> whites = {41,46,47};
+    std::vector<int> blacks = {43,48};
 
-    std::vector<int> whites2 = {2,8,6};
-    std::vector<int> blacks2 = {7};
+    std::vector<int> whites2 = {1,2,6};
+    std::vector<int> blacks2 = {3,8};
     
     board.forbidden_all = 0;
     //board.node_type = AND;
