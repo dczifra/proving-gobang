@@ -32,7 +32,7 @@ void move_to_center(Board& act_board, int action, bool is_left){
     if(action == 7 || action == 47){
         if(is_left){
             if(((1ULL << 11) & act_board.black) || ((1ULL << 1) & act_board.black)) 0;// Move free
-            // TODO: else if((1ULL << 11) & act_board.white)  act_board.move(6,-1);
+            else if((1ULL << 11) & act_board.white)  act_board.move(6,-1); // TODO: maybe cheating
             else act_board.move(11, -1);
         }
         else{
@@ -47,7 +47,7 @@ void move_to_center(Board& act_board, int action, bool is_left){
         }
         else{
             if((1ULL << 37) & act_board.black) 0;// Move free
-            // TODO: else if((1ULL << 37) & act_board.white)  act_board.move(47,-1);
+            else if((1ULL << 37) & act_board.white)  act_board.move(47,-1);
             else act_board.move(37, -1);
         }
     }
@@ -153,7 +153,10 @@ Node *GeneralCommonStrategy::move_on_common(const Board &b, int action)
             }
             else if (next == last_att_act){
                 act_board.move(opposite, -1);
-                act_board.white |= (1ULL << (is_left?2:47));
+                //act_board.white |= (1ULL << (is_left?2:47));
+                // Continue common for the last 2 nodes
+                act_board.forbidden_all ^= ((1ULL << (action)) | (1ULL << opposite));
+                return add_or_create(act_board);
             }
             else{
                 act_board.move(opposite, -1);
@@ -214,6 +217,19 @@ Node *GeneralCommonStrategy::move_on_common(const Board &b, int action)
         }
         act_board.forbidden_all &= ~side;
         return add_or_create(act_board);
+    }
+    if(num_common_fields == 1 || num_common_fields == 2){
+        if (act_board.node_type == AND){
+            act_board.move(action, -1);
+            act_board.forbidden_all &= ~side;
+            return add_or_create(act_board);
+        }
+        else{
+            act_board.move(action, 1);
+            move_to_center(act_board, action, is_left);
+            act_board.forbidden_all ^= (1ULL << (action));
+            return add_or_create(act_board);
+        }
     }
     else{
         display(act_board, true, {action});

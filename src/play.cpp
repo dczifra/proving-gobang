@@ -21,8 +21,8 @@ Play::Play(std::string filename, bool disproof, bool talky, Args* args_):talky(t
 }
 
 void side_starts(Board& board){
-    std::vector<int> whites = {41,46,47};
-    std::vector<int> blacks = {43,48};
+    std::vector<int> whites = {43,48,47};
+    std::vector<int> blacks = {41,46};
 
     std::vector<int> whites2 = {1,2,6};
     std::vector<int> blacks2 = {3,8};
@@ -45,12 +45,12 @@ NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* ar
     board.white |= (1ULL << 5) | (1ULL << 40);
     board.white |= (1ULL << 10) | (1ULL << 35);
 
-    //board.white = 105588549747721ULL;
-    //board.black = 722928895279668ULL;
-    //board.score_left = 1;
-    //board.score_right = 1;
+    //board.white = 9929966485601ULL;
+    //board.black = 618475290642192ULL;
+    //board.score_left = 0;
+    //board.score_right = 0;
     //board.node_type = AND;
-    //board.forbidden_all = 290271069732930ULL;
+    //board.forbidden_all = 496979255754894ULL;
     //player = -1;
 
     if(args->START > -1) board.move({args->START}, player);
