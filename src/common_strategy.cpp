@@ -187,8 +187,7 @@ Node *GeneralCommonStrategy::move_on_common(const Board &b, int action)
             act_board.move(action, -1);
             // TODO: move to specific fields
         }
-
-        if (action == 7 || action == 47 || action == 2 || action == 42){
+        else if (action == 7 || action == 47 || action == 2 || action == 42){
             act_board.move(action, 1);
             move_to_center(act_board, action, is_left);
         }
@@ -196,8 +195,9 @@ Node *GeneralCommonStrategy::move_on_common(const Board &b, int action)
                  action == 3 || action == 43 || action == 8 || action == 48){
             act_board.move(action, 1);
             if (action == 6 || action == 8){
-                act_board.move(action + 5, -1);
-                // TODO if not valid
+                if(act_board.is_valid(action + 5)) act_board.move(action + 5, -1);
+                // TODO: if(black) move free,
+                //       else act_board.move(action - 5, -1);
             }
             else if (action == 46 || action == 48){
                 deactivate_line(act_board, action == 46 ? 45 : 35);
@@ -226,10 +226,60 @@ Node *GeneralCommonStrategy::move_on_common(const Board &b, int action)
         }
         else{
             act_board.move(action, 1);
-            move_to_center(act_board, action, is_left);
-            act_board.forbidden_all ^= (1ULL << (action));
-            return add_or_create(act_board);
+            //move_to_center(act_board, action, is_left);
+
+            if(is_inner){
+                act_board.forbidden_all &= ~side;
+                Node* node = new InnerNode(2,AND);
+                Board child1(act_board);
+                Board child2(act_board);
+
+                if(child1.is_valid(is_left?12:37)){
+                    child1.move(is_left?12:37, -1);
+                }
+                //else child2.move(other, -1);// CHETING
+
+                int up_common = is_left?6:41;
+                int up = is_left?11:36;
+                int down = is_left?13:38;
+                int other = is_left?2:47;
+
+                int act = ((1ULL << up_common) & child2.white)?up:down;
+                if(child2.is_valid(act)) child2.move(act, -1);
+                //else child2.move(other, -1);// CHETING
+
+                node->children[0] = add_or_create(child1);
+                node->children[1] = add_or_create(child2);
+                tree->update_node(node);
+                return node;
+            }
+            else{
+                act_board.forbidden_all &= ~side;
+                Node* node = new InnerNode(2,OR);
+                Board child1(act_board);
+                Board child2(act_board);
+
+                deactivate_line(child1, is_left?5:40);
+                child1.node_type = OR;
+
+                int up_common = is_left?6:41;
+                int up = is_left?0:45;
+                int down = is_left?10:35;
+                int line = ((1ULL << up_common) & child2.white)?up:down;
+                deactivate_line(child2, line);
+                child2.node_type = AND;
+
+                node->children[0] = add_or_create(child1);
+                node->children[1] = add_or_create(child2);
+                tree->update_node(node);
+                return node;
+            }
+            //act_board.forbidden_all ^= (1ULL << (action));
+            //act_board.forbidden_all &= ~side;
+            //return add_or_create(act_board);
         }
+
+
     }
     else{
         display(act_board, true, {action});
