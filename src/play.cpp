@@ -17,7 +17,7 @@ Play::Play(std::string filename, bool disproof, bool talky, Args* args_):talky(t
     read_solution(filename, tree);
     printf("Proof/disproof tree size: %zu\n", tree.states.size());
     printf("Isommap size: %zu\n", isom_map.size());
-    human_player = 1;
+    human_player = -1;
 }
 
 void side_starts(Board& board){
@@ -36,6 +36,18 @@ void side_starts(Board& board){
     for(auto b: blacks2) board.black |= (1ULL << b);
 }
 
+Board get_board(std::string board){
+    std::stringstream file(board);
+
+    Board b;
+    int type;
+    int trash;
+    file>>b.white>>b.black>>b.score_left>>b.score_right>>type>>b.forbidden_all>>trash>>trash;
+    b.node_type = (NodeType) type;
+    //display(b, true);
+    return b;
+}
+
 NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* args){
     if(disproof) board.move({0,1, ACTION_SIZE-1}, player);
     //board.move({7,11}, player);
@@ -45,6 +57,8 @@ NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* ar
     board.white |= (1ULL << 5) | (1ULL << 40);
     board.white |= (1ULL << 10) | (1ULL << 35);
 
+    board = get_board("142146237629473 616276267385360 0 0 1 15393162789326 1 1");
+    player = -1;
     //board.white = 9929966485601ULL;
     //board.black = 618475290642192ULL;
     //board.score_left = 0;

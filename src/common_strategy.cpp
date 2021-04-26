@@ -31,7 +31,7 @@ void activate_line(Board& board, int line){
 void move_to_center(Board& act_board, int action, bool is_left){
     if(action == 7 || action == 47){
         if(is_left){
-            if(((1ULL << 11) & act_board.black) || ((1ULL << 1) & act_board.black)) 0;// Move free
+            if((((1ULL << 11) | (1ULL << 6) | (1ULL << 1)) & act_board.black)) 0;// Move free
             else if((1ULL << 11) & act_board.white)  act_board.move(6,-1); // TODO: maybe cheating
             else act_board.move(11, -1);
         }
@@ -46,7 +46,7 @@ void move_to_center(Board& act_board, int action, bool is_left){
             deactivate_line(act_board, 5);
         }
         else{
-            if((1ULL << 37) & act_board.black) 0;// Move free
+            if(((1ULL << 37) | (1ULL << 42) | (1ULL << 47)) & act_board.black) 0;// Move free
             else if((1ULL << 37) & act_board.white)  act_board.move(47,-1);
             else act_board.move(37, -1);
         }
@@ -152,11 +152,36 @@ Node *GeneralCommonStrategy::move_on_common(const Board &b, int action)
                 act_board.move(next0, -1);
             }
             else if (next == last_att_act){
-                act_board.move(opposite, -1);
+                
+                //I.
+                //act_board.move(opposite, -1);
                 //act_board.white |= (1ULL << (is_left?2:47));
-                // Continue common for the last 2 nodes
-                act_board.forbidden_all ^= ((1ULL << (action)) | (1ULL << opposite));
-                return add_or_create(act_board);
+
+                //II. Continue common for the last 2 nodes
+                //act_board.move(opposite, -1);
+                //act_board.forbidden_all ^= ((1ULL << (action)) | (1ULL << opposite));
+                //return add_or_create(act_board);
+
+                // III.
+                Board child1(act_board);
+                Board child2(act_board);
+                Node* node = new InnerNode(2,is_left?OR:AND);
+                
+                child1.move(opposite, -1);
+
+                if(is_left){
+                    int act = (action == 1 || action == 6)?11:13;
+                    if((1ULL << act) & act_board.black) child2.move(act, -1);
+                }
+                else{
+                    int line = (action == 41 || action == 46)?45:35;
+                    deactivate_line(child2, line);
+                }
+                
+                node->children[0] = add_or_create(child1);
+                node->children[1] = add_or_create(child2);
+                tree->update_node(node);
+                return node;
             }
             else{
                 act_board.move(opposite, -1);
@@ -204,8 +229,9 @@ Node *GeneralCommonStrategy::move_on_common(const Board &b, int action)
             }
             else if (action == 1 || action == 41 || action == 3 || action == 43){
                 act_board.move(center, -1);
-                if (!is_left)
-                    act_board.white |= (1ULL << opposite);
+                // CHEAT
+                //if (!is_left)
+                //    act_board.white |= (1ULL << opposite);
             }
             else{
                 assert(0);
