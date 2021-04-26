@@ -57,8 +57,8 @@ NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* ar
     board.white |= (1ULL << 5) | (1ULL << 40);
     board.white |= (1ULL << 10) | (1ULL << 35);
 
-    board = get_board("142146237629473 616276267385360 0 0 1 15393162789326 1 1");
-    player = -1;
+    //board = get_board("142146237629473 616276267385360 0 0 1 15393162789326 1 1");
+    //player = -1;
     //board.white = 9929966485601ULL;
     //board.black = 618475290642192ULL;
     //board.score_left = 0;
