@@ -17,16 +17,22 @@ Play::Play(std::string filename, bool disproof, bool talky, Args* args_):talky(t
     read_solution(filename, tree);
     printf("Proof/disproof tree size: %zu\n", tree.states.size());
     printf("Isommap size: %zu\n", isom_map.size());
-    human_player = 1;
+    human_player = -1;
+}
+
+void deactivate_line2(Board& board, int line){
+    board.white &= ~(1ULL << line);
+    board.black |= (1ULL << line);
 }
 
 void side_starts(Board& board){
-    std::vector<int> whites = {43,48,42};
-    std::vector<int> blacks = {41,46, 47};
+    std::vector<int> whites = {42,47};
+    std::vector<int> blacks = {37};
 
-    std::vector<int> whites2 = {3,8,7};
-    std::vector<int> blacks2 = {1,6,2};
+    std::vector<int> whites2 = {2,7};
+    std::vector<int> blacks2 = {12};
     
+    //board.forbidden_all &= ~(board.white | board.black);
     board.forbidden_all = 0;
     //board.node_type = AND;
 
@@ -57,7 +63,10 @@ NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* ar
     board.white |= (1ULL << 5) | (1ULL << 40);
     board.white |= (1ULL << 10) | (1ULL << 35);
 
-    //board = get_board("142146237629473 616276267385360 0 0 1 15393162789326 1 1");
+    //deactivate_line2(board, 0);
+    //deactivate_line2(board, 45);
+
+    //board = get_board("38482906975237 589922348057136 0 0 1 496979255755200 2 2");
     //player = -1;
     //board.white = 9929966485601ULL;
     //board.black = 618475290642192ULL;

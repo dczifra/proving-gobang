@@ -53,6 +53,54 @@ void move_to_center(Board& act_board, int action, bool is_left){
     }
 }
 
+void move_to_center1(Board& act_board, int action, bool is_left){
+    if(action == 2){
+        act_board.node_type = OR;
+        deactivate_line(act_board, 0);
+    }
+    else if(action == 7){
+        if((((1ULL << 11) | (1ULL << 6) | (1ULL << 1)) & act_board.black)) 0;// Move free
+        else if((1ULL << 11) & act_board.white)  act_board.move(6,-1); // TODO: maybe cheating
+        else act_board.move(11, -1);
+    }
+    else if(action == 42){
+        if((((1ULL << 36) | (1ULL << 41) | (1ULL << 46)) & act_board.black)) 0;// Move free
+        else if((1ULL << 36) & act_board.white)  act_board.move(41,-1); // TODO: maybe cheating
+        else act_board.move(36, -1);
+    }
+    else if(action == 47){
+        act_board.node_type = OR;
+        deactivate_line(act_board, 45);
+    }
+    else{
+        assert(0);
+    }
+}
+
+void move_to_center2(Board& act_board, int action, bool is_left){
+    if(action == 2){
+        act_board.node_type = OR;
+        deactivate_line(act_board, 5);
+    }
+    else if(action == 7){
+        if((1ULL << 12) & act_board.black) 0;// Move free
+        // TODO els if ((1ULL << 12) & act_board.white)
+        else act_board.move(12, -1);
+    }
+    else if(action == 42){
+        if((1ULL << 37) & act_board.black) 0;// Move free
+        // TODO els if ((1ULL << 37) & act_board.white)
+        else act_board.move(37, -1);
+    }
+    else if(action == 47){
+        act_board.node_type = OR;
+        deactivate_line(act_board, 40);
+    }
+    else{
+        assert(0);
+    }
+}
+
 Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action)
 {
     // TODO: Ugly, burnt in variables
@@ -70,7 +118,7 @@ Node* GeneralCommonStrategy::six_common_fields(Board& act_board, int action)
         // Center
         if(action == 7 || action == 47 || action == 2 || action == 42){
             act_board.move(action, 1);
-            move_to_center(act_board, action, is_left);
+            move_to_center1(act_board, action, is_left);
             act_board.forbidden_all ^= (1ULL << action) | (1ULL << action - 1) | (1ULL << action + 1);
         }
         else if (action == 1 || action == 3 || action == 41 || action == 43 ||
@@ -143,8 +191,9 @@ Node *GeneralCommonStrategy::move_on_common(const Board &b, int action)
             int next = ((1ULL << (action + 5)) & PNS::heuristic.forbidden_all) ? action + 5 : action - 5;
             //std::cout << next << std::endl;
             if ((action/ROW) == (last_att_act/ROW)){
-                move_to_center(act_board, action, is_left);
-                act_board.forbidden_all ^= (1ULL << (center - 1)) | (1ULL << center) | (1ULL << (center + 1));
+                //move_to_center(act_board, action, is_left);
+                //act_board.forbidden_all ^= (1ULL << (center - 1)) | (1ULL << center) | (1ULL << (center + 1));
+                act_board.forbidden_all &= ~(act_board.white | act_board.black);
                 return add_or_create(act_board);
             }
             else if (action == center){
@@ -218,7 +267,7 @@ Node *GeneralCommonStrategy::move_on_common(const Board &b, int action)
         }
         else if (action == 7 || action == 47 || action == 2 || action == 42){
             act_board.move(action, 1);
-            move_to_center(act_board, action, is_left);
+            move_to_center2(act_board, action, is_left);
         }
         else if (action == 1 || action == 41 || action == 6 || action == 46 ||
                  action == 3 || action == 43 || action == 8 || action == 48){
@@ -234,7 +283,7 @@ Node *GeneralCommonStrategy::move_on_common(const Board &b, int action)
             else if (action == 1 || action == 41 || action == 3 || action == 43){
                 act_board.move(center, -1);
                 // CHEAT
-                if (!is_left)
+                if (is_left)
                     act_board.white |= (1ULL << opposite);
             }
             else{
