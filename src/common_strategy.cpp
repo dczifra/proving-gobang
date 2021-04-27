@@ -154,7 +154,8 @@ Node *GeneralCommonStrategy::move_on_common(const Board &b, int action)
             else if (next == last_att_act){
                 
                 //I.
-                //act_board.move(opposite, -1);
+                act_board.move(opposite, -1);
+                
                 //act_board.white |= (1ULL << (is_left?2:47));
 
                 //II. Continue common for the last 2 nodes
@@ -163,6 +164,8 @@ Node *GeneralCommonStrategy::move_on_common(const Board &b, int action)
                 //return add_or_create(act_board);
 
                 // III.
+                /*
+                act_board.forbidden_all &= ~side;
                 Board child1(act_board);
                 Board child2(act_board);
                 Node* node = new InnerNode(2,is_left?OR:AND);
@@ -182,6 +185,7 @@ Node *GeneralCommonStrategy::move_on_common(const Board &b, int action)
                 node->children[1] = add_or_create(child2);
                 tree->update_node(node);
                 return node;
+                */
             }
             else{
                 act_board.move(opposite, -1);
@@ -230,8 +234,8 @@ Node *GeneralCommonStrategy::move_on_common(const Board &b, int action)
             else if (action == 1 || action == 41 || action == 3 || action == 43){
                 act_board.move(center, -1);
                 // CHEAT
-                //if (!is_left)
-                //    act_board.white |= (1ULL << opposite);
+                if (!is_left)
+                    act_board.white |= (1ULL << opposite);
             }
             else{
                 assert(0);

@@ -17,15 +17,15 @@ Play::Play(std::string filename, bool disproof, bool talky, Args* args_):talky(t
     read_solution(filename, tree);
     printf("Proof/disproof tree size: %zu\n", tree.states.size());
     printf("Isommap size: %zu\n", isom_map.size());
-    human_player = -1;
+    human_player = 1;
 }
 
 void side_starts(Board& board){
-    std::vector<int> whites = {43,48,47};
-    std::vector<int> blacks = {41,46};
+    std::vector<int> whites = {43,48,42};
+    std::vector<int> blacks = {41,46, 47};
 
-    std::vector<int> whites2 = {1,2,6};
-    std::vector<int> blacks2 = {3,8};
+    std::vector<int> whites2 = {3,8,7};
+    std::vector<int> blacks2 = {1,6,2};
     
     board.forbidden_all = 0;
     //board.node_type = AND;
