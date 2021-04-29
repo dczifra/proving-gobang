@@ -163,8 +163,7 @@ Node *GeneralCommonStrategy::choose_from(const Board &board, std::vector<int> ac
     return node;
 }
 
-Node *GeneralCommonStrategy::move_on_common(const Board &b, int action)
-{
+Node *GeneralCommonStrategy::move_on_common(const Board &b, int action){
     Board act_board(b);
     bool is_left = (1ULL << action) & PNS::heuristic.forbidden_fields_left;
     bool is_inner = (1ULL << action) & PNS::heuristic.forbidden_fields_inner;
@@ -201,9 +200,25 @@ Node *GeneralCommonStrategy::move_on_common(const Board &b, int action)
                 act_board.move(next0, -1);
             }
             else if (next == last_att_act){
+                //0.
+                if(is_inner){
+                    int act = is_left?action+5:action-5;
+                    if(act_board.is_valid(act)) act_board.move(act, -1);
+                    //else move free
+                }
+                else{
+                    int line;
+                    if(action == 1) line = 0;
+                    else if(action == 3) line = 10;
+                    else if(action == 46) line = 45;
+                    else if (action == 48) line = 35;
+                    else assert(0);
+
+                    deactivate_line(act_board, line);
+                }
                 
                 //I.
-                act_board.move(opposite, -1);
+                //act_board.move(opposite, -1);
                 
                 //act_board.white |= (1ULL << (is_left?2:47));
 
