@@ -215,6 +215,7 @@ Node *GeneralCommonStrategy::move_on_common(const Board &b, int action){
                     else assert(0);
 
                     deactivate_line(act_board, line);
+                    act_board.node_type = OR;
                 }
                 
                 //I.
