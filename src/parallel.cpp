@@ -8,7 +8,10 @@ void add_descendents(Node* node, PNS& tree, int depth, int maxdepth,
     if(!node->extended) tree.extend_all((PNSNode*) node, false);
 
     for(Node* child: node->children){
-        if(child==nullptr) assert(0);
+        if(child==nullptr){
+            display(node->get_board(), true);
+            assert(0);
+        }
 
         
         // === Search deeper ===
