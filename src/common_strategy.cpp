@@ -92,12 +92,12 @@ Node *GeneralCommonStrategy::move_on_common(const Board &b, int action){
             act_board.move(action, 1);
             move_2_line(act_board, action);
             //split_2_line(act_board, action);
-            act_board.forbidden_all &= ~side;
+            //act_board.forbidden_all &= ~side;
         }
         return add_or_create(act_board);   
     }
     if(num_common_fields == 2){
-        assert(0);
+        //assert(0);
         if(act_board.node_type == AND){
             act_board.move(action, -1);
             act_board.forbidden_all &= ~side;

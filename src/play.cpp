@@ -17,7 +17,7 @@ Play::Play(std::string filename, bool disproof, bool talky, Args* args_):talky(t
     read_solution(filename, tree);
     printf("Proof/disproof tree size: %zu\n", tree.states.size());
     printf("Isommap size: %zu\n", isom_map.size());
-    human_player = 1;
+    human_player = -1;
 }
 
 void deactivate_line2(Board& board, int line){
@@ -56,7 +56,11 @@ Board get_board(std::string board){
 
 NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* args){
     if(disproof) board.move({0,1, ACTION_SIZE-1}, player);
-    //board.move({7,11}, player);
+    board.move({5,6,ROW*COL-7, ROW*COL-6}, player);
+
+    board.white |= (1ULL << 3) | (1ULL << (ROW*COL-1));
+    board.forbidden_all ^= (1ULL << 7);
+    board.forbidden_all ^= (1ULL << (ROW*COL-5));
 
     //side_starts(board);
 
