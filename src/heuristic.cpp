@@ -187,7 +187,7 @@ void classical_board(std::vector<Line>& lines){
     add_horizontal_lines(lines, {0,1,2,3}, {1,COL-8}, 7);
     // === SIDE LINES ===
     add_side_lines(lines, 0, 4);
-    add_side_lines(lines, 1, 7);
+    add_side_lines(lines, 1, 4);
     add_side_lines(lines, 2, 4);
     add_side_lines(lines, 3, 4);
     // === DIAGONAL LINES ===
@@ -303,7 +303,8 @@ void Heuristic::read_forbidden_strategy(){
 }
 
 void read_lines_from_file(std::vector<Line>& lines){
-    std::ifstream inp("../boards/cross_board_6common.txt");
+    std::ifstream inp("../boards/4x10.txt");
+    //std::ifstream inp("../boards/cross_board_6common.txt");
     //std::ifstream inp("../boards/cross_board_easy.txt");
     //std::istream& inp= std::cin;
     while(1){
@@ -328,14 +329,28 @@ void read_lines_from_file(std::vector<Line>& lines){
     remove_duplicates(lines);
 }
 
+void log_lines(std::vector<Line>& lines){
+    std::string filename = "../boards/"+std::to_string(ROW)+"x"+std::to_string(COL)+".txt";
+    std::ofstream myfile(filename);
+    for(auto& line: lines){
+        for(int i=0;i<line.size();i++){
+            myfile<<line[i].first+1<<" "<<line[i].second;
+            if(i<line.size()-1) myfile<<" | ";
+        }
+        myfile<<std::endl;
+    }
+}
+
 void Heuristic::generate_lines(){
     //classical_board(lines);
     //zsolts_board(lines);
+    //log_lines(lines);
     read_lines_from_file(lines);
     if(1){
-        std::vector<int> lefts = {1,2,3,6,7,8};
-        std::vector<int> rights = {41,42,43,46,47,48};
-        std::vector<int> inner = {6,7,8,41,42,43};
+        int end = ROW*COL-1;
+        std::vector<int> lefts = {0,3,4,7};
+        std::vector<int> rights = {end, end-3, end-4, end-7};
+        std::vector<int> inner = {4,7,end-4, end-7};
         for(auto f: lefts) forbidden_fields_left |= (1ULL << f);
         for(auto f: rights) forbidden_fields_right |= (1ULL << f);
         for(auto f: inner) forbidden_fields_inner |= (1ULL << f);

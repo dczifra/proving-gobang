@@ -11,8 +11,8 @@
 // ============================================
 //                BOARD INFOS
 // ============================================
-#define ROW 5
-#define COL 10
+#define ROW 4
+#define COL 12
 #define LINEINROW 7
 #define LAYERNUM 7
 

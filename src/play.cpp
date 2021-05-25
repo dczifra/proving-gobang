@@ -59,9 +59,6 @@ NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* ar
     //board.move({7,11}, player);
 
     //side_starts(board);
-    board.white |= (1ULL << 0) | (1ULL << 45);
-    board.white |= (1ULL << 5) | (1ULL << 40);
-    board.white |= (1ULL << 10) | (1ULL << 35);
 
     //deactivate_line2(board, 0);
     //deactivate_line2(board, 45);
@@ -196,7 +193,8 @@ void Play::play_with_solution_split(){
     //PNS tree(args);
     PNSNode* node = new PNSNode(base_board, args);
     //read_descendents(node, tree, 0, 2,"data/board_sol");
-    read_solution("data/5x10.csv", tree);
+    std::string filename =  std::to_string(ROW)+"x"+std::to_string(COL)+".csv";
+    read_solution(filename, tree);
     Board board = play_with_solution(base_board);
     display(board, true);
     std::cout<<(board.node_type==OR)<<std::endl;
