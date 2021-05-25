@@ -12,7 +12,7 @@
 //                BOARD INFOS
 // ============================================
 #define ROW 4
-#define COL 12
+#define COL 13
 #define LINEINROW 7
 #define LAYERNUM 7
 
