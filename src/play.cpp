@@ -59,8 +59,8 @@ NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* ar
     board.move({5,6,ROW*COL-7, ROW*COL-6}, player);
 
     board.white |= (1ULL << 3) | (1ULL << (ROW*COL-1));
-    board.forbidden_all ^= (1ULL << 7);
-    board.forbidden_all ^= (1ULL << (ROW*COL-5));
+    //board.forbidden_all ^= (1ULL << 7);
+    //board.forbidden_all ^= (1ULL << (ROW*COL-5));
 
     //side_starts(board);
 
