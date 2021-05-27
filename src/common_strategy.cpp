@@ -93,7 +93,7 @@ Node* GeneralCommonStrategy::no_move_and_get_others(Board& act_board, int action
     else{
         act_board.forbidden_all &= ~side;
         act_board.move(action, 1);
-        act_board.node_type = AND;
+        act_board.node_type = OR;
         return add_or_create(act_board); 
     }
 }
