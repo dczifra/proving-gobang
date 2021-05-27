@@ -54,13 +54,24 @@ Board get_board(std::string board){
     return b;
 }
 
-NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* args){
-    if(disproof) board.move({0,1, ACTION_SIZE-1}, player);
+void init_side_A(Board& board, int& player){
     board.move({5,6,ROW*COL-7, ROW*COL-6}, player);
 
     board.white |= (1ULL << 3) | (1ULL << (ROW*COL-1));
-    //board.forbidden_all ^= (1ULL << 7);
-    //board.forbidden_all ^= (1ULL << (ROW*COL-5));
+}
+
+void init_side_B(Board& board, int& player){
+    board.forbidden_all ^= (1ULL << (ROW*COL-8));
+    board.forbidden_all ^= (1ULL << (4));
+}
+
+NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* args){
+    if(disproof) board.move({0,1, ACTION_SIZE-1}, player);
+
+    //init_side_A(board, player);
+    init_side_B(board, player);
+    display(board.forbidden_all, true);
+
 
     //side_starts(board);
 

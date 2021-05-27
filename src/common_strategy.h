@@ -31,4 +31,7 @@ public:
     Node* three_common_fields(Board& act_board, int action);
     Node* four_common_fields(Board& act_board, int action);
     Node* six_common_fields(Board& act_board, int action);
+    Node* move_free_and_give_up_others(Board& act_board, int action, board_int side);
+    Node* answer_to_neighbouring_fields(Board& act_board, int action, board_int side);
+    Node* no_move_and_get_others(Board& act_board, int action, board_int side);
 };

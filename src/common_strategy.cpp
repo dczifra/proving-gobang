@@ -84,7 +84,62 @@ void split_2_line(Board& act_board, int action){
     act_board.white |= (~PNS::heuristic.forbidden_fields_inner & side & free);
 }
 
-Node *GeneralCommonStrategy::move_on_common(const Board &b, int action){
+Node* GeneralCommonStrategy::no_move_and_get_others(Board& act_board, int action, board_int side){
+    if(act_board.node_type == AND){
+        act_board.move(action, -1);
+        //act_board.forbidden_all &= ~side;
+        return add_or_create(act_board);   
+    }
+    else{
+        act_board.forbidden_all &= ~side;
+        act_board.move(action, 1);
+        act_board.node_type = AND;
+        return add_or_create(act_board); 
+    }
+}
+
+Node* GeneralCommonStrategy::move_free_and_give_up_others(Board& act_board, int action, board_int side){
+    if(act_board.node_type == AND){
+        act_board.move(action, -1);
+        //act_board.forbidden_all &= ~side;
+        return add_or_create(act_board);   
+    }
+    else{
+        act_board.forbidden_all &= ~side;
+        act_board.move(action, 1);
+        act_board.white |= (act_board.get_valids() & side);
+        return add_or_create(act_board); 
+    }
+}
+
+Node* GeneralCommonStrategy::answer_to_neighbouring_fields(Board& act_board, int action, board_int side){
+    bool is_left = (1ULL << action) & PNS::heuristic.forbidden_fields_left;
+
+    if(act_board.node_type == AND){
+        act_board.move(action, -1);
+        //act_board.forbidden_all &= ~side;
+        return add_or_create(act_board);   
+    }
+    else{
+        act_board.move(action, 1);
+        act_board.forbidden_all &= (1ULL << action);
+        board_int actions = act_board.get_valids() & side;
+        int s1 = __builtin_ctzl(actions);
+        actions &= ~(1ULL << s1);
+        int s2 = __builtin_ctzl(actions);
+        int s3 = is_left?8:ROW*COL-16;
+        int s4 = is_left?9:ROW*COL-15;
+        //int s5 = is_left?10:ROW*COL-14;
+        int s6 = is_left?11:ROW*COL-13;
+        //display(act_board, true, {s1,s2});
+        Node* node = choose_from(act_board, {s1,s2,s3,s4,s6}, AND);
+        //Node* node = choose_from(act_board, {s1,s2,s3}, is_left?OR:AND);
+        tree->update_node(node);
+        return node;
+    }
+}
+
+Node* GeneralCommonStrategy::move_on_common(const Board &b, int action){
     Board act_board(b);
     bool is_left = (1ULL << action) & PNS::heuristic.forbidden_fields_left;
     bool is_inner = (1ULL << action) & PNS::heuristic.forbidden_fields_inner;
@@ -93,29 +148,9 @@ Node *GeneralCommonStrategy::move_on_common(const Board &b, int action){
     int num_common_fields = __builtin_popcountll(act_board.forbidden_all & side & ~(act_board.white | act_board.black));
 
     if(num_common_fields == 3){
-        //assert(0);
-        if(act_board.node_type == AND){
-            act_board.move(action, -1);
-            //act_board.forbidden_all &= ~side;
-            return add_or_create(act_board);   
-        }
-        else{
-            act_board.move(action, 1);
-            act_board.forbidden_all &= (1ULL << action);
-            board_int actions = act_board.get_valids() & side;
-            int s1 = __builtin_ctzl(actions);
-            actions &= ~(1ULL << s1);
-            int s2 = __builtin_ctzl(actions);
-            int s3 = is_left?8:ROW*COL-16;
-            int s4 = is_left?9:ROW*COL-15;
-            //int s5 = is_left?10:ROW*COL-14;
-            int s6 = is_left?11:ROW*COL-13;
-            //display(act_board, true, {s1,s2});
-            Node* node = choose_from(act_board, {s1,s2,s3,s4,s6}, AND);
-            //Node* node = choose_from(act_board, {s1,s2,s3}, is_left?OR:AND);
-            tree->update_node(node);
-            return node;
-        }
+        //return move_free_and_give_up_others(act_board, action, side);
+        //return answer_to_neighbouring_fields(act_board, action, side);
+        return no_move_and_get_others(act_board, action, side);
     }
     if(num_common_fields == 2){
         if(act_board.node_type == AND){
