@@ -55,9 +55,9 @@ Board get_board(std::string board){
 }
 
 void init_side_A(Board& board, int& player){
-    board.move({5,6,ROW*COL-7, ROW*COL-6}, player);
+    board.move({6,5,ROW*COL-6, ROW*COL-7}, player);
 
-    board.white |= (1ULL << 3) | (1ULL << (ROW*COL-1));
+    board.white |= (1ULL << 0) | (1ULL << (ROW*COL-4));
 }
 
 void init_side_B(Board& board, int& player){

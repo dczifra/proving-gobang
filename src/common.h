@@ -28,7 +28,7 @@
 #define ISOM false
 #define HEURISTIC true
 #define PNS2_START 250000000
-#define LOG_CUT_DEPTH 2
+#define LOG_CUT_DEPTH 20
 
 #if HEURISTIC
     #define var float
