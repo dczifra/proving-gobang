@@ -3,13 +3,13 @@ Flask-Login==0.4.1
 Flask-Session==0.3.1
 Flask_SocketIO
 itsdangerous==1.1.0
-Jinja2==2.10.1
+jinja2>=2.11.3
 MarkupSafe==1.1.0
 python-engineio
 python-socketio
 six==1.11.0
 Werkzeug==0.15.3
-eventlet==0.25.1
+eventlet>=0.31.0
 gunicorn==20.0.4
 networkx==2.2
 numba==0.48.0
