@@ -19,6 +19,9 @@ def draw_lines(n,m):
     ] + [
         ((m-1,i),(m-2,i),(m-3,i),(m-4,i)) for i in range(4)
     ]
+
+    vertical_lines = [((j,0),(j,1),(j,2),(j,3)) for j in range(m)]
+
     for line in extra_lines:
         ax.plot([c[0]+0.5 for c in line],[n-c[1]-0.5 for c in line],color="r", alpha=0.7, linewidth=linewidth)
     
@@ -27,6 +30,9 @@ def draw_lines(n,m):
     
     for line in side_lines:
         ax.plot([c[0]+0.5 for c in line],[n-c[1]-0.5 for c in line],color="b", alpha=0.7, linewidth=linewidth)    
+
+    for line in vertical_lines:
+        ax.plot([c[0]+0.5 for c in line],[n-c[1]-0.5 for c in line],color="y", alpha=0.7, linewidth=linewidth)    
 
     for i in range(n):
         for j in range(m):
