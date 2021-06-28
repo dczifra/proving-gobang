@@ -16,7 +16,6 @@ Az összejátszásban résztvevő mezők:
 ╚══╩══╩══╬══╬══╬══╬══╬══╩══╩══╝
          ║  ║  ║  ║  ║
          ╚══╩══╩══╩══╝
-
     
 Li,Ri: ezeken a mezőkön van összejátszás
 X: ezeken a mezőkön nincsen összejátszás, de a szívességeket,
