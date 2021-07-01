@@ -1,0 +1,210 @@
+----------------------- REVIEW 1 ---------------------
+SUBMISSION: 125
+TITLE: Towards solving the 7-in-a-row game
+AUTHORS: Domonkos Czifra, Endre Csóka, Zsolt Zombori and Géza Makai
+
+----------- Overall evaluation -----------
+SCORE: 1 (weak accept)
+----- TEXT:
+This articles considers several heuristics specific to x-in-a-row type games that can speed up the proof number search for solving the game.
+The improvements are generic enough to also be applicable to similar games, and some remind me of Allis' threat-space search. The experiments show
+that the use of the proposed extensions indeed speed up the search. The authors also provide a theoretical approach of reducing 7 in a row game to 
+a game played on a board of size 4 by k. I can however not follow the proof and have some doubts on the correctness. Although the authors in
+many cases write down their reasoning well, there are some assumptions that are hard to grasp and I can not support without some additional
+intuition on why this reduction makes sense.  In general the article is well written, and the referencing is good. There are only some references
+missed that are examples of initializing pn numbers, running pn search on a DAG, and splitting a game into subgames that currently the authors claim
+are novel. These might be novel for x-in-a-row games, but not in general. In general I believe that the authors have a strong article, but
+there are just several rough edges that need to be sanded down so that most readers can easily follow your ideas. My advice to the authors is to
+(1) look critically at my comments concerning the reduction proof, and give some intuition on what splitting the board does to the individual game
+blocks. (2) Add some references so that claims concerning novel ideas are put into perspective. (3) Improve the isomorphy implementation, as this
+technique should work really well but not is shown as not promising. With some improvement in these directions, the article is definitely acceptable.
+
+What does the * mean in (4, k, 7*)–games? Maybe it is a standard notation, but I am not familiar with it.
+
+You claim three novel extensions for PN search. It has to be said that initializing PN and DPN to values other than 1 has already been done
+in different research, and your ideas are only novel within the x-in-a-row domain. For the research I am referring to, see 
+"Proof-Number Search and its Variants" Herik and Winands. [pn initialisation]
+"Monte-Carlo Proof-Number Search for Computer Go" by Saito, Chaslot, Uiterwijk and Herik [pn initialization]
+"Proof-Number Search and Transpositions" Schijf [transpositions]
+Various articles of Uiterwijk on domineering which uses transpositions and splits the game into subgames.
+
+
+I do not understand this statement: " It is,
+however, possible that a game is a maker win but a draw: for
+example, the (3; 3; 3)–game (or Tic Tac Toe)."
+I know that Tic Tac Toe is a draw. That means that it is a breaker win, as the first player can not make 3 in a row. A breaker win is not the same
+as a draw, per definition. Are you missing a "not" in your sentence. If not, then the "but" does not make sense.
+
+"Our primary objective in this paper
+is to build techniques and intuition towards proving that the
+(1; 1; 7)–game is a draw."
+Or in other words: a breaker win.
+
+"Another simple but important heuristic is to eliminate
+squares that are not contained in any l-line: all hyperedges
+that contain such squares are already blocked by breaker so
+neither player benefits from moving there."
+True, but this is not really applicable to an x-in-a-row game, as all squares are part of at least 3 l-lines (corners).
+
+
+typo: "Condsider"
+
+"which is
+a subset of the initial edge" I think the word 'edge' is not correct, and should be 'hypergraph'.
+
+I do not understand Theorem III.1 entirely. I have problems with the notation after "such that". First of all Ei is not an edge, but a set
+of edges ("...denote edges defined..."). How should I interpret e' subset of e? Do you mean that the set of vertices in e' are a subset of the
+vertices in e? When you have nicely separated hypergraphs, you can win the entire hypergraph by winning each sub-hypergraph by responding to the opponent
+in that graph, which I directly believe, even without reading the proof (which seems good). The thing I am thinking about most is the e' subset of e part.
+If it is e=e', then there is no discussion. If you indeed mean that the edges e of E can be split into two e'1 and e'2 part of E1 and E2, then I am not sure
+if you have a win in all sub hypergraphs equals that you have a win in the main hypergraph (V,E). This is because you are breaking an edge
+into two smaller edges that are part of different hypergraps. The broken edge is much smaller, and easier to fill with maker tokens. It might
+even only have one vertice, making it a maker win if maker is first player, or a forced move if the braker is first player. Maybe what you mean in
+this theorem is a different perspective. If you have many sub-hypergraphs that have no relation to each other, and you can win all of them, then you
+can simply make them one big hypergraph and can still win. I will continue reading as if you mean the last one, because I am not convinced about
+the splitting of edges.
+
+A Figure illustrating the edges of a block of theorem III.2 would be nice. In the figure you could refer to the various edge types and their 
+corresponding numbering (x).
+
+What does the word Csoka mean at Conjecture III.1? 
+
+The horizontal line X(1,1), X(1,2), X(1,3), X(1,4) (for i=1) indicates that the first number is the y-coordinate, and the second the x coordinate.
+Is this intentional or a mistake? I expected a horizontal line to have coordinates. X(1,1), X(2,1), X(3,1), X(4,1). 
+
+Why do you exclude the edges that could be 7 long but are exactly on the boarder of your block? (j=1 and j=k-6)? The same question for edges that
+are only 6 long and are on the border? You only add edges of size 4 on the border.
+
+I believe you miss some edges in the bottom part of Figure 1, namely all edges (7) and (8) should be in there.
+
+C2: 4 in one of them, and up to three in at least one other.
+
+What do you mean with "it is covered by 2". Are you referring to Theorem III.2 or to (2) of Theorem III.2? From your reason behind C2 I think you mean
+(2) of Theorem III.2. In that case it is not correct, and you mean (3) of Theorem III.2. In terms of notation it is easier to the reader to use 
+brackets around the numbers (example: "it is covered by (2)")
+
+Conjecture III.1. I have not seen any previous evidence in this Section that supports this statement. The earlier parts describe how to split a 
+hypergraph in smaller hypergraphs, and says nothing about the game-theoretic value of the (4,k,7*) game. It is however easy to describe a strategy
+that is winning for the breaker. As the field is only 4 vertices tall, the only winning lines of length 7 can be made horizontally. Therefore, a
+winning strategy is to simply place each stone of the breaker one to the right of the maker. 
+
+I can not follow your reasoning for everything after conjecture III3.1 as I do not agree that you can simply split the (infinity, infinity, 7) game
+into sub graphs, and cut edges in half. You need to prove to me that the edges that span across multiple blocks are never needed in the winning
+strategy. I do not believe that you currently show this.
+
+"If three is another square" three->there
+
+You say that you exploit symmetry by checking for horizontal symmetry. Why not also vertical, diagonal and rotations? It does not make much of a
+difference, as the game quickly looses all symmetry, but might still help.
+
+"We can use a similar tool if the hypergraph is not 2-connected." This sentence is a bit too fast. The sentence before refers to 0-connected graph(s).
+Not 2-connected could mean 1-connected, but also >2-connected. What do you mean?
+
+Theorem IV.2 is somewhat unclear about the extra move after playing in {v} I know what you mean after reading the proof. Any move in {v} can be regarded
+as two maker moves, as it brings the maker closer to victory in both hypergraphs. If the breaker reacts in the left one, then the maker effectively
+played two moves in the right hypergraph.
+
+In Theorem IV.2 part 3) you are assuming that both (V1, E1) and (V2, E2) are winning, which is fine. What I am thinking about is that not all moves
+that are playable are a win. Only a subset is winning, as you can always ive your win away with bad play. The winning moves of (V1, E1) and (V2, E2)
+are not necessarily located in {v}. So there could be a situation in which (V1, E1) and (V2, E2) are winning, but any play in {v} is loosing. After
+thinking some more about it, you are correct. Even if a move in {v} is loosing, it would only be lossing if the turn changes. As the opponent can
+only react in one of both games, you can still win in the other game, and now have one additional stone in it. 
+
+You check whether the remaining graph is 2-connected, and if so split it up into 4 components. How do you split the graph? How to decide what vertices
+and edges go together? I can imagine that there exist more than one solution that fulfills Theorem IV.2 and IV.3.
+
+"2) boards with many colored squares are easier to evaluate as
+they are closer to the end of the game. " This is not relevant for X-in-a-row games, as all children of a node have an equal amount of colored squares.
+Is there a situation in which this is relevant?
+
+Maybe you could make Fig 2. stronger by adding more games to it? Maybe 5 make win games, and 5 braker win games? If you give the lines a 
+different color for maker an braker wins you could give the reader more of an intuition in what are normal values for the potential. Now it is only
+a single example.
+
+The word 'potential' is cut off in Figure 4. If you reduce the number of steps on the axis, the Figure will read much more pleasantly. 
+
+The isomorphy check is now unfairly excluded. You are correct that it is a waste of time in later board positions. There are however many easy
+ways in which to use isomorphy without wasting time. An easy way is to only check for symmetry in the first X moves (for example <=3). More advanced
+you can check each position, but as soon as one position is not symmetric any longer, then you know that any subsequent position is not symmetric
+any more. In case your concept of isomoorphy also include transpositions, then efficient hashing of positions can still be used to (sometimes) find
+a transposition in the DAG. Specially later in the game it is ok to miss some transpositions, as the potential gain is also smaller. In my opinion
+you should invest some time in efficiently finding isomorphic positions.
+
+Table 2: Use the word technique or heuristic instead of trick. A trick is a term in card playing games, and is demeaning to your ideas.
+
+Am I correct that Table 2 are single searches on the initial position? Or are these average numbers over multiple positions?
+
+The term 'best PNS' is misleading in Figure 2. You run this experiment to find the best PNS. The one with all techniques enabled is not necessarily
+the best, as can be seen for k=11, 8 and 9 as disabling breaker stop wins speeds up the search.
+
+What exactly is the difference between proof and disproof setup? As the game has no draws and is either won by the maker or breaker, disproving that
+the maker can win is enough proof to know that the braker can win. Of course you can initialize the pn/dpn for braker wins, but the proof tree should
+be identical in size and shape.
+
+"We find that the general pattern for maker win is to start
+from the left and right sides where the extra short lines pose
+serious threats." As this is a 7-in-a-row game, all lines should be equally long at the beginning of the game. I believe that you are referring to
+your blocking strategy. Having such shorter lines included in your winning condition however changes the game, and it is not a 7-in-a-row game any
+longer. Therefore starting in the corners where lines are shorter makes no sense to me.
+
+
+
+----------------------- REVIEW 2 ---------------------
+SUBMISSION: 125
+TITLE: Towards solving the 7-in-a-row game
+AUTHORS: Domonkos Czifra, Endre Csóka, Zsolt Zombori and Géza Makai
+
+----------- Overall evaluation -----------
+SCORE: 3 (strong accept)
+----- TEXT:
+The paper reports progress in solving the 7 in a row game on an infinite board in the "maker-breaker" setting, where only one player can win by making seven in a row.  A reduction to a local covering strategy shows a possible approach to solving the game on the infinite board by tiling it with 4 x k rectangles and following the local strategy in each rectangle. 
+
+A second part of the paper develops a PNS solver for his game with a number of game-specific enhancements. It is shown empirically that the advantage of breaker grows with k. However,  the largest solved k values are still maker wins.
+
+This is a strong paper with nice insights and a good mix of theoretical insights and practical implementation. It is clearly written. The only concern is that the chosen tiling strategy may require impractically large values of k to succeed. This is hinted at in the very last paragraph. If it is possible to combine tiles in a way that avoids the very short lines it may be more efficient.
+
+
+
+----------------------- REVIEW 3 ---------------------
+SUBMISSION: 125
+TITLE: Towards solving the 7-in-a-row game
+AUTHORS: Domonkos Czifra, Endre Csóka, Zsolt Zombori and Géza Makai
+
+----------- Overall evaluation -----------
+SCORE: 2 (accept)
+----- TEXT:
+The paper presents initial work towards proving the 7-in-a-row game, by reducing it to a smaller version that can be analysed both theoretically and empirically. The paper is very well structured and well written, following a clear narrative and explaining most of the concepts very well along the way, even to those less familiar with the topic. The motivation is clearly outlined, the work is grounded in past work, and the results are positive and encourage further exploration in the area. I recommend acceptance, with some more comments below.
+
+Very good introduction, well-structured and clearly explained. There are some details in the contributions I don't quite understand, however, e.g. "We present a tiling technique that allows us to reduce the infinite board (inf;inf; 7)–game to (infinitely many) independent finite (4; k; 7*)–games." -> I'm not sure what the second type of game is, isn't k set to 7 already? This notation is not straight-forward to understand for those unfamiliar with the domain.
+
+"To better assess the quality of each technique, we run our best PNS": it's not clear what the best one is, is it with all modifications together?
+
+Minor:
+    - "horizontal, vertical and diagonal rows" -> rows are generally interpreted to be horizontal, maybe "lines" is better here.
+    - Definition II.3 -> pn, dn used before explained - symbols could just be introduced in the first paragraph.
+    - "and it’s variants see" - its
+    - DAG acronym not explained
+    - "than 5 or 6 covers it" - then
+    - "If three is another square s'" - there
+    - Figure 4: tiny writing, difficult to read
+
+
+
+----------------------- REVIEW 4 ---------------------
+SUBMISSION: 125
+TITLE: Towards solving the 7-in-a-row game
+AUTHORS: Domonkos Czifra, Endre Csóka, Zsolt Zombori and Géza Makai
+
+----------- Overall evaluation -----------
+SCORE: 0 (borderline paper)
+----- TEXT:
+This paper investigates the game outcome of winning the 7-in-a-row game by breaking the game into Maker-Breaker sub-games, where winning the sub-games is a necessary condition for winning the 7-in-a-row game, and applies several PNS techniques specific for k-in-a-row games to solve these sub-games. Although the authors do not solve the 7-in-a-row game directly, they claim that their experiments indicate that they have made signiﬁcant progress towards it.
+
+Basically, I am interested in the results for their 4xk board problems and the implications of solving these problems for solving 7-in-a-row.
+
+However, I have one major concern about their conjecture: (From Table III)  “We observe that this fraction is increasing, which supports the conjecture that for some k all nodes in the root support will turn to breaker win, making the whole game breaker win.” 
+
+My question is: If you count the number of root supports which are won by maker, you will find all of these numbers for k=7-12 are around 200 from the table. Thus, the results does not imply the conjecture. However, it would be more interesting to investigate those who are the children (not descendants) of the root. If the number decreases, then the conjecture would be more reasonable. If this paper is accepted, this paper needs to investigate this. If not, this paper is encouraged to be rewritten and submitted as short papers to some journals like ICGA Journal. 
+
+BTW, the presentation requires to be improved.
+
