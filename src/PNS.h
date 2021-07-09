@@ -73,10 +73,6 @@ public:
     unsigned int update_threshhold(PNSNode* node);
     var get_min_delta_index(PNSNode* node, int& second) const;
 
-    inline std::vector<Line_info> get_lines(unsigned int action) const {
-        return heuristic.linesinfo_per_field[action];
-    }
-
     inline std::vector<Line_info> get_all_lines() const{
         return heuristic.all_linesinfo;
     }

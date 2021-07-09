@@ -63,6 +63,8 @@ void init_side_A(Board& board, int& player){
 void init_side_B(Board& board, int& player){
     board.forbidden_all ^= (1ULL << (ROW*COL-8));
     board.forbidden_all ^= (1ULL << (4));
+
+    //PNS::heuristic.all_linesinfo()
 }
 
 NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* args){

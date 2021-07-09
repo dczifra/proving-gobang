@@ -18,13 +18,11 @@ public:
     board_int forbidden_all = 0;
     std::map<board_int, board_int> side_strategy;
 
-    std::vector<Line> lines;
-    mtx<std::vector<Line>> lines_per_field;
-    std::vector<std::vector<Line>> lines_per_action;
 
     // === Containes all lines comprassed, and the points, which lie on the line
     std::vector<Line_info> all_linesinfo;
     std::array<std::vector<Line_info>, ACTION_SIZE> linesinfo_per_field;
+
 
 public:
     Heuristic(){
@@ -39,4 +37,9 @@ public:
     void generate_compressed_lines();
 
     void read_forbidden_strategy();
+
+private:
+    std::vector<Line> lines;
+    mtx<std::vector<Line>> lines_per_field;
+    std::vector<std::vector<Line>> lines_per_action;
 };

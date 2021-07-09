@@ -149,8 +149,8 @@ Node* GeneralCommonStrategy::move_on_common(const Board &b, int action){
 
     if(num_common_fields == 3){
         //return move_free_and_give_up_others(act_board, action, side);
-        //return answer_to_neighbouring_fields(act_board, action, side);
-        return no_move_and_get_others(act_board, action, side);
+        return answer_to_neighbouring_fields(act_board, action, side);
+        //return no_move_and_get_others(act_board, action, side);
     }
     if(num_common_fields == 2){
         if(act_board.node_type == AND){
