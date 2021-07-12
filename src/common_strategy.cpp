@@ -125,10 +125,10 @@ Node* GeneralCommonStrategy::answer_to_neighbouring_fields(Board& act_board, int
         int s1 = __builtin_ctzl(actions);
         actions &= ~(1ULL << s1);
         int s2 = __builtin_ctzl(actions);
-        int s3 = is_left?8:ROW*COL-16;
-        int s4 = is_left?9:ROW*COL-15;
-        int s5 = is_left?10:ROW*COL-14;
-        int s6 = is_left?11:ROW*COL-13;
+        int s3 = is_left?8:ROW*COL-12;
+        int s4 = is_left?9:ROW*COL-11;
+        int s5 = is_left?10:ROW*COL-10;
+        int s6 = is_left?11:ROW*COL-9;
         //display(act_board, true, {s1,s2});
         Node* node = choose_from(act_board, {s1,s2,s3,s5,s6}, OR);
         //Node* node = choose_from(act_board, {s1,s2,s3}, is_left?OR:AND);

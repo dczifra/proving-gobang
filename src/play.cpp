@@ -78,13 +78,13 @@ void init_side_B(Board& board, int& player){
 }
 
 void init_side_C(Board& board, int& player){
-    board.white |= (1ULL << (ROW*COL-2)) | (1ULL << (ROW*COL-5));
-    board.black |= (1ULL << (ROW*COL-3)) | (1ULL << (ROW*COL-4));
-    //board.black |= (1ULL << (ROW*COL-3));
+    board.white |= (1ULL << (ROW*COL-2)) | (1ULL << (ROW*COL-8));
+    //board.black |= (1ULL << (ROW*COL-3)) | (1ULL << (ROW*COL-4));
+    board.black |= (1ULL << (ROW*COL-3));
     
-    board.white |= (1ULL << (2)) | (1ULL << (7));
-    board.black |= (1ULL << (0)) | (1ULL << (1));
-    //board.black |= (1ULL << (1));
+    board.white |= (1ULL << (2)) | (1ULL << (4));
+    //board.black |= (1ULL << (0)) | (1ULL << (1));
+    board.black |= (1ULL << (1));
 
     board.forbidden_all = 0ULL;
 }
