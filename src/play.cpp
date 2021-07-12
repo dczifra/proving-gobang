@@ -58,6 +58,8 @@ void init_side_A(Board& board, int& player){
     board.move({6,5,ROW*COL-6, ROW*COL-7}, player);
 
     board.white |= (1ULL << 0) | (1ULL << (ROW*COL-4));
+    board.white |= (1ULL << 1) | (1ULL << 2);
+    board.white |= (1ULL << (ROW*COL-2)) | (1ULL << (ROW*COL-3));
 }
 
 void init_side_B(Board& board, int& player){
@@ -70,25 +72,12 @@ void init_side_B(Board& board, int& player){
 NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* args){
     if(disproof) board.move({0,1, ACTION_SIZE-1}, player);
 
-    //init_side_A(board, player);
-    init_side_B(board, player);
+    init_side_A(board, player);
+    //init_side_B(board, player);
     display(board.forbidden_all, true);
 
-
     //side_starts(board);
-
-    //deactivate_line2(board, 0);
-    //deactivate_line2(board, 45);
-
-    //board = get_board("9929981165665 618475290642192 0 0 1 496979255754894 2 2");
-    //player = -1;
-    //board.white = 9929966485601ULL;
-    //board.black = 618475290642192ULL;
-    //board.score_left = 0;
-    //board.score_right = 0;
-    //board.node_type = AND;
-    //board.forbidden_all = 496979255754894ULL;
-    //player = -1;
+    
 
     if(args->START > -1) board.move({args->START}, player);
 

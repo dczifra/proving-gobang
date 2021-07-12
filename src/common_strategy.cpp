@@ -28,9 +28,7 @@ void activate_line(Board& board, int line){
     board.white |= (1ULL << line);
 }
 
-
-Node *GeneralCommonStrategy::choose_from(const Board &board, std::vector<int> actions, NodeType type)
-{
+Node *GeneralCommonStrategy::choose_from(const Board &board, std::vector<int> actions, NodeType type){
     int sum = 0;
     for (int action : actions){
         if (board.is_valid(action)){
@@ -128,11 +126,11 @@ Node* GeneralCommonStrategy::answer_to_neighbouring_fields(Board& act_board, int
         actions &= ~(1ULL << s1);
         int s2 = __builtin_ctzl(actions);
         int s3 = is_left?8:ROW*COL-16;
-        //int s4 = is_left?9:ROW*COL-15;
+        int s4 = is_left?9:ROW*COL-15;
         int s5 = is_left?10:ROW*COL-14;
         int s6 = is_left?11:ROW*COL-13;
         //display(act_board, true, {s1,s2});
-        Node* node = choose_from(act_board, {s1,s2,s3,s5,s6}, OR);
+        Node* node = choose_from(act_board, {s1,s2,s3,s4,s5,s6}, OR);
         //Node* node = choose_from(act_board, {s1,s2,s3}, is_left?OR:AND);
         tree->update_node(node);
         return node;
