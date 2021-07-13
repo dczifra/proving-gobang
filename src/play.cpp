@@ -64,10 +64,13 @@ void init_side_A(Board& board, int& player){
 
 void init_side_AA(Board& board, int& player){
     board.move({6,5,ROW*COL-6, ROW*COL-7}, player);
+    board.move({3,1,ROW*COL-1, ROW*COL-3}, player);
 
     board.white |= (1ULL << 0) | (1ULL << (ROW*COL-4));
-    board.white |= (1ULL << 1) | (1ULL << 2);
-    board.white |= (1ULL << (ROW*COL-2)) | (1ULL << (ROW*COL-3));
+    board.white |= (1ULL << 2) | (1ULL << (ROW*COL-2));
+    //board.white |= (1ULL << 4) | (1ULL << (ROW*COL-8));
+
+    board.forbidden_all = 0ULL;
 }
 
 void init_side_B(Board& board, int& player){
@@ -78,13 +81,27 @@ void init_side_B(Board& board, int& player){
 }
 
 void init_side_C(Board& board, int& player){
-    board.white |= (1ULL << (ROW*COL-2)) | (1ULL << (ROW*COL-8));
-    //board.black |= (1ULL << (ROW*COL-3)) | (1ULL << (ROW*COL-4));
-    board.black |= (1ULL << (ROW*COL-3));
+    board.white |= (1ULL << (ROW*COL-2)) | (1ULL << (ROW*COL-5));
+    board.black |= (1ULL << (ROW*COL-3)) | (1ULL << (ROW*COL-4));
+    //board.black |= (1ULL << (ROW*COL-3));
     
-    board.white |= (1ULL << (2)) | (1ULL << (4));
-    //board.black |= (1ULL << (0)) | (1ULL << (1));
-    board.black |= (1ULL << (1));
+    board.white |= (1ULL << (2)) | (1ULL << (7));
+    board.black |= (1ULL << (0)) | (1ULL << (1));
+    //board.black |= (1ULL << (1));
+
+    board.forbidden_all = 0ULL;
+}
+
+void init_side_CC(Board& board, int& player){
+    board.move({2,1,ROW*COL-2, ROW*COL-3}, player);
+    board.move({7,5,ROW*COL-5, ROW*COL-7}, player);
+
+    //board.white |= (1ULL << (ROW*COL-4)) | (1ULL << (ROW*COL-1));
+    board.white |= (1ULL << (ROW*COL-4));
+    //board.white |= (1ULL << (0)) | (1ULL << (3));
+    board.white |= (1ULL << (0));
+    
+    board.white |= (1ULL << (6)) | (1ULL << (ROW*COL-6));
 
     board.forbidden_all = 0ULL;
 }
@@ -92,9 +109,9 @@ void init_side_C(Board& board, int& player){
 NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* args){
     if(disproof) board.move({0,1, ACTION_SIZE-1}, player);
 
-    //init_side_A(board, player);
+    init_side_AA(board, player);
     //init_side_B(board, player);
-    init_side_C(board, player);
+    //init_side_CC(board, player);
     display(board.forbidden_all, true);
 
     //side_starts(board);
