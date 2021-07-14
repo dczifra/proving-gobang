@@ -153,8 +153,12 @@ Node* GeneralCommonStrategy::sideA_startegy(Board &act_board, const int action, 
         }
         else{
             // Close other side's 2-line
-            if(is_left) act_board.move(11, -1);
-            else act_board.move(ROW*COL-9, -1);
+            if(is_left){
+                if(act_board.is_valid(11)) act_board.move(11, -1);
+            }
+            else{
+                if(act_board.is_valid(ROW*COL-9)) act_board.move(ROW*COL-9, -1);
+            }
 
             act_board.white |= (act_board.get_valids() & side);
 
