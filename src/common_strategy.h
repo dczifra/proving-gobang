@@ -34,4 +34,6 @@ public:
     Node* move_free_and_give_up_others(Board& act_board, int action, board_int side);
     Node* answer_to_neighbouring_fields(Board& act_board, int action, board_int side);
     Node* no_move_and_get_others(Board& act_board, int action, board_int side);
+
+    Node* sideA_startegy(Board &act_board, const int action, board_int& side);
 };

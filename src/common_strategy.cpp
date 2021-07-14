@@ -137,6 +137,36 @@ Node* GeneralCommonStrategy::answer_to_neighbouring_fields(Board& act_board, int
     }
 }
 
+Node* GeneralCommonStrategy::sideA_startegy(Board &act_board, const int action, board_int& side){
+    if(act_board.node_type == AND){
+        act_board.move(action, -1);
+        act_board.forbidden_all &= ~side;
+        return add_or_create(act_board);   
+    }
+    else{
+        bool is_left = (1ULL << action) & PNS::heuristic.forbidden_fields_left;
+        act_board.forbidden_all &= ~side;
+        act_board.move(action, 1);
+        if(action == 4 || action == ROW*COL-8){
+            // Move free and give over the common fields 
+            act_board.white |= (act_board.get_valids() & side);
+        }
+        else{
+            // Close other side's 2-line
+            if(is_left) act_board.move(11, -1);
+            else act_board.move(ROW*COL-9, -1);
+
+            act_board.white |= (act_board.get_valids() & side);
+
+            if(is_left) act_board.white ^= (1ULL << 4);
+            else act_board.white ^= (1ULL << (ROW*COL-8));
+
+        }
+        
+        return add_or_create(act_board); 
+    }
+}
+
 Node* GeneralCommonStrategy::move_on_common(const Board &b, int action){
     Board act_board(b);
     bool is_left = (1ULL << action) & PNS::heuristic.forbidden_fields_left;
@@ -146,7 +176,8 @@ Node* GeneralCommonStrategy::move_on_common(const Board &b, int action){
     int num_common_fields = __builtin_popcountll(act_board.forbidden_all & side & ~(act_board.white | act_board.black));
 
     if(num_common_fields == 3){
-        return move_free_and_give_up_others(act_board, action, side);
+        return sideA_startegy(act_board, action, side);
+        //return move_free_and_give_up_others(act_board, action, side);
         //return answer_to_neighbouring_fields(act_board, action, side);
         //return no_move_and_get_others(act_board, action, side);
     }

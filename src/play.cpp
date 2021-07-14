@@ -56,10 +56,7 @@ Board get_board(std::string board){
 
 void init_side_A(Board& board, int& player){
     board.move({6,5,ROW*COL-6, ROW*COL-7}, player);
-
     board.white |= (1ULL << 0) | (1ULL << (ROW*COL-4));
-    board.white |= (1ULL << 1) | (1ULL << 2);
-    board.white |= (1ULL << (ROW*COL-2)) | (1ULL << (ROW*COL-3));
 }
 
 void init_side_A1(Board& board, int& player){
@@ -100,6 +97,13 @@ void init_side_A21(Board& board, int& player){
     board.white |= (1ULL << 3) | (1ULL << (ROW*COL-1));
 
     board.forbidden_all = 0ULL;
+}
+
+void init_side_A23(Board& board, int& player){
+    board.move({6,5,ROW*COL-6, ROW*COL-7}, player);
+    board.white |= (1ULL << 0) | (1ULL << (ROW*COL-4));
+    board.white |= (1ULL << 1) | (1ULL << (ROW*COL-2));
+    board.white |= (1ULL << 2) | (1ULL << (ROW*COL-3));
 }
 
 void init_side_C(Board& board, int& player){
@@ -151,11 +155,27 @@ void init_side_C21(Board& board, int& player){
     board.forbidden_all = 0ULL;
 }
 
+void init_side_C23(Board& board, int& player){
+    board.move({2,1,ROW*COL-2, ROW*COL-3}, player);    
+
+    // Give up
+    board.white |= (1ULL << (ROW*COL-4)) | (1ULL << (0));
+    
+    board.forbidden_all = 0ULL;
+}
+
+void init_side_C3(Board& board, int& player){
+    board.move({7,1,ROW*COL-5, ROW*COL-3}, player);    
+
+    board.forbidden_all = 0ULL;
+}
+
 NodeType Play::choose_problem(Board& board, int& player, bool disproof, Args* args){
     if(disproof) board.move({0,1, ACTION_SIZE-1}, player);
 
-    init_side_A21(board, player);
-    //init_side_C21(board, player);
+    init_side_A(board, player);
+    //init_side_A23(board, player);
+    //init_side_C3(board, player);
     display(board.forbidden_all, true);
 
     //side_starts(board);
