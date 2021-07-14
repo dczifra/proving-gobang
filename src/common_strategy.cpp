@@ -149,6 +149,9 @@ Node* GeneralCommonStrategy::sideA_startegy(Board &act_board, const int action, 
         act_board.move(action, 1);
         if(action == 4 || action == ROW*COL-8){
             // Move free and give over the common fields 
+            act_board.black |= (1ULL << (is_left?3:(ROW*COL-1)));
+            act_board.white |= (1ULL << (is_left?7:(ROW*COL-5)));
+
             act_board.white |= (act_board.get_valids() & side);
         }
         else{
@@ -159,6 +162,10 @@ Node* GeneralCommonStrategy::sideA_startegy(Board &act_board, const int action, 
             else{
                 if(act_board.is_valid(ROW*COL-9)) act_board.move(ROW*COL-9, -1);
             }
+            
+            act_board.white ^= (1ULL << (is_left?0:(ROW*COL-4)));
+            act_board.black |= (1ULL << (is_left?0:(ROW*COL-4)));
+            act_board.white |= (1ULL << (is_left?4:(ROW*COL-8)));
 
             act_board.white |= (act_board.get_valids() & side);
 

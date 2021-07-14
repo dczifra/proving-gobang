@@ -140,6 +140,7 @@ void init_side_C2(Board& board, int& player){
 
     // Give up
     board.white |= (1ULL << (ROW*COL-4)) | (1ULL << (0));
+    //board.white |= (1ULL << (ROW*COL-1)) | (1ULL << (3)); // TOO much
     
     board.forbidden_all = 0ULL;
 }
